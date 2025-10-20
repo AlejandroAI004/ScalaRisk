@@ -1,5 +1,4 @@
 import scala.io.StdIn.readInt
-import scala.io.StdIn
 
 object main {
   def main(args: Array[String]): Unit = {
