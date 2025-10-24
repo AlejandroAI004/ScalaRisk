@@ -6,7 +6,7 @@ import javax._
 
 class game {
     def start_game(game: game): Unit = {
-      println()
+      println("Hello")
     }
 
     def select_color(): Unit = {
