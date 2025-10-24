@@ -14,7 +14,7 @@ class Army {
       infantry += total
       println("You change " + n + " cavalry for " + total + " infantry!!")
     } else {
-      println(s"Not enought! You have $cavalry")
+      println(s"Not enough! You have $cavalry")
     }
   }
 
@@ -25,7 +25,7 @@ class Army {
       infantry += total
       println("You change " + n + " artillery for " + total + " infantry!!")
     } else {
-      println(s"Not enought! You have $artillery")
+      println(s"Not enough! You have $artillery")
     }
   }
 
@@ -36,7 +36,7 @@ class Army {
       infantry -= total
       println("You change " + total + " infantry for " + n + " cavalry!!")
     } else {
-      println(s"Not enought! You have $cavalry")
+      println(s"Not enough! You have $cavalry")
     }
   }
 
@@ -47,7 +47,7 @@ class Army {
       infantry -= total
       println("You change " + total + " infantry for " + n + " artillery!!")
     } else {
-      println(s"Not enought! You have $cavalry")
+      println(s"Not enough! You have $cavalry")
     }
   }
 

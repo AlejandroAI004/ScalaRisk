@@ -1,8 +1,9 @@
 package models
+import java.awt._
 
-class Player {
+object Player {
   var units = 0
-  var color = "standard"
+  var color: Color = Color.GRAY
   var name = "none"
   var cards = 0
   
