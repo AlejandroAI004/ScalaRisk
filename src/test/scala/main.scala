@@ -8,6 +8,7 @@ object main {
     println("Please enter y: ")
     val y: Int = readInt()
     println(generateField(x,y))
+    println("branch 1")
 
     def generateField(C: Int, R: Int): String = {
       "*" + "--------*" * C + "\n" +

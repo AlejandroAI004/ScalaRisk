@@ -4,14 +4,10 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/RiskScala.iml" filepath="$PROJECT_DIR$/.idea/modules/RiskScala.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/RiskScala/RiskScala.RiskScala-build.iml" filepath="$PROJECT_DIR$/.idea/modules/RiskScala/RiskScala.RiskScala-build.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/RiskScala/RiskScala.main.iml" filepath="$PROJECT_DIR$/.idea/modules/RiskScala/RiskScala.main.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/RiskScala/RiskScala.test.iml" filepath="$PROJECT_DIR$/.idea/modules/RiskScala/RiskScala.test.iml" />
       <module fileurl="file://$PROJECT_DIR$/src/test/models/.idea/modules/models/models.main.iml" filepath="$PROJECT_DIR$/src/test/models/.idea/modules/models/models.main.iml" />
       <module fileurl="file://$PROJECT_DIR$/src/test/models/.idea/modules/models/models.models-build.iml" filepath="$PROJECT_DIR$/src/test/models/.idea/modules/models/models.models-build.iml" />
       <module fileurl="file://$PROJECT_DIR$/src/test/models/.idea/modules/models/models.test.iml" filepath="$PROJECT_DIR$/src/test/models/.idea/modules/models/models.test.iml" />
       <module fileurl="file://$PROJECT_DIR$/src/test/.idea/modules/test/test.iml" filepath="$PROJECT_DIR$/src/test/.idea/modules/test/test.iml" />
-      <module fileurl="file://$PROJECT_DIR$/src/test/.idea/modules/test/test.main.iml" filepath="$PROJECT_DIR$/src/test/.idea/modules/test/test.main.iml" />
-      <module fileurl="file://$PROJECT_DIR$/src/test/.idea/modules/test/test.test.iml" filepath="$PROJECT_DIR$/src/test/.idea/modules/test/test.test.iml" />
       <module fileurl="file://$PROJECT_DIR$/src/test/.idea/modules/test/test.test-build.iml" filepath="$PROJECT_DIR$/src/test/.idea/modules/test/test.test-build.iml" />
     </modules>
   </component>
