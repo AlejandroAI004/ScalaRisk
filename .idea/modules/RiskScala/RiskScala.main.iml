@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module external.linked.project.id="root:main [file:/C:/Users/aleja/IdeaProjects/RiskScala/]" external.linked.project.path="$MODULE_DIR$/../../.." external.root.project.path="$MODULE_DIR$/../../.." external.system.id="SBT" external.system.module.type="sbtSourceSet" type="JAVA_MODULE" version="4">
+  <component name="DisplayModuleName">
+    <option name="name" value="RiskScala.main" />
+  </component>
+  <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_24">
+    <output url="file://$MODULE_DIR$/../../../target/scala-3.3.7/classes" />
+    <exclude-output />
+    <content url="file://$MODULE_DIR$/../../../src/main">
+      <sourceFolder url="file://$MODULE_DIR$/../../../src/main/scala" isTestSource="false" />
+    </content>
+    <content url="file://$MODULE_DIR$/../../../target/scala-3.3.7/resource_managed/main" />
+    <content url="file://$MODULE_DIR$/../../../target/scala-3.3.7/src_managed/main" />
+    <orderEntry type="inheritedJdk" />
+    <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="sbt: scala-sdk-3.3.7" level="project" />
+    <orderEntry type="library" name="sbt: org.scala-lang:scala3-library_3:3.3.7:jar" level="project" />
+    <orderEntry type="library" name="sbt: org.scalafx:scalafx_3:24.0.2-R36:jar" level="project" />
+    <orderEntry type="library" name="sbt: org.scala-lang:scala-library:2.13.16:jar" level="project" />
+    <orderEntry type="library" name="sbt: org.openjfx:javafx-base:24.0.2:jar" level="project" />
+    <orderEntry type="library" name="sbt: org.openjfx:javafx-controls:24.0.2:jar" level="project" />
+    <orderEntry type="library" name="sbt: org.openjfx:javafx-fxml:24.0.2:jar" level="project" />
+    <orderEntry type="library" name="sbt: org.openjfx:javafx-graphics:24.0.2:jar" level="project" />
+    <orderEntry type="library" name="sbt: org.openjfx:javafx-media:24.0.2:jar" level="project" />
+    <orderEntry type="library" name="sbt: org.openjfx:javafx-swing:24.0.2:jar" level="project" />
+    <orderEntry type="library" name="sbt: org.openjfx:javafx-web:24.0.2:jar" level="project" />
+    <orderEntry type="library" name="sbt: org.openjfx:javafx-base:24.0.2:win:jar" level="project" />
+    <orderEntry type="library" name="sbt: org.openjfx:javafx-controls:24.0.2:win:jar" level="project" />
+    <orderEntry type="library" name="sbt: org.openjfx:javafx-fxml:24.0.2:win:jar" level="project" />
+    <orderEntry type="library" name="sbt: org.openjfx:javafx-graphics:24.0.2:win:jar" level="project" />
+    <orderEntry type="library" name="sbt: org.openjfx:javafx-media:24.0.2:win:jar" level="project" />
+    <orderEntry type="library" name="sbt: org.openjfx:javafx-swing:24.0.2:win:jar" level="project" />
+    <orderEntry type="library" name="sbt: org.openjfx:javafx-web:24.0.2:win:jar" level="project" />
+  </component>
+</module>
