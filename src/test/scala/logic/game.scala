@@ -5,8 +5,11 @@ import java.awt._
 import javax._
 
 class game {
-    def start_game(game: game): Unit = {
-      println("Hello")
+    def start_game(): Unit = {
+      println("Welcome to Risk!")
+      println("How many players are gonna play? (min 2,limit 2)")
+      select_color()
+
     }
 
     def select_color(): Unit = {
