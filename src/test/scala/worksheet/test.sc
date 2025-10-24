@@ -2,5 +2,6 @@ import models.Army
 
 var myArmy = new Army;
 println(myArmy)
-myArmy.calvary_to_infantry(3);
+myArmy.infantry_to_artillery(1)
 println(myArmy)
+
