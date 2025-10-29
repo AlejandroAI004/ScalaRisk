@@ -17,6 +17,8 @@
     <orderEntry type="module" module-name="RiskScala.main" />
     <orderEntry type="library" name="sbt: org.scala-lang:scala3-library_3:3.3.7:jar" level="project" />
     <orderEntry type="library" name="sbt: org.scalafx:scalafx_3:24.0.2-R36:jar" level="project" />
+    <orderEntry type="library" name="sbt: org.scalactic:scalactic_3:3.2.19:jar" level="project" />
+    <orderEntry type="library" name="sbt: org.scalatest:scalatest_3:3.2.19:jar" level="project" />
     <orderEntry type="library" name="sbt: org.scala-lang:scala-library:2.13.16:jar" level="project" />
     <orderEntry type="library" name="sbt: org.openjfx:javafx-base:24.0.2:jar" level="project" />
     <orderEntry type="library" name="sbt: org.openjfx:javafx-controls:24.0.2:jar" level="project" />
@@ -25,6 +27,19 @@
     <orderEntry type="library" name="sbt: org.openjfx:javafx-media:24.0.2:jar" level="project" />
     <orderEntry type="library" name="sbt: org.openjfx:javafx-swing:24.0.2:jar" level="project" />
     <orderEntry type="library" name="sbt: org.openjfx:javafx-web:24.0.2:jar" level="project" />
+    <orderEntry type="library" name="sbt: org.scalatest:scalatest-core_3:3.2.19:jar" level="project" />
+    <orderEntry type="library" name="sbt: org.scalatest:scalatest-featurespec_3:3.2.19:jar" level="project" />
+    <orderEntry type="library" name="sbt: org.scalatest:scalatest-flatspec_3:3.2.19:jar" level="project" />
+    <orderEntry type="library" name="sbt: org.scalatest:scalatest-freespec_3:3.2.19:jar" level="project" />
+    <orderEntry type="library" name="sbt: org.scalatest:scalatest-funsuite_3:3.2.19:jar" level="project" />
+    <orderEntry type="library" name="sbt: org.scalatest:scalatest-funspec_3:3.2.19:jar" level="project" />
+    <orderEntry type="library" name="sbt: org.scalatest:scalatest-propspec_3:3.2.19:jar" level="project" />
+    <orderEntry type="library" name="sbt: org.scalatest:scalatest-refspec_3:3.2.19:jar" level="project" />
+    <orderEntry type="library" name="sbt: org.scalatest:scalatest-wordspec_3:3.2.19:jar" level="project" />
+    <orderEntry type="library" name="sbt: org.scalatest:scalatest-diagrams_3:3.2.19:jar" level="project" />
+    <orderEntry type="library" name="sbt: org.scalatest:scalatest-matchers-core_3:3.2.19:jar" level="project" />
+    <orderEntry type="library" name="sbt: org.scalatest:scalatest-shouldmatchers_3:3.2.19:jar" level="project" />
+    <orderEntry type="library" name="sbt: org.scalatest:scalatest-mustmatchers_3:3.2.19:jar" level="project" />
     <orderEntry type="library" name="sbt: org.openjfx:javafx-base:24.0.2:win:jar" level="project" />
     <orderEntry type="library" name="sbt: org.openjfx:javafx-controls:24.0.2:win:jar" level="project" />
     <orderEntry type="library" name="sbt: org.openjfx:javafx-fxml:24.0.2:win:jar" level="project" />
@@ -32,6 +47,8 @@
     <orderEntry type="library" name="sbt: org.openjfx:javafx-media:24.0.2:win:jar" level="project" />
     <orderEntry type="library" name="sbt: org.openjfx:javafx-swing:24.0.2:win:jar" level="project" />
     <orderEntry type="library" name="sbt: org.openjfx:javafx-web:24.0.2:win:jar" level="project" />
+    <orderEntry type="library" name="sbt: org.scalatest:scalatest-compatible:3.2.19:jar" level="project" />
+    <orderEntry type="library" name="sbt: org.scala-lang.modules:scala-xml_3:2.1.0:jar" level="project" />
   </component>
   <component name="TestModuleProperties" production-module="RiskScala.main" />
 </module>
