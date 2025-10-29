@@ -13,8 +13,7 @@ object main {
 
     def generateField(C: Int, R: Int): String = {
       "*" + "--------*" * C + "\n" +
-        ("|" + "        |" * C + "\n" +
-          "|" + "        |" * C + "\n" +
+        (("|" + "        |" * C + "\n") * 2 +
           "*" + "--------*" * C + "\n") * R
     }
   }

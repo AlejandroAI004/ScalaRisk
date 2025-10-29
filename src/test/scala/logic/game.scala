@@ -1,46 +1,59 @@
 package logic
-import models.Army
-import models.Player
-import java.awt._
-import javax._
+import scala.io.StdIn
 
-class game {
-    def start_game(): Unit = {
-      println("Welcome to Risk!")
-      println("How many players are gonna play? (min 2,limit 2)")
-      select_color()
+class Player(val name: String, val colorName: String):
+  var infantry: Int = 20
 
-    }
+object game {
+  def main(args: Array[String]): Unit = {
+    println("How many players are gonna play? (min 2,limit 4)")
+    val TotalPlayers = StdIn.readInt()
+    var playersList = Array[Player]()
 
-    def select_color(): Unit = {
-      println("Select a color (red,blue,yellow,green): ")
+    for i <- 0 until TotalPlayers do {
+      println(s"Enter name for Player ${i + 1}:")
+      val name = StdIn.readLine()
+
       var valid = false
-      var colorInput: Color = Color.gray
-      
+      var colorName = "gray"
+
       while !valid do {
+        println("Select a color (red, blue, yellow, green):")
         val input = scala.io.StdIn.readLine().toLowerCase()
         input match {
-          case "red" => colorInput = Color.RED; valid = true
-          case "blue" => colorInput = Color.BLUE; valid = true
-          case "yellow" => colorInput = Color.YELLOW; valid = true
-          case "green" => colorInput = Color.GREEN; valid = true
+          case "red" | "blue" | "yellow" | "green" =>
+            colorName = input
+            valid = true
           case _ => println("Unknown color, try again!")
         }
+        if playersList.exists(p => p.colorName == colorName) then {
+          println("that color is taken!")
+          valid = false
+        }
       }
-        
-      println(s"You selected $colorInput!")
-      Player.color = colorInput
+
+      playersList = playersList :+ new Player(name, colorName)
+      println(s"${colorText(name,colorName)} has selected ${colorText(colorName,colorName)}" +
+        s" and has 20 infantry!")
     }
 
-    def reinforcement_phase(): Unit = {
-
+    println("List of players: ")
+    for p <- playersList do {
+      println(s"${colorText(p.name,p.colorName)} -> ${colorText(p.colorName,p.colorName)} " +
+        s"| Infantry: ${p.infantry}")
     }
+  }
 
-    def attack_phase(): Unit = {
-
-    }
-
-    def fortify_phase(): Unit = {
-
-    }
 }
+
+//def reinforcement_phase(): Unit = {
+//
+//    }
+//
+//    def attack_phase(): Unit = {
+//
+//    }
+//
+//    def fortify_phase(): Unit = {
+//
+//    }
