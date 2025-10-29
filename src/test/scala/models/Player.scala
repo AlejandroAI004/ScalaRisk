@@ -1,14 +1,12 @@
 package models
-import java.awt._
+import logic.game
+import java.awt.*
+import scala.io.StdIn
 
-object Player {
+class Player {
   var units = 0
   var color: Color = Color.GRAY
   var name = "none"
   var cards = 0
   
-  
-  def howMany(n: Int): Unit = {
-    
-  }
 }
