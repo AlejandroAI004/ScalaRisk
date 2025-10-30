@@ -1,14 +1,12 @@
 package logic
 import scala.io.StdIn
-
-class Player(val name: String, val colorName: String):
-  var infantry: Int = 20
+import scala.io.StdIn.readInt
 
 object game {
   def main(args: Array[String]): Unit = {
     println("How many players are gonna play? (min 2,limit 4)")
     val TotalPlayers = StdIn.readInt()
-    var playersList = Array[Player]()
+    var playersList = Array[player]()
 
     for i <- 0 until TotalPlayers do {
       println(s"Enter name for Player ${i + 1}:")
@@ -32,18 +30,17 @@ object game {
         }
       }
 
-      playersList = playersList :+ new Player(name, colorName)
-      println(s"${colorText(name,colorName)} has selected ${colorText(colorName,colorName)}" +
+      playersList = playersList :+ new player(name, colorName)
+      println(s"${colorText(name, colorName)} has selected ${colorText(colorName, colorName)}" +
         s" and has 20 infantry!")
     }
 
     println("List of players: ")
     for p <- playersList do {
-      println(s"${colorText(p.name,p.colorName)} -> ${colorText(p.colorName,p.colorName)} " +
+      println(s"${colorText(p.name, p.colorName)} -> ${colorText(p.colorName, p.colorName)} " +
         s"| Infantry: ${p.infantry}")
     }
   }
-
 }
 
 //def reinforcement_phase(): Unit = {

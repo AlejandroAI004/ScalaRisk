@@ -1,4 +1,5 @@
 package logic
+import scala.io.StdIn
 
 class rules {
 
@@ -14,4 +15,8 @@ def colorText(text: String, colorName: String): String = {
     case "green" => "\u001B[32m"
     case _ => "\u001B[37m"
   ansiColor + text + reset
+}
+
+def start_Match(): Unit = {
+  
 }
