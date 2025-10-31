@@ -14,7 +14,6 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="sbt: scala-sdk-3.3.7" level="project" />
-    <orderEntry type="module" module-name="RiskScala.main" />
     <orderEntry type="library" name="sbt: org.scala-lang:scala3-library_3:3.3.7:jar" level="project" />
     <orderEntry type="library" name="sbt: org.scalafx:scalafx_3:24.0.2-R36:jar" level="project" />
     <orderEntry type="library" name="sbt: org.scalactic:scalactic_3:3.2.19:jar" level="project" />

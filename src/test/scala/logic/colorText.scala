@@ -1,10 +1,5 @@
 package logic
 
-class rules {
-
-}
-
-
 def colorText(text: String, colorName: String): String = {
   val reset = "\u001B[0m"
   val ansiColor = colorName match
@@ -15,3 +10,4 @@ def colorText(text: String, colorName: String): String = {
     case _ => "\u001B[37m"
   ansiColor + text + reset
 }
+
