@@ -1,10 +1,4 @@
 package logic
-import scala.io.StdIn
-
-class rules {
-
-}
-
 
 def colorText(text: String, colorName: String): String = {
   val reset = "\u001B[0m"
@@ -17,6 +11,3 @@ def colorText(text: String, colorName: String): String = {
   ansiColor + text + reset
 }
 
-def start_Match(): Unit = {
-  
-}
