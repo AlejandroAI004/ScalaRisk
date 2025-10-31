@@ -1,4 +1,3 @@
-import logic.Player
 
 import java.awt.Color
 import scala.io.StdIn
