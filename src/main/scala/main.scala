@@ -1,8 +1,8 @@
-import logic.Map_Generation.print_row
-import logic.{Parent_Tile, Tile, add_neighbour, direction}
+import logic._
 
 object main {
   def main(args: Array[String]): Unit = {
+    startgame.welcome()
 
 //    var konstanz = Parent_Tile(List(), List())
 //    var meersburg = Parent_Tile(List(konstanz), List(direction.south))
@@ -16,6 +16,6 @@ object main {
 //    val fh = Tile(friedrichshafen, "red", 4)
 //
 //    print(print_row(List(mb, fh)) + print_row(List(kn)))
-//    
+//
   }
 }
