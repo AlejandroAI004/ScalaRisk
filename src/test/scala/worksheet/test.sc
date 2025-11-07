@@ -1,7 +1,5 @@
 import com.sun.javafx.scene.traversal.Direction
 import direction.{east, north, northeast, northwest, south, southeast, southwest, west}
-import logic.Map_Generation.print_row
-import logic.{Parent_Tile, Tile}
 val x = 3
 val y = 2
 val text = "Blau 5 "
@@ -38,8 +36,5 @@ meersburg = add_neighbour(meersburg, friedrichshafen, direction.east)
 
 
 
-var myArmy = new Army;
-println(myArmy)
-myArmy.infantry_to_artillery(1)
-println(myArmy)
+
 

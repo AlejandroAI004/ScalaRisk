@@ -1,7 +1,8 @@
 package Tests
 
-import logic.{Parent_Tile, Tile, direction}
-import logic.Map_Generation.print_row
+import TUI.MapInit.testMap_init
+import TUI.Map_Generation.{print_map, print_row}
+import TUI.{Parent_Tile, Tile, direction}
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
 
@@ -15,7 +16,7 @@ class Map_Genration_spec extends AnyWordSpec with Matchers {
         print_row(List(tile)) should be(
           "              \n" +
           "  +--------+  \n" +
-          "  | blue 1 |  \n" +
+          "  | blue 0 |  \n" +
           "  |        |  \n" +
           "  +--------+  \n" +
           "              \n")
@@ -31,10 +32,26 @@ class Map_Genration_spec extends AnyWordSpec with Matchers {
         print_row(List(tile)) should be(
           "\\     |      /\n" +
           "  +--------+  \n" +
-          "__| blue 1 |__\n" +
+          "__| blue 0 |__\n" +
           "  |        |  \n" +
           "  +--------+  \n" +
           "/     |      \\" + "\n")
+      }
+    }
+  }
+  "A Map" when {
+    "initiailized with one Tile without connections " should {
+      val emptyParent = Parent_Tile()
+      val owner = "blue"
+      val tile = Tile(emptyParent, owner)
+      "print a 1*1 map " in {
+        print_map(List(List(tile))) should be(
+          "              \n" +
+          "  +--------+  \n" +
+          "  | blue 0 |  \n" +
+          "  |        |  \n" +
+          "  +--------+  \n" +
+          "              \n")
       }
     }
   }

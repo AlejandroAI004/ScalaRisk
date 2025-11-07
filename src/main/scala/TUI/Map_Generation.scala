@@ -1,4 +1,4 @@
-package logic
+package TUI
 
 object Map_Generation {
   def print_upper_conn(tiles: List[Tile]): String = {
@@ -94,5 +94,13 @@ object Map_Generation {
       print_lower_area(tiles) +
       print_horizontal(tiles) +
       print_lower_conn(tiles)
+  }
+  
+  def print_map(data: List[List[Tile]]): String ={
+    var output = ""
+    for e <- data do {
+      output += print_row(e)
+    }
+    return output
   }
 }
