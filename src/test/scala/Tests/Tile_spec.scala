@@ -1,6 +1,6 @@
 package Tests
 
-import logic.{Parent_Tile, Tile}
+import TUI.*
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 
@@ -16,8 +16,8 @@ class Tile_spec extends AnyWordSpec with Matchers {
       "have an owner" in {
         tile.owner should be(owner)
       }
-      "have one soldier" in {
-        tile.soldiers should be(1)
+      "have zero soldiers" in {
+        tile.soldiers should be(0)
       }
     }
     "initialized with parent " should {
@@ -27,10 +27,10 @@ class Tile_spec extends AnyWordSpec with Matchers {
         tile.parent should be(emptyParent)
       }
       "have an owner" in {
-        tile.owner should be("user")
+        tile.owner should be("empty")
       }
-      "have one soldier" in {
-        tile.soldiers should be(1)
+      "have no soldier" in {
+        tile.soldiers should be(0)
       }
     }
   }

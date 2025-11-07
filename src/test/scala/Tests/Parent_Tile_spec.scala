@@ -1,9 +1,8 @@
 package Tests
 
 
-import logic.direction.{south, west}
-import logic.add_neighbour
-import logic.{Parent_Tile, direction}
+import TUI.{Parent_Tile, add_neighbour, direction}
+import TUI.direction.{south, west}
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
 
