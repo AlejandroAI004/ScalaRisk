@@ -9,12 +9,12 @@ class Tile_spec extends AnyWordSpec with Matchers {
     "initialized with parent and owner " should {
       val emptyParent = Parent_Tile()
       val owner = "blue"
-      val tile = Tile(emptyParent, owner)
+      val tile = Tile(emptyParent, player)
       "have a parent" in {
         tile.parent should be(emptyParent)
       }
       "have an owner" in {
-        tile.owner should be(owner)
+        tile.owner should be(player)
       }
       "have zero soldiers" in {
         tile.soldiers should be(0)

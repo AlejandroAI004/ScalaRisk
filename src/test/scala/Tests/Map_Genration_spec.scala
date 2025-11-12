@@ -11,7 +11,7 @@ class Map_Genration_spec extends AnyWordSpec with Matchers {
     "initialized with one Tile without connections " should {
       val emptyParent = Parent_Tile()
       val owner = "blue"
-      val tile = Tile(emptyParent, owner)
+      val tile = Tile(emptyParent, player)
       "print tile with no connections" in {
         print_row(List(tile)) should be(
           "              \n" +

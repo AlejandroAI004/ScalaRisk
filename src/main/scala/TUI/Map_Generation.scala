@@ -1,4 +1,5 @@
 package TUI
+import logic.colorText
 
 object Map_Generation {
   def print_upper_conn(tiles: List[Tile]): String = {
@@ -68,7 +69,7 @@ object Map_Generation {
       else {
         res += "  | "
       }
-      res += i.owner + " " + i.soldiers + " " * (6 - i.owner.length - i.soldiers.toString.length)
+      res += colorText(i.player.colorName,i.player.colorName) + " " + i.soldiers + " " * (6 - i.player.colorName.length - i.soldiers.toString.length)
       if (i.parent.connections.contains(direction.east)) {
         res += "|__"
       }
@@ -101,6 +102,6 @@ object Map_Generation {
     for e <- data do {
       output += print_row(e)
     }
-    return output
+    output
   }
 }

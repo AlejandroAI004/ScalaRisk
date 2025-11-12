@@ -12,9 +12,8 @@ import scala.List
 class placeInfantry_spec extends AnyWordSpec with Matchers {
   "the Test map " when {
     "initialized " should {
-      val name = "name"
       val color = "red"
-      val player = new player(name, color)
+      val player = new player(color)
       "return a 2*2 List " in {
         placeInfantry(player, 2, 2, testMap_init()) shouldBe a[List[_]]
       }

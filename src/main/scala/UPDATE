@@ -1,0 +1,6 @@
+UPDATE-12.11.25
+-Kein Name, nur Zahlen
+-Farben jetzt auf der Map
+-owner durch player ersetzt (in class Tile)
+-placeInfantry umgebaut, sodass zuerst der erste Spieler, dann der zweite platziert
+-ownedTiles erweitert: Die Klasse Player hat jetzt eine ownedTiles-Liste

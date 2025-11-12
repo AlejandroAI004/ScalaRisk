@@ -13,8 +13,7 @@ object main {
     val playersList = startgame.start()
     print(startgame.print_playersList(playersList))
     print(Map_Generation.print_map(MapData))
-    for p <- playersList do {
-      MapData = placeInfantry(p, 2, 2, MapData)
-    }
+    MapData = placeInfantry(playersList, 2, 2, MapData)
+
   }
 }

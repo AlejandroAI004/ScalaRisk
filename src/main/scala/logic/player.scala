@@ -2,6 +2,7 @@ package logic
 
 import TUI.*
 
-class player(val name: String, val colorName: String):
+ class player(val colorName: String):
   var infantry: Int = 20
-  //var ownedTiles: List[Tile]
+  override def toString: String = colorName
+  var ownedTiles: List[Tile] = List()

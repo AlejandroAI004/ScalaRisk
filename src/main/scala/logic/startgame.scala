@@ -16,20 +16,16 @@ object startgame {
     "Spiel starten?[y]\n"
   }
 
-  def start(): Array[player] = {
-    var playersList = Array[player]()
+  def start(): List[player] = {
+    var playersList = List[player]()
     println("How many players are gonna play? (min 2,limit 4)")
     val TotalPlayers = StdIn.readInt()
 
     for i <- 0 until TotalPlayers do {
-      println(s"Enter name for Player ${i + 1}:")
-      val name = StdIn.readLine()
-
       var valid2 = false
       var colorName = "gray"
-
       while !valid2 do {
-        println("Select a color (red, blue, yellow, green):")
+        println(s"Select a color for Player ${i + 1} (red, blue, yellow, green):")
         val input = scala.io.StdIn.readLine().toLowerCase()
         input match {
           case "red" | "blue" | "yellow" | "green" =>
@@ -42,22 +38,21 @@ object startgame {
           valid2 = false
         }
       }
-
-      playersList = playersList :+ new player(name, colorName)
-      println(s"${colorText(name, colorName)} has selected ${colorText(colorName, colorName)}" +
-        s" and has 20 infantry!")
+        val no = playersList.length + 1
+        playersList = playersList :+ new player(colorName)
+        println(s"${colorText(s"Player $no:",colorName)} has selected ${colorText(colorName, colorName)}")
     }
-    
-    return playersList
+     playersList
   }
-  
-  def print_playersList (playersList: Array[player]): String = {
+
+  def print_playersList (playersList: List[player]): String = {
     var output = "List of players: \n"
-    for p <- playersList do {
-      output += s"${colorText(p.name, p.colorName)} -> ${colorText(p.colorName, p.colorName)} " +
+    for i <- playersList.indices do {
+      var p = playersList(i)
+      output += s"${colorText(s"Player ${i + 1}" , p.colorName)} -> ${colorText(p.colorName, p.colorName)} " +
         s"| Infantry: ${p.infantry}\n"
     }
-    return output
+     output
   }
 
 }
