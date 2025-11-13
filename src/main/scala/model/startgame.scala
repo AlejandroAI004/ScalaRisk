@@ -5,20 +5,20 @@ import TUI.colorText
 import scala.io.StdIn
 
 object startgame {
-  
-  def welcome(): String = {
-    "*** Welcome to Risk! ***\n" +
-    "Bei Risk kämpfst du um die Weltherrschaft! \n" +
-    "Du platzierst Armeen, planst Angriffe und würfelst um den Sieg. \n" +
-    "Mit geschickter Strategie und etwas Glück eroberst du nach und \n" +
-    "nach neue Länder und Kontinente. Jede Runde bringt neue Truppen, \n" +
-    "spannende Kämpfe und riskante Entscheidungen. Wer am Ende die \n" +
-    "meisten Gebiete kontrolliert – oder seine geheime Mission erfüllt \n" +
-    "–, gewinnt das Spiel und herrscht über die Welt!\n" +
-    "Spiel starten?[y]\n"
-  }
 
   def start(getInt: () => Int, getLine: () => String): List[player] = {
+    def welcome(): String = {
+      "*** Welcome to Risk! ***\n" +
+        "Bei Risk kämpfst du um die Weltherrschaft! \n" +
+        "Du platzierst Armeen, planst Angriffe und würfelst um den Sieg. \n" +
+        "Mit geschickter Strategie und etwas Glück eroberst du nach und \n" +
+        "nach neue Länder und Kontinente. Jede Runde bringt neue Truppen, \n" +
+        "spannende Kämpfe und riskante Entscheidungen. Wer am Ende die \n" +
+        "meisten Gebiete kontrolliert – oder seine geheime Mission erfüllt \n" +
+        "–, gewinnt das Spiel und herrscht über die Welt!\n" +
+        "Spiel starten?[y]\n"
+    }
+
     var playersList = List[player]()
     println("How many players are gonna play? (min 2,limit 4)")
     val TotalPlayers = getInt()

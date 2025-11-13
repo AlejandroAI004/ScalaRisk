@@ -2,8 +2,7 @@ package model
 
 import TUI.*
 import TUI.Map_Generation.print_map
-
-import scala.io.StdIn.readInt
+import controller.*
 
 def placeInfantry(players: List[player],
                   cols: Int,
@@ -12,12 +11,12 @@ def placeInfantry(players: List[player],
                   getX: () => Int,
                   getY: () => Int,
                   getN: () => Int
-                 ): List[List[Tile]] =
+                 ): (List[List[Tile]], InfantryPlacementResult) =
   var tempMapData = mapData
   var currentPlayer = 0
 
   while (players.exists(_.infantry > 0)) {
-    var player = players(currentPlayer)
+    val player = players(currentPlayer)
     if (player.infantry > 0) {
       var validMove = false
       while (!validMove) {
@@ -31,12 +30,16 @@ def placeInfantry(players: List[player],
         val n = getN()
 
         if (x < 0 || x >= cols || y < 0 || y >= rows) {
-          println("Invalid coordinates! Try again.")
+//          println("Invalid coordinates! Try again.")
+          return (tempMapData, InvalidInput("Invalid coordinates! Try again."))
         } else if (n > player.infantry) {
-          println("You don't have that many infantry remaining!")
+//          println("You don't have that many infantry remaining!")
+          return (tempMapData, InvalidInput("You don't have that many infantry remaining!"))
         } else if (tempMapData(y)(x).player != player && tempMapData(y)(x).player.colorName != "empty") {
-          println("Another Player owns this Tile! Try again.")
-          print(print_map(tempMapData))
+//          println("Another Player owns this Tile! Try again.")
+//          print(print_map(tempMapData))
+          return (tempMapData, TileOccupied("Another Player owns this Tile! Try again."))
+
         } else {
           val oldRow = tempMapData(y)
           val newRow = oldRow.updated(x, updateTile(player, n, oldRow(x)))
@@ -48,10 +51,11 @@ def placeInfantry(players: List[player],
           }
 
           validMove = true
-          print(print_map(tempMapData))
+//          print(print_map(tempMapData))
+          return (tempMapData, Success)
         }
       }
     }
     currentPlayer = (currentPlayer + 1) % players.length
   }
-  tempMapData
+  return (tempMapData, Success)
