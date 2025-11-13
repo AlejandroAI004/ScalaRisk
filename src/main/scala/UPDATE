@@ -1,6 +1,13 @@
-UPDATE-12.11.25
+UPDATE-12.11.25 > A
 -Kein Name, nur Zahlen
 -Farben jetzt auf der Map
 -owner durch player ersetzt (in class Tile)
 -placeInfantry umgebaut, sodass zuerst der erste Spieler, dann der zweite platziert
 -ownedTiles erweitert: Die Klasse Player hat jetzt eine ownedTiles-Liste
+
+UPDATE-13.11.25 > A
+-Alle Tests sind bereits geschrieben, Testabdeckung liegt bei 92 %
+-placeInfantry wurde um drei Parameter erweitert, um testbar zu sein
+-startGame wurde um zwei Parameter erweitert, um testbar zu sein
+-Allgemeine Anpassungen vorgenommen
+

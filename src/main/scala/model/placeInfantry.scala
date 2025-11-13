@@ -1,12 +1,17 @@
-package logic
+package model
 
 import TUI.*
 import TUI.Map_Generation.print_map
 
 import scala.io.StdIn.readInt
 
-def placeInfantry(players: List[player], cols: Int, rows: Int,
-                  mapData: List[List[Tile]]
+def placeInfantry(players: List[player],
+                  cols: Int,
+                  rows: Int,
+                  mapData: List[List[Tile]],
+                  getX: () => Int,
+                  getY: () => Int,
+                  getN: () => Int
                  ): List[List[Tile]] =
   var tempMapData = mapData
   var currentPlayer = 0
@@ -19,11 +24,11 @@ def placeInfantry(players: List[player], cols: Int, rows: Int,
         println(s"\n${colorText(player.colorName, player.colorName)}, you have ${player.infantry} infantry to place.")
         println(s"Remaining infantry: ${player.infantry}")
         println("Enter X coordinate (0 to " + (cols - 1) + "):")
-        val x = readInt()
+        val x = getX()
         println("Enter Y coordinate (0 to " + (rows - 1) + "):")
-        val y = readInt()
+        val y = getY()
         println("How many infantry to place here?")
-        val n = readInt()
+        val n = getN()
 
         if (x < 0 || x >= cols || y < 0 || y >= rows) {
           println("Invalid coordinates! Try again.")

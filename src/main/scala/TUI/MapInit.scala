@@ -1,5 +1,7 @@
 package TUI
 
+import model.{Parent_Tile, Tile, add_neighbour, direction}
+
 object MapInit {
   def testMap_init(): List[List[Tile]] = {
     var konstanz = Parent_Tile(List(), List())
@@ -15,6 +17,6 @@ object MapInit {
     val fh = Tile(friedrichshafen)
     val kr = Tile(kreuzlingen)
 
-    return List(List(mb, fh), List(kn,kr))
+     List(List(mb, fh), List(kn,kr))
   }
 }

@@ -2,8 +2,8 @@ package Tests
 
 import TUI.MapInit.testMap_init
 import TUI.Map_Generation.{print_map, print_row}
-import TUI.{Parent_Tile, Tile, direction}
-import logic.colorText
+import TUI.colorText
+import model.{Parent_Tile, Tile, direction}
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
 

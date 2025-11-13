@@ -1,5 +1,5 @@
 package TUI
-import logic.colorText
+import model.{Tile, direction}
 
 object Map_Generation {
   def print_upper_conn(tiles: List[Tile]): String = {

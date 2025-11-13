@@ -1,7 +1,7 @@
 package Tests
 
 import TUI.*
-import logic.*
+import model.*
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 
@@ -15,6 +15,10 @@ class player_spec extends AnyWordSpec with Matchers {
       }
       "have 20 soldiers" in {
         player.infantry should be(20)
+      }
+      "return colorName as toString" in {
+        val p = new player("blue")
+        p.toString should be("blue")
       }
     }
   }

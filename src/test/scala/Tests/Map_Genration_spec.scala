@@ -2,7 +2,7 @@ package Tests
 
 import TUI.MapInit.testMap_init
 import TUI.Map_Generation.{print_map, print_row}
-import TUI.{Parent_Tile, Tile, direction}
+import model.{Parent_Tile, Tile, direction, player}
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
 
@@ -11,9 +11,9 @@ class Map_Genration_spec extends AnyWordSpec with Matchers {
     "initialized with one Tile without connections " should {
       val emptyParent = Parent_Tile()
       val owner = "blue"
-      val tile = Tile(emptyParent, player)
+      val tile = Tile(emptyParent, new player("blue"))
       "print tile with no connections" in {
-        print_row(List(tile)) should be(
+        stripAnsi(print_row(List(tile))) should be(
           "              \n" +
           "  +--------+  \n" +
           "  | blue 0 |  \n" +
@@ -27,9 +27,9 @@ class Map_Genration_spec extends AnyWordSpec with Matchers {
         direction.west, direction.east, direction.southeast, direction.southwest,
         direction.northeast, direction.northwest))
       val owner = "blue"
-      val tile = Tile(Parent, owner)
+      val tile = Tile(Parent,  new player("blue"))
       "print tile with all connections" in {
-        print_row(List(tile)) should be(
+        stripAnsi(print_row(List(tile))) should be(
           "\\     |      /\n" +
           "  +--------+  \n" +
           "__| blue 0 |__\n" +
@@ -43,9 +43,9 @@ class Map_Genration_spec extends AnyWordSpec with Matchers {
     "initiailized with one Tile without connections " should {
       val emptyParent = Parent_Tile()
       val owner = "blue"
-      val tile = Tile(emptyParent, owner)
+      val tile = Tile(emptyParent,  new player("blue"))
       "print a 1*1 map " in {
-        print_map(List(List(tile))) should be(
+        stripAnsi(print_map(List(List(tile)))) should be(
           "              \n" +
           "  +--------+  \n" +
           "  | blue 0 |  \n" +
@@ -55,4 +55,8 @@ class Map_Genration_spec extends AnyWordSpec with Matchers {
       }
     }
   }
+
+  def stripAnsi(str: String): String =
+    str.replaceAll("\u001B\\[[;\\d]*m", "")
 }
+

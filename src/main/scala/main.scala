@@ -1,5 +1,5 @@
 import TUI.*
-import logic.*
+import model.*
 
 import scala.io.StdIn
 
@@ -10,10 +10,20 @@ object main {
       System.exit(0)
     }
     var MapData = MapInit.testMap_init()
-    val playersList = startgame.start()
+    val playersList = startgame.start(
+      () => scala.io.StdIn.readInt(),
+      () => scala.io.StdIn.readLine()
+    )
     print(startgame.print_playersList(playersList))
     print(Map_Generation.print_map(MapData))
-    MapData = placeInfantry(playersList, 2, 2, MapData)
+    MapData = placeInfantry(playersList,
+      2,
+      2,
+      MapData,
+      () => scala.io.StdIn.readInt(),
+      () => scala.io.StdIn.readInt(),
+      () => scala.io.StdIn.readInt()
+    )
 
   }
 }

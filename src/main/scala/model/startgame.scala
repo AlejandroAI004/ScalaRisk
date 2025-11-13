@@ -1,4 +1,6 @@
-package logic
+package model
+
+import TUI.colorText
 
 import scala.io.StdIn
 
@@ -16,17 +18,17 @@ object startgame {
     "Spiel starten?[y]\n"
   }
 
-  def start(): List[player] = {
+  def start(getInt: () => Int, getLine: () => String): List[player] = {
     var playersList = List[player]()
     println("How many players are gonna play? (min 2,limit 4)")
-    val TotalPlayers = StdIn.readInt()
+    val TotalPlayers = getInt()
 
     for i <- 0 until TotalPlayers do {
       var valid2 = false
       var colorName = "gray"
       while !valid2 do {
         println(s"Select a color for Player ${i + 1} (red, blue, yellow, green):")
-        val input = scala.io.StdIn.readLine().toLowerCase()
+        val input = getLine().toLowerCase()
         input match {
           case "red" | "blue" | "yellow" | "green" =>
             colorName = input
