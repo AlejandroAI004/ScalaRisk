@@ -1,7 +1,7 @@
 package Tests
 
 import model.*
-import model.startgame.{print_playersList, start, welcome}
+import controller.startgame.{print_playersList, start, welcome}
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 

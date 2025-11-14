@@ -1,8 +1,9 @@
 package Tests
 
-import TUI.MapInit.testMap_init
-import TUI.Map_Generation.print_row
-import model.{Parent_Tile, Tile, add_neighbour, direction, placeInfantry, player}
+import model.MapInit.testMap_init
+import controller.Map_Generation.print_row
+import controller.placeInfantry
+import model.{Parent_Tile, Tile, add_neighbour, direction, player}
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
 

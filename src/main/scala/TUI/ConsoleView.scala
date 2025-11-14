@@ -1,6 +1,6 @@
 package TUI
 
-import model.player
+import model.{Tile, colorText, player}
 import controller.*
 
 object ConsoleView {
@@ -44,12 +44,34 @@ object ConsoleView {
     for ((p, idx) <- playersList.zipWithIndex) {
       println(s"Player ${idx + 1} -> ${p.colorName} | Infantry: ${p.infantry}")
     }
+
   }
 
-  def showPlacementResult(result: InfantryPlacementResult): Unit = result match {
-    case allValid => println("Success: Infantry placed!")
-    case Success => println("Success: Infantry placed!")
-    case InvalidInput(msg) => println("Error: " + msg)
-    case TileOccupied(msg) => println("Error: " + msg)
+  def showPlacementResult(result: InfantryPlacementResult): String = result match {
+    case Success => "Success: Infantry placed!"
+    case InvalidInput(msg) => "Error: " + msg
+    case TileOccupied(msg) => "Error: " + msg
   }
+
+  def mapString(mapData: List[List[Tile]]): String = {
+    Map_Generation.print_map(mapData)
+  }
+
+  def getXCoordinate(player: player): Int = {
+    println(s"\n${colorText(player.colorName, player.colorName)}, you have ${player.infantry} infantry to place.")
+    println(s"Remaining infantry: ${player.infantry}")
+    println("Enter X coordinate (0 to X):")
+    scala.io.StdIn.readInt()
+  }
+
+  def getYCoordinate(player: player): Int = {
+    println("Enter Y coordinate (0 to Y):")
+    scala.io.StdIn.readInt()
+  }
+
+  def getInfantryCount(player: player): Int = {
+    println("How many infantry to place here?")
+    scala.io.StdIn.readInt()
+  }
+
 }

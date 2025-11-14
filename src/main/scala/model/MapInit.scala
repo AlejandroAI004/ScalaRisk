@@ -1,4 +1,4 @@
-package TUI
+package model
 
 import model.{Parent_Tile, Tile, add_neighbour, direction}
 
