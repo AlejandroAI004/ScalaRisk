@@ -1,5 +1,6 @@
-package TUI
-import model.{Tile, direction}
+package controller
+
+import model.{Tile, colorText, direction}
 
 object Map_Generation {
   def print_upper_conn(tiles: List[Tile]): String = {

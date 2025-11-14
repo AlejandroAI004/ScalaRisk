@@ -1,8 +1,9 @@
 package Tests
 
-import TUI.MapInit.testMap_init
-import TUI.Map_Generation.print_row
-import model.{Parent_Tile, Tile, add_neighbour, direction, placeInfantry, player}
+import model.MapInit.testMap_init
+import controller.Map_Generation.print_row
+import controller.{Success, placeInfantry}
+import model.{Parent_Tile, Tile, add_neighbour, direction, player}
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
 
@@ -32,8 +33,9 @@ class placeInfantry_spec extends AnyWordSpec with Matchers {
           () => scriptedN.next()
         )
 
-        result.flatten.map(_.soldiers) should be(List(0, 0, 2, 2))
-        result.flatten.map(_.player.colorName) should contain allOf("blue", "red")
+        result._1.flatten.map(_.soldiers) should be(List(0, 0, 2, 2))
+        result._1.flatten.map(_.player.colorName) should contain allOf("blue", "red")
+        result._2 should be(Success)
       }
 
 

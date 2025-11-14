@@ -1,8 +1,9 @@
-package model
+package controller
 
 import TUI.*
-import TUI.Map_Generation.print_map
+import Map_Generation.print_map
 import controller.*
+import model.{Tile, colorText, player}
 
 def placeInfantry(players: List[player],
                   cols: Int,

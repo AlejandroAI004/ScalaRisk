@@ -1,4 +1,4 @@
-package TUI
+package model
 
 def colorText(text: String, colorName: String): String = {
   val reset = "\u001B[0m"

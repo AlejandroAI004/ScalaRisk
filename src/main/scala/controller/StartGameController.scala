@@ -14,4 +14,14 @@ object StartGameController {
     view.printPlayersList(playersList)
     playersList
   }
+
+  def print_playersList(playersList: List[player]): String = {
+    var output = "List of players: \n"
+    for i <- playersList.indices do {
+      var p = playersList(i)
+      output += s"${colorText(s"Player ${i + 1}", p.colorName)} -> ${colorText(p.colorName, p.colorName)} " +
+        s"| Infantry: ${p.infantry}\n"
+    }
+    output
+  }
 }
