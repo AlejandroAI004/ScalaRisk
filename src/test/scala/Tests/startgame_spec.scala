@@ -3,25 +3,10 @@ package Tests
 import TUI.ConsoleView
 import model.*
 import controller.*
-import controller.StartGameController.print_playersList
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 
 class startgame_spec extends AnyWordSpec with Matchers{
-  "print_playerList" should {
-    "format all players with color and infantry correctly" in {
-      val p1 = new player("blue")
-      val p2 = new player("red")
-      val playerList = List(p1,p2)
-      val expected = {
-        "List of players: \n" +
-        "Player 1 -> blue | Infantry: 20\n" +
-        "Player 2 -> red | Infantry: 20\n"
-
-      }
-      stripAnsi(print_playersList(playerList)) should be(expected)
-    }
-  }
 
   "welcome" should {
     "return the correct welcome string" in {
@@ -53,6 +38,5 @@ class startgame_spec extends AnyWordSpec with Matchers{
 //    }
 //  }
 
-  def stripAnsi(str: String): String =
-    str.replaceAll("\u001B\\[[;\\d]*m", "")
+  
 }

@@ -2,6 +2,7 @@ package TUI
 
 import model.player
 import controller.*
+import model.playerList
 
 object ConsoleView {
   def welcome(): String = {
@@ -14,6 +15,17 @@ object ConsoleView {
       "meisten Gebiete kontrolliert – oder seine geheime Mission erfüllt \n" +
       "–, gewinnt das Spiel und herrscht über die Welt!\n" +
       "Spiel starten?[y]\n"
+  }
+
+  def start(): playerList = {
+    val numPlayers = askPlayerCount()
+    var playersList = new playerList()
+    for (i <- 1 to numPlayers) {
+      val color = askPlayerColor(i, playersList.usedColors())
+      playersList = playersList.addPlayer(color)
+    }
+    println(playersList.toString())
+    playersList
   }
   
   def askPlayerCount(): Int = {

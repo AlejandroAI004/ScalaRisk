@@ -7,7 +7,7 @@ import scala.io.StdIn
 object main {
   def main(args: Array[String]): Unit = {
     ConsoleView.welcome()
-    val playersList = StartGameController.start(ConsoleView)
+    val playersList = ConsoleView.start()
     
 //    print(startgame.welcome())
 //    if(StdIn.readLine() != "y") {

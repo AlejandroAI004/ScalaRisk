@@ -1,7 +1,5 @@
 package controller
 
-import TUI.*
-import Map_Generation.print_map
 import controller.*
 import model.{Tile, colorText, player}
 
