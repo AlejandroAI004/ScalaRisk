@@ -1,7 +1,7 @@
 package Tests
 
 import TUI.*
-import logic.*
+import model.*
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 
@@ -10,11 +10,11 @@ class updateTile_spec extends AnyWordSpec with Matchers {
     "updatet " should {
       val name = "name"
       val color = "red"
-      val player = new player(name, color)
+      val player = new player(color)
       val emptyParent = Parent_Tile()
       val tile = Tile(emptyParent)
       "have an owner" in {
-        updateTile(player, 10, tile).owner should be("red")
+        updateTile(player, 10, tile).player.colorName should be("red")
       }
       "have a parent" in {
         updateTile(player, 10, tile).parent should be(emptyParent)
