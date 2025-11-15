@@ -1,6 +1,5 @@
 package controller
 
-import TUI.*
 import model.*
 
 import scala.io.StdIn.readInt

@@ -1,6 +1,5 @@
 package model
 
-import TUI.*
 
  class player(val colorName: String):
   var infantry: Int = 20
