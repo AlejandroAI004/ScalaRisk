@@ -1,7 +1,6 @@
 package Tests
 
 import TUI.*
-import controller.updateTile
 import model.*
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec

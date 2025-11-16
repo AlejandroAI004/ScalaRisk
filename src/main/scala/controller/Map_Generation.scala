@@ -4,53 +4,19 @@ import model.{Tile, colorText, direction}
 
 object Map_Generation {
   def print_upper_conn(tiles: List[Tile]): String = {
-    var res = ""
-    for (i <- tiles) {
-      if (i.parent.connections.contains(direction.northwest)) {
-        res += "\\     "
-      }
-      else {
-        res += "      "
-      }
-      if (i.parent.connections.contains(direction.north)) {
-        res += "|"
-      }
-      else {
-        res += " "
-      }
-      if (i.parent.connections.contains(direction.northeast)) {
-        res += "      /"
-      }
-      else {
-        res += "       "
-      }
-    }
-    res + "\n"
+    tiles.map { t =>
+      (if (t.parent.connections.contains(direction.northwest)) "\\     " else "      ") +
+        (if (t.parent.connections.contains(direction.north)) "|" else " ") +
+        (if (t.parent.connections.contains(direction.northeast)) "      /" else "       ")
+    }.mkString("") + "\n"
   }
 
   def print_lower_conn(tiles: List[Tile]): String = {
-    var res = ""
-    for (i <- tiles) {
-      if (i.parent.connections.contains(direction.southwest)) {
-        res += "/     "
-      }
-      else {
-        res += "      "
-      }
-      if (i.parent.connections.contains(direction.south)) {
-        res += "|"
-      }
-      else {
-        res += " "
-      }
-      if (i.parent.connections.contains(direction.southeast)) {
-        res += "      \\"
-      }
-      else {
-        res += "       "
-      }
-    }
-    res + "\n"
+    tiles.map { t =>
+      (if (t.parent.connections.contains(direction.southwest)) "/     " else "      ") +
+        (if (t.parent.connections.contains(direction.south)) "|" else " ") +
+        (if (t.parent.connections.contains(direction.southeast)) "      \\" else "       ")
+    }.mkString("") + "\n"
   }
 
   def print_horizontal(tiles: List[Tile]): String = {
@@ -62,23 +28,12 @@ object Map_Generation {
   }
 
   def print_upper_area(tiles: List[Tile]): String = {
-    var res = ""
-    for (i <- tiles) {
-      if (i.parent.connections.contains(direction.west)) {
-        res += "__| "
-      }
-      else {
-        res += "  | "
-      }
-      res += colorText(i.player.colorName,i.player.colorName) + " " + i.soldiers + " " * (6 - i.player.colorName.length - i.soldiers.toString.length)
-      if (i.parent.connections.contains(direction.east)) {
-        res += "|__"
-      }
-      else {
-        res += "|  "
-      }
-    }
-    res + "\n"
+    tiles.map { t =>
+      (if (t.parent.connections.contains(direction.west)) "__| " else "  | ") +
+        colorText(t.player.colorName, t.player.colorName) + " " + t.soldiers + " " *
+        (6 - t.player.colorName.length - t.soldiers.toString.length) +
+        (if (t.parent.connections.contains(direction.east)) "|__" else "|  ")
+    }.mkString("") + "\n"
   }
 
   def print_lower_area(tiles: List[Tile]): String = {
@@ -90,7 +45,7 @@ object Map_Generation {
   }
 
   def print_row(tiles: List[Tile]): String = {
-    print_upper_conn(tiles) +
+      print_upper_conn(tiles) +
       print_horizontal(tiles) +
       print_upper_area(tiles) +
       print_lower_area(tiles) +

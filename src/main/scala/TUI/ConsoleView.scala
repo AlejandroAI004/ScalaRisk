@@ -1,8 +1,8 @@
 package TUI
 
-import model.{Tile, colorText, player}
+import model.{Tile, colorText, player, playerList, updateTile}
 import controller.*
-import model.playerList
+import controller.Map_Generation.print_map
 
 object ConsoleView {
   def welcome(): String = {
@@ -13,8 +13,7 @@ object ConsoleView {
       "nach neue Länder und Kontinente. Jede Runde bringt neue Truppen, \n" +
       "spannende Kämpfe und riskante Entscheidungen. Wer am Ende die \n" +
       "meisten Gebiete kontrolliert – oder seine geheime Mission erfüllt \n" +
-      "–, gewinnt das Spiel und herrscht über die Welt!\n" +
-      "Spiel starten?[y]\n"
+      "–, gewinnt das Spiel und herrscht über die Welt!\n"
   }
 
   def start(): playerList = {
@@ -27,12 +26,12 @@ object ConsoleView {
     println(playersList.toString())
     playersList
   }
-  
+
   def askPlayerCount(): Int = {
     println("How many players are gonna play? (min 2,limit 4)")
     scala.io.StdIn.readInt()
   }
-  
+
   def askPlayerColor(playerNum: Int, usedColors: List[String]): String = {
     var color = "grey"
     var valid = false
@@ -51,39 +50,89 @@ object ConsoleView {
     color
   }
 
-  def printPlayersList(playersList: List[player]): Unit = {
-    println("List of players: ")
-    for ((p, idx) <- playersList.zipWithIndex) {
-      println(s"Player ${idx + 1} -> ${p.colorName} | Infantry: ${p.infantry}")
-    }
-
+  def askForInfantryPlacement(player: player): (Int, Int, Int) = {
+    println(s"\n${colorText(player.colorName, player.colorName)}, you have ${player.infantry} infantry to place.")
+    println(s"Remaining infantry: ${player.infantry}")
+    println(s"Enter X coordinate (0 to 1):")
+    var x = scala.io.StdIn.readInt()
+    println(s"Enter Y coordinate (0 to 1):")
+    var y = scala.io.StdIn.readInt()
+    println("How many infantry to place here?")
+    var n = scala.io.StdIn.readInt()
+    (x,y,n)
   }
 
-  def showPlacementResult(result: InfantryPlacementResult): String = result match {
+  def showPlayers(playerList: playerList): String = {
+    playerList.toString
+  }
+
+  def showTileMap(mapData: List[List[Tile]]): String = {
+    Map_Generation.print_map(mapData)
+  }
+
+  def showStatus(msg: String): Unit = println(msg)
+
+  def showPlacementResult(result: InfantryPlacementResult, mapData: List[List[Tile]]): String = result match {
     case Success => "Success: Infantry placed!"
-    case InvalidInput(msg) => "Error: " + msg
-    case TileOccupied(msg) => "Error: " + msg
+    case InvalidInput(msg) => "Warning:" + msg
+    case TileOccupied(msg) =>
+      "Warning: " + msg + "\n" + Map_Generation.print_map(mapData)
+    case controller.allValid(_) => "unknow status"
   }
 
   def mapString(mapData: List[List[Tile]]): String = {
     Map_Generation.print_map(mapData)
   }
 
-  def getXCoordinate(player: player): Int = {
-    println(s"\n${colorText(player.colorName, player.colorName)}, you have ${player.infantry} infantry to place.")
-    println(s"Remaining infantry: ${player.infantry}")
-    println("Enter X coordinate (0 to X):")
-    scala.io.StdIn.readInt()
-  }
+  def placeInfantry(players: List[player],
+                    cols: Int,
+                    rows: Int,
+                    mapData: List[List[Tile]],
+                    getX: () => Int,
+                    getY: () => Int,
+                    getN: () => Int
+                   ): List[List[Tile]] =
+    var tempMapData = mapData
+    var currentPlayer = 0
 
-  def getYCoordinate(player: player): Int = {
-    println("Enter Y coordinate (0 to Y):")
-    scala.io.StdIn.readInt()
-  }
+    while (players.exists(_.infantry > 0)) {
+      val player = players(currentPlayer)
+      if (player.infantry > 0) {
+        var validMove = false
+        while (!validMove) {
+          println(s"\n${colorText(player.colorName, player.colorName)}, you have ${player.infantry} infantry to place.")
+          println(s"Remaining infantry: ${player.infantry}")
+          println("Enter X coordinate (0 to " + (cols - 1) + "):")
+          val x = getX()
+          println("Enter Y coordinate (0 to " + (rows - 1) + "):")
+          val y = getY()
+          println("How many infantry to place here?")
+          val n = getN()
 
-  def getInfantryCount(player: player): Int = {
-    println("How many infantry to place here?")
-    scala.io.StdIn.readInt()
-  }
+          if (x < 0 || x >= cols || y < 0 || y >= rows) {
+            println("Invalid coordinates! Try again.")
+          } else if (n > player.infantry) {
+            println("You don't have that many infantry remaining!")
+          } else if (tempMapData(y)(x).player != player && tempMapData(y)(x).player.colorName != "empty") {
+            println("Another Player owns this Tile! Try again.")
+            print(print_map(tempMapData))
 
+          } else {
+            val oldRow = tempMapData(y)
+            val newRow = oldRow.updated(x, updateTile(player, n, oldRow(x)))
+            tempMapData = tempMapData.updated(y, newRow)
+            player.infantry -= n
+
+            if (!player.ownedTiles.contains(tempMapData(x)(y))) {
+              player.ownedTiles = player.ownedTiles :+ tempMapData(x)(y)
+            }
+
+            validMove = true
+            print(print_map(tempMapData))
+          }
+        }
+      }
+      currentPlayer = (currentPlayer + 1) % players.length
+    }
+     tempMapData
 }

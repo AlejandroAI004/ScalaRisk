@@ -10,7 +10,8 @@ class playerList (list: List[player] = List()) {
   def usedColors(): List[String] = {
     list.map(_.colorName)
   }
-  override def toString(): String = {
+  def toList: List[player] = list
+  override def toString: String = {
     var output = "List of players: \n"
     for i <- list.indices do {
       val p = list(i)
