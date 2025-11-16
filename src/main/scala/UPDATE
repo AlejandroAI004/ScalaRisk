@@ -10,4 +10,9 @@ UPDATE-13.11.25 > A
 -placeInfantry wurde um drei Parameter erweitert, um testbar zu sein
 -startGame wurde um zwei Parameter erweitert, um testbar zu sein
 -Allgemeine Anpassungen vorgenommen
--ich kann nicht mehr srry
+
+UPDATE-16.11.25
+-MVC Model sowie in der Vorlesung (Controller, TUI usw.)
+-map_Generation verkürzt
+-neue Methode in der TUI
+-Bug-Fix
