@@ -24,6 +24,9 @@ jobs:
       - name: Run tests
         run: sbt test
 
+      - name: Coveralls GitHub Action
+        uses: coverallsapp/github-action@v2.3.6
+
       - name: Run tests with coverage and upload to Coveralls
         run: sbt clean coverage test coverageReport coveralls
         env:
