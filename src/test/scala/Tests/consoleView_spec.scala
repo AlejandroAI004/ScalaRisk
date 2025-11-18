@@ -15,8 +15,7 @@ class consoleView_spec extends AnyWordSpec with Matchers {
           "nach neue Länder und Kontinente. Jede Runde bringt neue Truppen, \n" +
           "spannende Kämpfe und riskante Entscheidungen. Wer am Ende die \n" +
           "meisten Gebiete kontrolliert – oder seine geheime Mission erfüllt \n" +
-          "–, gewinnt das Spiel und herrscht über die Welt!\n" +
-          "Spiel starten?[y]\n"
+          "–, gewinnt das Spiel und herrscht über die Welt!\n"
       welcome() should be(expected2)
     }
   }
