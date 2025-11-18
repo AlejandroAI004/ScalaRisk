@@ -52,7 +52,7 @@ object Map_Generation {
       print_horizontal(tiles) +
       print_lower_conn(tiles)
   }
-  
+
   def print_map(data: List[List[Tile]]): String ={
     var output = ""
     for e <- data do {

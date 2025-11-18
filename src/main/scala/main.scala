@@ -1,5 +1,5 @@
 import TUI.*
-import TUI.ConsoleView.placeInfantryFunctional
+import TUI.ConsoleView.{offense_phaseFunctional, placeInfantryFunctional}
 import model.*
 import controller.*
 
@@ -14,7 +14,10 @@ object main {
     val controller = new GameController(mapData, players)
     print(Map_Generation.print_map(mapData))
 
-    val newMap = placeInfantryFunctional(players, mapData, controller)
-    ConsoleView.showTileMap(newMap)
+    val mapPlacement = placeInfantryFunctional(players, mapData, controller)
+    ConsoleView.showTileMap(mapPlacement)
+    val mapOffense = offense_phaseFunctional(players, mapPlacement, controller)
+    ConsoleView.showTileMap(mapOffense)
+
   }
 }

@@ -16,3 +16,9 @@ UPDATE-16.11.25
 -map_Generation verkürzt
 -neue Methode in der TUI
 -Bug-Fix
+
+
+>TO DO
+offense_phaseFunctional
+-player muss erstmal koordinaten eingeben, um auf einen Feld zuzugreifen,
+auf den Feld werden die Infantry nochmal angezeigt, und wird an den player gefragt was er machen will

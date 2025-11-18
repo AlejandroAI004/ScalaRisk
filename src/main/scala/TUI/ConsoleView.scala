@@ -37,9 +37,9 @@ object ConsoleView {
     var color = "grey"
     var valid = false
     while (!valid) {
-      println(s"Select a color for Player $playerNum (red, blue, yellow, green):")
+      println(s"Select a color for Player $playerNum (red, blue, pink, green):")
       val input = scala.io.StdIn.readLine().toLowerCase()
-      if (!List("red", "blue", "yellow", "green").contains(input)) {
+      if (!List("red", "blue", "pink", "green").contains(input)) {
         println("Unknown color, try again!")
       } else if (usedColors.contains(input)) {
         println("That color is taken!")
@@ -72,6 +72,16 @@ object ConsoleView {
     }
   }
 
+  def askForOffenseMove(player: player): (Int, Int, Int, Int, Int) = {
+    println(s"\n${colorText(player.colorName, player.colorName)}, choose your attack:")
+    val fromX = readIntSafe("Enter FROM X coordinate:")
+    val fromY = readIntSafe("Enter FROM Y coordinate:")
+    val toX = readIntSafe("Enter TO   X coordinate:")
+    val toY = readIntSafe("Enter TO   Y coordinate:")
+    val n = readIntSafe("How many infantry to attack with?")
+    (fromX, fromY, toX, toY, n)
+  }
+
   @tailrec
   def placeInfantryFunctional(
                                players: List[player],
@@ -83,14 +93,14 @@ object ConsoleView {
     else {
       val player = players.head
       if (player.infantry > 0) {
-        val (x, y, n) = ConsoleView.askForInfantryPlacement(player)
+        val (x, y, n) = askForInfantryPlacement(player)
         controller.placeInfantry(player, x, y, n) match {
           case Right(mapData) =>
-            print(ConsoleView.showTileMap(mapData))
+            print(showTileMap(mapData))
             placeInfantryFunctional(players.tail :+ player, mapData, controller)
           case Left(msg) =>
-            ConsoleView.showStatus(msg)
-            print(ConsoleView.showTileMap(mapData))
+            showStatus(msg)
+            print(showTileMap(mapData))
             placeInfantryFunctional(players, mapData, controller)
         }
       } else {
@@ -98,6 +108,46 @@ object ConsoleView {
       }
     }
   }
+
+  @tailrec
+  def offense_phaseFunctional(players: List[player],
+                              mapData: List[List[Tile]],
+                              controller: GameController
+                             ): List[List[Tile]] = {
+    val anyCanAttack =
+      mapData.exists(row => row.exists(t => t.player.colorName != "empty" && t.soldiers > 1))
+
+    if (!anyCanAttack) {
+      mapData
+    } else {
+      val player = players.head
+
+      // Optional: prüfen, ob dieser Spieler überhaupt irgendwo ein angreifbares Feld hat
+      val playerCanAttack =
+        mapData.exists(row => row.exists(t => t.player == player && t.soldiers > 1))
+
+      if (playerCanAttack) {
+        val (fromX, fromY, toX, toY, n) = askForOffenseMove(player)
+
+        controller.offense_phase(player, fromX, fromY, toX, toY, n) match {
+          case Right(newMap) =>
+            print(showTileMap(newMap))
+            // Nächster Spieler
+            offense_phaseFunctional(players.tail :+ player, newMap, controller)
+
+          case Left(msg) =>
+            showStatus(msg)
+            print(showTileMap(mapData))
+            // Gleicher Spieler nochmal, da ungültige Aktion
+            offense_phaseFunctional(players, mapData, controller)
+        }
+      } else {
+        // Spieler hat kein Feld mit >1 Soldat → überspringen
+        offense_phaseFunctional(players.tail :+ player, mapData, controller)
+      }
+    }
+  }
+
 
   def showPlayers(playerList: playerList): String = {
     playerList.toString
@@ -111,5 +161,17 @@ object ConsoleView {
 
   def mapString(mapData: List[List[Tile]]): String = {
     Map_Generation.print_map(mapData)
+  }
+
+  @tailrec
+  def readIntSafe(prompt: String): Int = {
+    println(prompt)
+    try {
+      scala.io.StdIn.readInt()
+    } catch {
+      case _: NumberFormatException =>
+        println("Bitte gib eine gültige Zahl ein!")
+        readIntSafe(prompt)
+    }
   }
 }
