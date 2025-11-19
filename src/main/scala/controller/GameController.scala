@@ -47,13 +47,13 @@ class GameController(var mapData: List[List[Tile]], var players: List[player]) {
       return Left("You must leave at least one infantry on the attacking tile!")
     }
 
-    if(n <= toTile.soldiers) {
-      return Left("You dont have more infantry than your opponent!")
-    }
-
     if (toTile.player == player || toTile.player.colorName == "empty")
       return Left("You can only attack enemy tiles!")
 
+    if(n <= toTile.soldiers) {
+      return Left("You dont have more infantry than your opponent!")
+    }
+    
     // optional: Nachbarschaft über Parent_Tile/ connections prüfen
 
     val newFromTile = fromTile.copy(soldiers = fromTile.soldiers - n)
