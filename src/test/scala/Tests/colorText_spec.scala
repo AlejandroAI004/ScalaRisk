@@ -29,11 +29,11 @@ class colorText_spec extends AnyWordSpec with Matchers {
         "\u001B[31m" + test + "\u001B[0m"
       }
     }
-    "initialized with color yellow " should {
+    "initialized with color pink " should {
       val test = "test"
       "print yellow text" in {
-        colorText(test, "yellow") should be
-        "\u001B[31m" + test + "\u001B[0m"
+        colorText(test, "pink") should be
+        "\u001B[38;5;206m" + test + "\u001B[0m"
       }
     }
     "initialized with no color " should {

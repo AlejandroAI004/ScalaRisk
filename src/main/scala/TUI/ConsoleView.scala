@@ -54,22 +54,10 @@ object ConsoleView {
   def askForInfantryPlacement(player: player): (Int, Int, Int) = {
     println(s"\n${colorText(player.colorName, player.colorName)}, you have ${player.infantry} infantry to place.")
     println(s"Remaining infantry: ${player.infantry}")
-    println(s"Enter X coordinate (0 to 1):")
-    var x = scala.io.StdIn.readInt()
-    println(s"Enter Y coordinate (0 to 1):")
-    var y = scala.io.StdIn.readInt()
-    println("How many infantry to place here?")
-    var n = readInfatry()
+    var x = readIntSafe("Enter X coordinate (0 to 1):")
+    var y = readIntSafe("Enter Y coordinate (0 to 1):")
+    var n = readIntSafe("How many infantry to place here?")
     (x, y, n)
-  }
-  @tailrec
-  private def readInfatry(): Int = {
-    val n = scala.io.StdIn.readInt()
-    if (n > 0) n
-    else {
-      println("You cant place 0 infantry!")
-      readInfatry()
-    }
   }
 
   def askForOffenseMove(player: player): (Int, Int, Int, Int, Int) = {
@@ -157,11 +145,11 @@ object ConsoleView {
     Map_Generation.print_map(mapData)
   }
 
-  def showStatus(msg: String): Unit = println(msg)
-
-  def mapString(mapData: List[List[Tile]]): String = {
-    Map_Generation.print_map(mapData)
+  def showStatus(msg: String): String =  {
+    println(msg)
+    msg
   }
+  
 
   @tailrec
   def readIntSafe(prompt: String): Int = {
