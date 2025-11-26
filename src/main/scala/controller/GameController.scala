@@ -2,6 +2,9 @@ package controller
 import model.*
 
 class GameController(var mapData: List[List[Tile]], var players: List[player]) {
+  private var observers: List[Observer] = Nil
+
+
   def placeInfantry(
                      player: player, x: Int, y: Int, n: Int
                    ): Either[String, List[List[Tile]]] = {
@@ -16,6 +19,7 @@ class GameController(var mapData: List[List[Tile]], var players: List[player]) {
       val newRow = mapData(y).updated(x, updated)
       mapData = mapData.updated(y, newRow)
       player.infantry -= n
+      notifyObservers()
       Right(mapData)
     }
   }
@@ -54,7 +58,7 @@ class GameController(var mapData: List[List[Tile]], var players: List[player]) {
       return Left("You dont have more infantry than your opponent!")
     }
     
-    // optional: Nachbarschaft über Parent_Tile/ connections prüfen
+    // Nachbarschaft über Parent_Tile/ connections prüfen
 
     val newFromTile = fromTile.copy(soldiers = fromTile.soldiers - n)
     val newToTile = Tile(toTile.parent, player, n)
@@ -63,9 +67,19 @@ class GameController(var mapData: List[List[Tile]], var players: List[player]) {
     val tmpMap = mapData.updated(fromY, rowFromUpdated)
     val rowToUpdated = tmpMap(toY).updated(toX, newToTile)
     val newMap = tmpMap.updated(toY, rowToUpdated)
-
-    Right(newMap)
+    mapData = newMap
+    notifyObservers()
+    Right(mapData)
   }
+
+  def addObserver(o: Observer): Unit =
+    observers = o :: observers
+
+  def removeObserver(o: Observer): Unit =
+    observers = observers.filterNot(_ eq o)
+
+  protected def notifyObservers(): Unit =
+    observers.foreach(_.update())
 
 
   def allPlayers: List[player] = players

@@ -5,7 +5,18 @@ import controller.*
 
 import scala.annotation.tailrec
 
-object ConsoleView {
+object ConsoleView extends Observer{
+  private var controller: GameController = _
+
+  def init(ctrl: GameController): Unit = {
+    controller = ctrl
+    controller.addObserver(this)
+  }
+
+  override def update(): Unit = {
+    val map = controller.tiles
+    println(showTileMap(map))
+  }
   def welcome(): String = {
     "*** Welcome to Risk! ***\n" +
       "Bei Risk kämpfst du um die Weltherrschaft! \n" +
@@ -84,7 +95,6 @@ object ConsoleView {
         val (x, y, n) = askForInfantryPlacement(player)
         controller.placeInfantry(player, x, y, n) match {
           case Right(mapData) =>
-            print(showTileMap(mapData))
             placeInfantryFunctional(players.tail :+ player, mapData, controller)
           case Left(msg) =>
             showStatus(msg)
@@ -110,7 +120,7 @@ object ConsoleView {
     } else {
       val player = players.head
 
-      // Optional: prüfen, ob dieser Spieler überhaupt irgendwo ein angreifbares Feld hat
+      // prüfen, ob dieser Spieler überhaupt irgendwo ein angreifbares Feld hat
       val playerCanAttack =
         mapData.exists(row => row.exists(t => t.player == player && t.soldiers > 1))
 
@@ -119,24 +129,19 @@ object ConsoleView {
 
         controller.offense_phase(player, fromX, fromY, toX, toY, n) match {
           case Right(newMap) =>
-            print(showTileMap(newMap))
-            // Nächster Spieler
             offense_phaseFunctional(players.tail :+ player, newMap, controller)
 
           case Left(msg) =>
             showStatus(msg)
             print(showTileMap(mapData))
-            // Gleicher Spieler nochmal, da ungültige Aktion
             offense_phaseFunctional(players, mapData, controller)
         }
       } else {
-        // Spieler hat kein Feld mit >1 Soldat → überspringen
         offense_phaseFunctional(players.tail :+ player, mapData, controller)
       }
     }
   }
-
-
+  
   def showPlayers(playerList: playerList): String = {
     playerList.toString
   }
@@ -150,7 +155,6 @@ object ConsoleView {
     msg
   }
   
-
   @tailrec
   def readIntSafe(prompt: String): Int = {
     println(prompt)

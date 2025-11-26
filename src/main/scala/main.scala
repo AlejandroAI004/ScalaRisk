@@ -12,6 +12,7 @@ object main {
     val mapData = MapInit.testMap_init()
     val players = playersListObj.toList
     val controller = new GameController(mapData, players)
+    ConsoleView.init(controller)
     print(Map_Generation.print_map(mapData))
 
     val mapPlacement = placeInfantryFunctional(players, mapData, controller)
