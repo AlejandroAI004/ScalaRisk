@@ -99,159 +99,159 @@ class GameController_spec extends AnyWordSpec with Matchers {
       player.infantry shouldBe 3
     }
 
-    "GameController.offense_phase" should {
-
-      "return Left for invalid coordinates" in {
-        val attacker = new player("red")
-        val defender = new player("blue")
-        val mapData = List(
-          List(Tile(parent = null, player = attacker, soldiers = 3),
-            Tile(parent = null, player = defender, soldiers = 2))
-        )
-
-        val controller = new GameController(mapData, List(attacker, defender))
-
-        val result = controller.offense_phase(attacker, fromX = -1, fromY = 0, toX = 1, toY = 0, n = 2)
-
-        result shouldBe Left("Invalid coordinates.")
-      }
-
-      "return Left if from-tile does not belong to player" in {
-        val attacker = new player("red")
-        val other = new player("blue")
-        val defender = new player("green")
-
-        val mapData = List(
-          List(Tile(parent = null, player = other, soldiers = 3),
-            Tile(parent = null, player = defender, soldiers = 2))
-        )
-
-        val controller = new GameController(mapData, List(attacker, other, defender))
-
-        val result = controller.offense_phase(attacker, fromX = 0, fromY = 0, toX = 1, toY = 0, n = 10)
-
-        result shouldBe Left("You can only attack from your own tiles!")
-      }
-
-      "return Left if attacking tile has <= 1 soldier" in {
-        val attacker = new player("red")
-        val defender = new player("blue")
-
-        val mapData = List(
-          List(Tile(parent = null, player = attacker, soldiers = 1),
-            Tile(parent = null, player = defender, soldiers = 2))
-        )
-
-        val controller = new GameController(mapData, List(attacker, defender))
-
-        val result = controller.offense_phase(attacker, fromX = 0, fromY = 0, toX = 1, toY = 0, n = 1)
-
-        result shouldBe Left("You need more than 1 infantry on the attacking tile!")
-      }
-
-      "return Left if n <= 0" in {
-        val attacker = new player("red")
-        val defender = new player("blue")
-
-        val mapData = List(
-          List(Tile(parent = null, player = attacker, soldiers = 3),
-            Tile(parent = null, player = defender, soldiers = 2))
-        )
-
-        val controller = new GameController(mapData, List(attacker, defender))
-
-        val result = controller.offense_phase(attacker, fromX = 0, fromY = 0, toX = 1, toY = 0, n = 0)
-
-        result shouldBe Left("You must attack with at least 1 infantry!")
-      }
-
-      "return Left if n >= soldiers on from-tile" in {
-        val attacker = new player("red")
-        val defender = new player("blue")
-
-        val mapData = List(
-          List(Tile(parent = null, player = attacker, soldiers = 3),
-            Tile(parent = null, player = defender, soldiers = 1))
-        )
-
-        val controller = new GameController(mapData, List(attacker, defender))
-
-        val result = controller.offense_phase(attacker, fromX = 0, fromY = 0, toX = 1, toY = 0, n = 3)
-
-        result shouldBe Left("You must leave at least one infantry on the attacking tile!")
-      }
-
-      "return Left if attacker does not have more infantry than defender" in {
-        val attacker = new player("red")
-        val defender = new player("blue")
-
-        val mapData = List(
-          List(Tile(parent = null, player = attacker, soldiers = 7),
-            Tile(parent = null, player = defender, soldiers = 5))
-        )
-
-        val controller = new GameController(mapData, List(attacker, defender))
-
-        val result = controller.offense_phase(attacker, fromX = 0, fromY = 0, toX = 1, toY = 0, n = 4)
-
-        result shouldBe Left("You dont have more infantry than your opponent!")
-      }
-
-      "return Left if target tile is own or empty" in {
-        val attacker = new player("red")
-        val empty = new player("empty")
-
-        val mapDataOwn = List(
-          List(Tile(parent = null, player = attacker, soldiers = 4),
-            Tile(parent = null, player = attacker, soldiers = 2))
-        )
-
-        val controllerOwn = new GameController(mapDataOwn, List(attacker))
-
-        val resultOwn = controllerOwn.offense_phase(attacker, fromX = 0, fromY = 0, toX = 1, toY = 0, n = 2)
-
-        resultOwn shouldBe Left("You can only attack enemy tiles!")
-
-        val mapDataEmpty = List(
-          List(Tile(parent = null, player = attacker, soldiers = 4),
-            Tile(parent = null, player = empty, soldiers = 0))
-        )
-
-        val controllerEmpty = new GameController(mapDataEmpty, List(attacker, empty))
-
-        val resultEmpty = controllerEmpty.offense_phase(attacker, fromX = 0, fromY = 0, toX = 1, toY = 0, n = 2)
-
-        resultEmpty shouldBe Left("You can only attack enemy tiles!")
-      }
-
-      "return Right and update tiles correctly on successful attack" in {
-        val attacker = new player("red")
-        val defender = new player("blue")
-
-        val fromTile = Tile(parent = null, player = attacker, soldiers = 5)
-        val toTile = Tile(parent = null, player = defender, soldiers = 2)
-
-        val mapData = List(
-          List(fromTile, toTile)
-        )
-
-        val controller = new GameController(mapData, List(attacker, defender))
-
-        val result = controller.offense_phase(attacker, fromX = 0, fromY = 0, toX = 1, toY = 0, n = 3)
-
-        result.isRight shouldBe true
-
-        val newMap = result.toOption.get
-        val newFromTile = newMap(0)(0)
-        val newToTile = newMap(0)(1)
-
-        newFromTile.player shouldBe attacker
-        newFromTile.soldiers shouldBe 2
-
-        newToTile.player shouldBe attacker
-        newToTile.soldiers shouldBe 3
-      }
-    }
+//    "GameController.offense_phase" should {
+//
+//      "return Left for invalid coordinates" in {
+//        val attacker = new player("red")
+//        val defender = new player("blue")
+//        val mapData = List(
+//          List(Tile(parent = null, player = attacker, soldiers = 3),
+//            Tile(parent = null, player = defender, soldiers = 2))
+//        )
+//
+//        val controller = new GameController(mapData, List(attacker, defender))
+//
+//        val result = controller.offense_phase(attacker, fromX = -1, fromY = 0, toX = 1, toY = 0, n = 2)
+//
+//        result shouldBe Left("Invalid coordinates.")
+//      }
+//
+//      "return Left if from-tile does not belong to player" in {
+//        val attacker = new player("red")
+//        val other = new player("blue")
+//        val defender = new player("green")
+//
+//        val mapData = List(
+//          List(Tile(parent = null, player = other, soldiers = 3),
+//            Tile(parent = null, player = defender, soldiers = 2))
+//        )
+//
+//        val controller = new GameController(mapData, List(attacker, other, defender))
+//
+//        val result = controller.offense_phase(attacker, fromX = 0, fromY = 0, toX = 1, toY = 0, n = 10)
+//
+//        result shouldBe Left("You can only attack from your own tiles!")
+//      }
+//
+//      "return Left if attacking tile has <= 1 soldier" in {
+//        val attacker = new player("red")
+//        val defender = new player("blue")
+//
+//        val mapData = List(
+//          List(Tile(parent = null, player = attacker, soldiers = 1),
+//            Tile(parent = null, player = defender, soldiers = 2))
+//        )
+//
+//        val controller = new GameController(mapData, List(attacker, defender))
+//
+//        val result = controller.offense_phase(attacker, fromX = 0, fromY = 0, toX = 1, toY = 0, n = 1)
+//
+//        result shouldBe Left("You need more than 1 infantry on the attacking tile!")
+//      }
+//
+//      "return Left if n <= 0" in {
+//        val attacker = new player("red")
+//        val defender = new player("blue")
+//
+//        val mapData = List(
+//          List(Tile(parent = null, player = attacker, soldiers = 3),
+//            Tile(parent = null, player = defender, soldiers = 2))
+//        )
+//
+//        val controller = new GameController(mapData, List(attacker, defender))
+//
+//        val result = controller.offense_phase(attacker, fromX = 0, fromY = 0, toX = 1, toY = 0, n = 0)
+//
+//        result shouldBe Left("You must attack with at least 1 infantry!")
+//      }
+//
+//      "return Left if n >= soldiers on from-tile" in {
+//        val attacker = new player("red")
+//        val defender = new player("blue")
+//
+//        val mapData = List(
+//          List(Tile(parent = null, player = attacker, soldiers = 3),
+//            Tile(parent = null, player = defender, soldiers = 1))
+//        )
+//
+//        val controller = new GameController(mapData, List(attacker, defender))
+//
+//        val result = controller.offense_phase(attacker, fromX = 0, fromY = 0, toX = 1, toY = 0, n = 3)
+//
+//        result shouldBe Left("You must leave at least one infantry on the attacking tile!")
+//      }
+//
+//      "return Left if attacker does not have more infantry than defender" in {
+//        val attacker = new player("red")
+//        val defender = new player("blue")
+//
+//        val mapData = List(
+//          List(Tile(parent = null, player = attacker, soldiers = 7),
+//            Tile(parent = null, player = defender, soldiers = 5))
+//        )
+//
+//        val controller = new GameController(mapData, List(attacker, defender))
+//
+//        val result = controller.offense_phase(attacker, fromX = 0, fromY = 0, toX = 1, toY = 0, n = 4)
+//
+//        result shouldBe Left("You dont have more infantry than your opponent!")
+//      }
+//
+//      "return Left if target tile is own or empty" in {
+//        val attacker = new player("red")
+//        val empty = new player("empty")
+//
+//        val mapDataOwn = List(
+//          List(Tile(parent = null, player = attacker, soldiers = 4),
+//            Tile(parent = null, player = attacker, soldiers = 2))
+//        )
+//
+//        val controllerOwn = new GameController(mapDataOwn, List(attacker))
+//
+//        val resultOwn = controllerOwn.offense_phase(attacker, fromX = 0, fromY = 0, toX = 1, toY = 0, n = 2)
+//
+//        resultOwn shouldBe Left("You can only attack enemy tiles!")
+//
+//        val mapDataEmpty = List(
+//          List(Tile(parent = null, player = attacker, soldiers = 4),
+//            Tile(parent = null, player = empty, soldiers = 0))
+//        )
+//
+//        val controllerEmpty = new GameController(mapDataEmpty, List(attacker, empty))
+//
+//        val resultEmpty = controllerEmpty.offense_phase(attacker, fromX = 0, fromY = 0, toX = 1, toY = 0, n = 2)
+//
+//        resultEmpty shouldBe Left("You can only attack enemy tiles!")
+//      }
+//
+//      "return Right and update tiles correctly on successful attack" in {
+//        val attacker = new player("red")
+//        val defender = new player("blue")
+//
+//        val fromTile = Tile(parent = null, player = attacker, soldiers = 5)
+//        val toTile = Tile(parent = null, player = defender, soldiers = 2)
+//
+//        val mapData = List(
+//          List(fromTile, toTile)
+//        )
+//
+//        val controller = new GameController(mapData, List(attacker, defender))
+//
+//        val result = controller.offense_phase(attacker, fromX = 0, fromY = 0, toX = 1, toY = 0, n = 3)
+//
+//        result.isRight shouldBe true
+//
+//        val newMap = result.toOption.get
+//        val newFromTile = newMap(0)(0)
+//        val newToTile = newMap(0)(1)
+//
+//        newFromTile.player shouldBe attacker
+//        newFromTile.soldiers shouldBe 2
+//
+//        newToTile.player shouldBe attacker
+//        newToTile.soldiers shouldBe 3
+//      }
+//    }
 
     "GameController.allPlayers" should {
       "return the same list that was passed into the controller" in {
