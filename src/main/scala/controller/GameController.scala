@@ -1,6 +1,8 @@
 package controller
 import model.*
 
+import scala.util.Random
+
 class GameController(var mapData: List[List[Tile]], var players: List[player]) {
   private var observers: List[Observer] = Nil
 
@@ -60,8 +62,10 @@ class GameController(var mapData: List[List[Tile]], var players: List[player]) {
     
     // Nachbarschaft über Parent_Tile/ connections prüfen
 
-    val newFromTile = fromTile.copy(soldiers = fromTile.soldiers - n)
-    val newToTile = Tile(toTile.parent, player, n)
+    val (newFromTile,newToTile) = DiceCombatStrategy.resolveAttack(fromTile,toTile,n)
+
+//    val newFromTile = fromTile.copy(soldiers = fromTile.soldiers - n)
+//    val newToTile = Tile(toTile.parent, player, n)
 
     val rowFromUpdated = mapData(fromY).updated(fromX, newFromTile)
     val tmpMap = mapData.updated(fromY, rowFromUpdated)
@@ -70,6 +74,51 @@ class GameController(var mapData: List[List[Tile]], var players: List[player]) {
     mapData = newMap
     notifyObservers()
     Right(mapData)
+  }
+
+  object DiceCombatStrategy extends CombatStrategy {
+
+    private val rnd = new Random()
+
+    override def resolveAttack(
+                                attacker: Tile,
+                                defender: Tile,
+                                soldiers: Int
+                              ): (Tile, Tile) = {
+      val attSoldiers = soldiers
+      val defSoldiers = defender.soldiers
+
+      val total = attSoldiers + defSoldiers
+      val winProb: Double =
+        if (total == 0) 0.5
+        else attSoldiers.toDouble / total.toDouble
+
+      val attackerWins = rnd.nextDouble() < winProb
+
+      if (attackerWins) {
+        // Angreifer gewinnt: verteidiger verliert alles,
+        // Angreifer verliert anteilig, aber weniger, wenn er deutlich stärker war
+        val lossFactor = 1.0 - winProb // je stärker, desto kleiner
+        val attLoss = math.max(1, (attSoldiers * lossFactor).round.toInt)
+        val survivors = attSoldiers - attLoss
+
+        val newFrom = attacker.copy(soldiers = attacker.soldiers - attSoldiers)
+        val newTo = Tile(defender.parent, attacker.player, survivors.max(1))
+
+        (newFrom, newTo)
+      } else {
+        // Verteidiger hält: Angreifer verliert hauptsächlich seine Angriffstruppen,
+        // Verteidiger verliert auch etwas, abhängig von Verhältnis
+        val defLossFactor = winProb // je stärker Angreifer, desto mehr verliert Verteidiger auch
+        val defLoss = math.max(0, (defSoldiers * defLossFactor).round.toInt)
+        val newDefTroops = (defSoldiers - defLoss).max(1)
+
+        val newFrom = attacker.copy(soldiers = attacker.soldiers - attSoldiers)
+        val newTo = defender.copy(soldiers = newDefTroops)
+
+        (newFrom, newTo)
+      }
+    }
   }
 
   def addObserver(o: Observer): Unit =
