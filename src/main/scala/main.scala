@@ -1,9 +1,6 @@
 import TUI.*
-import TUI.ConsoleView.{offense_phaseFunctional, placeInfantryFunctional}
 import model.*
 import controller.*
-
-import scala.io.StdIn
 
 object main {
   def main(args: Array[String]): Unit = {
@@ -11,14 +8,21 @@ object main {
     val playersListObj = ConsoleView.start()
     val mapData = MapInit.testMap_init()
     val players = playersListObj.toList
-    val controller = new GameController(mapData, players)
+
+    val controller = new GameController(mapData, players, DiceCombatStrategy)
     ConsoleView.init(controller)
+
     print(Map_Generation.print_map(mapData))
 
-    val mapPlacement = placeInfantryFunctional(players, mapData, controller)
-    ConsoleView.showTileMap(mapPlacement)
-    val mapOffense = offense_phaseFunctional(players, mapPlacement, controller)
-    ConsoleView.showTileMap(mapOffense)
+    controller.handleEvent(PlaceInfantryEvent)
+    ConsoleView.showTileMap(controller.tiles)
+
+    controller.handleEvent(AttackEvent)
+    ConsoleView.showTileMap(controller.tiles)
+
+    //    val mapPlacement = placeInfantryFunctional(players, controller)
+//    val mapOffense = offense_phaseFunctional(players, controller)
+//    ConsoleView.showTileMap(mapOffense)
 
   }
 }

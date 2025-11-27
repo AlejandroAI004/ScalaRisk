@@ -10,7 +10,7 @@ object ConsoleView extends Observer{
 
   def init(ctrl: GameController): Unit = {
     controller = ctrl
-    controller.addObserver(this)
+    controller.add(this)
   }
 
   override def update(): Unit = {
@@ -33,7 +33,8 @@ object ConsoleView extends Observer{
     var playersList = new playerList()
     for (i <- 1 to numPlayers) {
       val color = askPlayerColor(i, playersList.usedColors())
-      playersList = playersList.addPlayer(color)
+      val p = player(color)
+      playersList = playersList.addPlayer(p)
     }
     println(playersList.toString())
     playersList
@@ -84,9 +85,9 @@ object ConsoleView extends Observer{
   @tailrec
   def placeInfantryFunctional(
                                players: List[player],
-                               mapData: List[List[Tile]],
                                controller: GameController
                              ): List[List[Tile]] = {
+    val mapData = controller.tiles
       if (players.forall(_.infantry <= 0))
       mapData
     else {
@@ -95,23 +96,23 @@ object ConsoleView extends Observer{
         val (x, y, n) = askForInfantryPlacement(player)
         controller.placeInfantry(player, x, y, n) match {
           case Right(mapData) =>
-            placeInfantryFunctional(players.tail :+ player, mapData, controller)
+            placeInfantryFunctional(players.tail :+ player, controller)
           case Left(msg) =>
             showStatus(msg)
             print(showTileMap(mapData))
-            placeInfantryFunctional(players, mapData, controller)
+            placeInfantryFunctional(players, controller)
         }
       } else {
-        placeInfantryFunctional(players.tail :+ player, mapData, controller)
+        placeInfantryFunctional(players.tail :+ player, controller)
       }
     }
   }
 
   @tailrec
   def offense_phaseFunctional(players: List[player],
-                              mapData: List[List[Tile]],
                               controller: GameController
                              ): List[List[Tile]] = {
+    val mapData = controller.tiles
     val anyCanAttack =
       mapData.exists(row => row.exists(t => t.player.colorName != "empty" && t.soldiers > 1))
 
@@ -129,15 +130,15 @@ object ConsoleView extends Observer{
 
         controller.offense_phase(player, fromX, fromY, toX, toY, n) match {
           case Right(newMap) =>
-            offense_phaseFunctional(players.tail :+ player, newMap, controller)
+            offense_phaseFunctional(players.tail :+ player, controller)
 
           case Left(msg) =>
             showStatus(msg)
             print(showTileMap(mapData))
-            offense_phaseFunctional(players, mapData, controller)
+            offense_phaseFunctional(players, controller)
         }
       } else {
-        offense_phaseFunctional(players.tail :+ player, mapData, controller)
+        offense_phaseFunctional(players.tail :+ player, controller)
       }
     }
   }
