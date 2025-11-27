@@ -5,6 +5,14 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 
 class playerList_spec extends AnyWordSpec with Matchers {
+  "playerList.toList" should {
+
+    "return an empty list for a new playerList" in {
+      val pl = new playerList
+
+      pl.toList shouldBe empty
+    }
+  }
   "toString" should {
     "format all players with color and infantry correctly" in {
       val p1 = new player("blue")
@@ -51,7 +59,10 @@ class playerList_spec extends AnyWordSpec with Matchers {
         stripAnsi(playerList.toString()) should be(expected)
       }
     }
+
   }
+
+
 
   def stripAnsi(str: String): String =
     str.replaceAll("\u001B\\[[;\\d]*m", "")

@@ -1,5 +1,7 @@
 package TUI
 
+import scala.util.{Try, Success, Failure}
+
 import model.*
 import controller.*
 
@@ -28,12 +30,12 @@ object ConsoleView extends Observer{
       "–, gewinnt das Spiel und herrscht über die Welt!\n"
   }
 
-  def start(): playerList = {
+  def start(factory: playerFactory = DefaultPlayerFactory): playerList = {
     val numPlayers = askPlayerCount()
     var playersList = new playerList()
     for (i <- 1 to numPlayers) {
       val color = askPlayerColor(i, playersList.usedColors())
-      val p = player(color)
+      val p = factory.create(color)
       playersList = playersList.addPlayer(p)
     }
     println(playersList.toString())
@@ -88,17 +90,17 @@ object ConsoleView extends Observer{
                                controller: GameController
                              ): List[List[Tile]] = {
     val mapData = controller.tiles
-      if (players.forall(_.infantry <= 0))
+    if (players.forall(_.infantry <= 0))
       mapData
     else {
       val player = players.head
       if (player.infantry > 0) {
         val (x, y, n) = askForInfantryPlacement(player)
         controller.placeInfantry(player, x, y, n) match {
-          case Right(mapData) =>
+          case Success(newMap) =>
             placeInfantryFunctional(players.tail :+ player, controller)
-          case Left(msg) =>
-            showStatus(msg)
+          case Failure(ex) =>
+            showStatus(ex.getMessage)
             print(showTileMap(mapData))
             placeInfantryFunctional(players, controller)
         }
@@ -129,11 +131,11 @@ object ConsoleView extends Observer{
         val (fromX, fromY, toX, toY, n) = askForOffenseMove(player)
 
         controller.offense_phase(player, fromX, fromY, toX, toY, n) match {
-          case Right(newMap) =>
+          case Success(newMap) =>
             offense_phaseFunctional(players.tail :+ player, controller)
 
-          case Left(msg) =>
-            showStatus(msg)
+          case Failure(ex) =>
+            showStatus(ex.getMessage)
             print(showTileMap(mapData))
             offense_phaseFunctional(players, controller)
         }

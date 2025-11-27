@@ -15,3 +15,6 @@ package model
     case _   => new player("red")  // Fallback
   }
   }
+
+   override def create(colorName: String): player =
+     new player(colorName)

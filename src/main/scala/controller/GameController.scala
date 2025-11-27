@@ -1,6 +1,8 @@
 package controller
 import model.*
 
+import scala.util.{Try, Success, Failure}
+
 class GameController(var initialMap: List[List[Tile]],
                      var players: List[player],
                      var combatStrategy: CombatStrategy = DiceCombatStrategy) extends Observable {
@@ -8,23 +10,23 @@ class GameController(var initialMap: List[List[Tile]],
   private var mapData: List[List[Tile]] = initialMap
   private var state: GameState = PlacementState
 
-
   def placeInfantry(
                      player: player, x: Int, y: Int, n: Int
-                   ): Either[String, List[List[Tile]]] = {
+                   ): Try[List[List[Tile]]] = Try {
+
     if (x < 0 || x >= mapData.head.length || y < 0 || y >= mapData.length)
-      Left("Invalid coordinates.")
+      throw new IllegalArgumentException("Invalid coordinates.")
     else if (n > player.infantry)
-      Left("You don't have that many infantry remaining!")
-    else if (mapData(y)(x).player != player && mapData(y)(x).player.colorName != "empty") {
-      Left("Another Player owns this Tile!")
-    } else {
+      throw new IllegalArgumentException("You don't have that many infantry remaining!")
+    else if (mapData(y)(x).player != player && mapData(y)(x).player.colorName != "empty")
+      throw new IllegalArgumentException("Another Player owns this Tile!")
+    else {
       val updated = updateTile(player, n, mapData(y)(x))
       val newRow = mapData(y).updated(x, updated)
       mapData = mapData.updated(y, newRow)
       player.infantry -= n
       notifyObservers()
-      Right(mapData)
+      mapData
     }
   }
 
@@ -33,33 +35,33 @@ class GameController(var initialMap: List[List[Tile]],
                      fromX: Int, fromY: Int,
                      toX: Int, toY: Int,
                      n: Int
-                   ): Either[String, List[List[Tile]]] = {
+                   ): Try[List[List[Tile]]] = Try {
 
     if (fromX < 0 || fromX >= mapData.head.length || fromY < 0 || fromY >= mapData.length ||
       toX < 0 || toX >= mapData.head.length || toY < 0 || toY >= mapData.length)
-      return Left("Invalid coordinates.")
+      throw new IllegalArgumentException("Invalid coordinates.")
 
     val fromTile = mapData(fromY)(fromX)
     val toTile = mapData(toY)(toX)
 
     if (fromTile.player != player)
-      return Left("You can only attack from your own tiles!")
+      throw new IllegalArgumentException("You can only attack from your own tiles!")
 
     if (fromTile.soldiers <= 1)
-      return Left("You need more than 1 infantry on the attacking tile!")
+      throw new IllegalArgumentException("You need more than 1 infantry on the attacking tile!")
 
     if (n <= 0)
-      return Left("You must attack with at least 1 infantry!")
+      throw new IllegalArgumentException("You must attack with at least 1 infantry!")
 
     if (n >= fromTile.soldiers) {
-      return Left("You must leave at least one infantry on the attacking tile!")
+      throw new IllegalArgumentException("You must leave at least one infantry on the attacking tile!")
     }
 
     if (toTile.player == player || toTile.player.colorName == "empty")
-      return Left("You can only attack enemy tiles!")
+      throw new IllegalArgumentException("You can only attack enemy tiles!")
 
     if(n <= toTile.soldiers) {
-      return Left("You dont have more infantry than your opponent!")
+      throw new IllegalArgumentException("You dont have more infantry than your opponent!")
     }
     
     // Nachbarschaft über Parent_Tile/ connections prüfen
@@ -75,7 +77,7 @@ class GameController(var initialMap: List[List[Tile]],
     val newMap = tmpMap.updated(toY, rowToUpdated)
     mapData = newMap
     notifyObservers()
-    Right(mapData)
+    mapData
   }
 
 

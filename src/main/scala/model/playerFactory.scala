@@ -1,7 +1,10 @@
 package model
 
 trait playerFactory {
-  def colorName: String
-  var infantry: Int
-  override def toString: String = colorName
+  def create(colorName: String): player
+}
+
+object DefaultPlayerFactory extends playerFactory {
+  override def create(colorName: String): player =
+    new player(colorName) 
 }

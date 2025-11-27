@@ -2,8 +2,10 @@ package Tests
 
 import controller.*
 import model.*
-import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpec
+
+import scala.util.Failure
 
 class GameController_spec extends AnyWordSpec with Matchers {
   object TestCombatStrategy extends CombatStrategy {
@@ -26,7 +28,10 @@ class GameController_spec extends AnyWordSpec with Matchers {
 
       val result = controller.placeInfantry(player, x = -1, y = 0, n = 1)
 
-      result shouldBe Left("Invalid coordinates.")
+      result shouldBe a [Failure[_]]
+      val ex = result.failed.get
+      ex shouldBe a [IllegalArgumentException]
+      ex.getMessage shouldBe "Invalid coordinates."
     }
 
     "return Left when placing more infantry than the player has" in {
@@ -42,7 +47,10 @@ class GameController_spec extends AnyWordSpec with Matchers {
 
       val result = controller.placeInfantry(player, x = 0, y = 0, n = 3)
 
-      result shouldBe Left("You don't have that many infantry remaining!")
+      result shouldBe a[Failure[_]]
+      val ex = result.failed.get
+      ex shouldBe a[IllegalArgumentException]
+      ex.getMessage shouldBe "You don't have that many infantry remaining!"
     }
 
     "return Left when anoher player own this tile" in {
@@ -57,7 +65,10 @@ class GameController_spec extends AnyWordSpec with Matchers {
 
       val result = controller.placeInfantry(player, x = 0, y = 0, n = 3)
 
-      result shouldBe Left("Another Player owns this Tile!")
+      result shouldBe a[Failure[_]]
+      val ex = result.failed.get
+      ex shouldBe a[IllegalArgumentException]
+      ex.getMessage shouldBe "Another Player owns this Tile!"
     }
 
     "return Right when movement is Sucessful" in {
@@ -73,7 +84,7 @@ class GameController_spec extends AnyWordSpec with Matchers {
 
       val result = controller.placeInfantry(player, x = 0, y = 0, n = 3)
 
-      result.isRight shouldBe true
+      result.isSuccess shouldBe true
 
       val newMap = result.toOption.get
       val updatedTile = newMap(0)(0)
@@ -95,7 +106,7 @@ class GameController_spec extends AnyWordSpec with Matchers {
 
       val result = controller.placeInfantry(player, x = 0, y = 0, n = 2)
 
-      result.isRight shouldBe true
+      result.isSuccess shouldBe true
 
       val newMap = result.toOption.get
       val updatedTile = newMap(0)(0)
@@ -121,7 +132,10 @@ class GameController_spec extends AnyWordSpec with Matchers {
 
         val result = ctrl.offense_phase(red, fromX = -1, fromY = 0, toX = 1, toY = 0, n = 2)
 
-        result shouldBe Left("Invalid coordinates.")
+        result shouldBe a[Failure[_]]
+        val ex = result.failed.get
+        ex shouldBe a[IllegalArgumentException]
+        ex.getMessage shouldBe "Invalid coordinates."
       }
 
       "return Left if from-tile does not belong to player" in {
@@ -137,7 +151,10 @@ class GameController_spec extends AnyWordSpec with Matchers {
 
         val result = ctrl.offense_phase(red, fromX = 0, fromY = 0, toX = 1, toY = 0, n = 2)
 
-        result shouldBe Left("You can only attack from your own tiles!")
+        result shouldBe a[Failure[_]]
+        val ex = result.failed.get
+        ex shouldBe a[IllegalArgumentException]
+        ex.getMessage shouldBe "You can only attack from your own tiles!"
       }
 
       "return Left if attacking tile has <= 1 soldier" in {
@@ -153,7 +170,10 @@ class GameController_spec extends AnyWordSpec with Matchers {
 
         val result = ctrl.offense_phase(red, fromX = 0, fromY = 0, toX = 1, toY = 0, n = 1)
 
-        result shouldBe Left("You need more than 1 infantry on the attacking tile!")
+        result shouldBe a[Failure[_]]
+        val ex = result.failed.get
+        ex shouldBe a[IllegalArgumentException]
+        ex.getMessage shouldBe "You need more than 1 infantry on the attacking tile!"
       }
 
       "return Left if n <= 0" in {
@@ -169,7 +189,10 @@ class GameController_spec extends AnyWordSpec with Matchers {
 
         val result = ctrl.offense_phase(red, fromX = 0, fromY = 0, toX = 1, toY = 0, n = 0)
 
-        result shouldBe Left("You must attack with at least 1 infantry!")
+        result shouldBe a[Failure[_]]
+        val ex = result.failed.get
+        ex shouldBe a[IllegalArgumentException]
+        ex.getMessage shouldBe "You must attack with at least 1 infantry!"
       }
 
       "return Left if n >= soldiers on from-tile" in {
@@ -185,7 +208,10 @@ class GameController_spec extends AnyWordSpec with Matchers {
 
         val result = ctrl.offense_phase(red, fromX = 0, fromY = 0, toX = 1, toY = 0, n = 4)
 
-        result shouldBe Left("You must leave at least one infantry on the attacking tile!")
+        result shouldBe a[Failure[_]]
+        val ex = result.failed.get
+        ex shouldBe a[IllegalArgumentException]
+        ex.getMessage shouldBe "You must leave at least one infantry on the attacking tile!"
       }
 
       "return Left if target tile is own or empty" in {
@@ -206,8 +232,17 @@ class GameController_spec extends AnyWordSpec with Matchers {
         val resultOwn = ctrlOwn.offense_phase(red, fromX = 0, fromY = 0, toX = 1, toY = 0, n = 2)
         val resultEmpty = ctrlEmpty.offense_phase(red, fromX = 0, fromY = 0, toX = 1, toY = 0, n = 2)
 
-        resultOwn shouldBe Left("You can only attack enemy tiles!")
-        resultEmpty shouldBe Left("You can only attack enemy tiles!")
+        resultOwn shouldBe a[Failure[_]]
+        resultEmpty shouldBe a[Failure[_]]
+
+        val exOwn = resultOwn.failed.get
+        val exEmpty = resultEmpty.failed.get
+
+        exOwn shouldBe a[IllegalArgumentException]
+        exOwn.getMessage shouldBe "You can only attack enemy tiles!"
+
+        exEmpty shouldBe a[IllegalArgumentException]
+        exEmpty.getMessage shouldBe "You can only attack enemy tiles!"
       }
 
       "return Left if attacker does not send more soldiers than defender has" in {
@@ -223,7 +258,10 @@ class GameController_spec extends AnyWordSpec with Matchers {
 
         val result = ctrl.offense_phase(red, fromX = 0, fromY = 0, toX = 1, toY = 0, n = 8)
 
-        result shouldBe Left("You dont have more infantry than your opponent!")
+        result shouldBe a[Failure[_]]
+        val ex = result.failed.get
+        ex shouldBe a[IllegalArgumentException]
+        ex.getMessage shouldBe "You dont have more infantry than your opponent!"
       }
 
       "update tiles and mapData correctly on successful attack" in {
@@ -239,7 +277,7 @@ class GameController_spec extends AnyWordSpec with Matchers {
 
         val result = ctrl.offense_phase(red, fromX = 0, fromY = 0, toX = 1, toY = 0, n = 5)
 
-        result.isRight shouldBe true
+        result.isSuccess shouldBe true
 
         val newMap = result.toOption.get
         val newFromTile = newMap(0)(0)
