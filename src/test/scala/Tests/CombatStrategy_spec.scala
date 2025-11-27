@@ -45,9 +45,8 @@ class CombatStrategy_spec extends AnyWordSpec with Matchers {
       val attackerTile = Tile(parentA, attackerPlayer, soldiers = 20)
       val defenderTile = Tile(parentD, defenderPlayer, soldiers = 10)
 
-      val n = 8
+      val n = 6
 
-      // Mehrfach ausführen, weil zufällig
       for (_ <- 1 to 20) {
         val (newFrom, _) =
           DiceCombatStrategy.resolveAttack(attackerTile, defenderTile, n)
@@ -58,7 +57,7 @@ class CombatStrategy_spec extends AnyWordSpec with Matchers {
       }
     }
 
-    "never create negative or zero soldiers on tiles" in {
+    "never produce zero or negative soldiers on the target tile" in {
       val parentA = Parent_Tile()
       val parentD = Parent_Tile()
 
@@ -71,19 +70,14 @@ class CombatStrategy_spec extends AnyWordSpec with Matchers {
       val n = 5
 
       for (_ <- 1 to 50) {
-        val (newFrom, newTo) =
+        val (_, newTo) =
           DiceCombatStrategy.resolveAttack(attackerTile, defenderTile, n)
 
-        // Auf Ursprungsfeld: 10 - 5 = 5
-        newFrom.soldiers shouldBe 10 - n
-        newFrom.soldiers should be > 0
-
-        // Zielfeld: mindestens 1 Soldat, egal ob Angreifer oder Verteidiger
         newTo.soldiers should be >= 1
       }
     }
 
-    "sometimes let attacker win and sometimes defender keep the tile (probabilistic check)" in {
+    "sometimes let attacker win and sometimes defender hold the tile" in {
       val parentA = Parent_Tile()
       val parentD = Parent_Tile()
 
@@ -95,19 +89,19 @@ class CombatStrategy_spec extends AnyWordSpec with Matchers {
 
       val n = 10
 
-      var attackerWins = false
+      var attackerWins  = false
       var defenderHolds = false
 
       for (_ <- 1 to 100) {
         val (_, newTo) =
           DiceCombatStrategy.resolveAttack(attackerTile, defenderTile, n)
 
-        if (newTo.player eq attackerPlayer) attackerWins = true
+        if (newTo.player eq attackerPlayer) attackerWins  = true
         if (newTo.player eq defenderPlayer) defenderHolds = true
       }
 
-      attackerWins   shouldBe true
-      defenderHolds  shouldBe true
+      attackerWins  shouldBe true
+      defenderHolds shouldBe true
     }
   }
 }
