@@ -327,7 +327,32 @@ class GameController_spec extends AnyWordSpec with Matchers {
 
           controller.tiles shouldBe mapData
         }
-        
+      }
+
+      "GameController.currentStateName" should {
+
+        "return \"Placement\" initially" in {
+          val p1      = new player("red")
+          val players = List(p1)
+          val mapData = MapInit.testMap_init()
+
+          val ctrl = new GameController(mapData, players, SimpleCombatStrategy)
+
+          ctrl.currentStateName shouldBe "Placement"
+        }
+
+        "return \"Offense\" after switching to OffenseState" in {
+          val p1      = new player("red"); p1.infantry = 0
+          val p2      = new player("blue"); p2.infantry = 0
+          val players = List(p1, p2)
+          val mapData = MapInit.testMap_init()
+
+          val ctrl = new GameController(mapData, players, SimpleCombatStrategy)
+
+          ctrl.handleEvent(PlaceInfantryEvent)
+
+          ctrl.currentStateName shouldBe "Offense"
+        }
       }
     }
   }
