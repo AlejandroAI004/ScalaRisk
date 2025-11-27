@@ -1,7 +1,8 @@
-import model.*
+package Tests
 
-import org.scalatest.wordspec.AnyWordSpec
+import model.*
 import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpec
 
 class playerFactory_spec extends AnyWordSpec with Matchers {
 

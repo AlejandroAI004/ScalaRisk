@@ -21,6 +21,15 @@ class player_spec extends AnyWordSpec with Matchers {
         p.toString should be("blue")
       }
     }
+
+    "create a player with the given colorName" in {
+      val factory = new player("dummy")
+
+      val p = factory.create("red")
+
+      p.colorName shouldBe "red"
+      p.infantry  shouldBe 20
+    }
   }
 }
 
