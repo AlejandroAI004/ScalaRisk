@@ -24,8 +24,8 @@ class consoleView_spec extends AnyWordSpec with Matchers {
 
     "showplayers" should {
       "return the same string as playerList.toString" in {
-        val p1 = new player("red")
-        val p2 = new player("blue")
+        val p1 = new Player("red")
+        val p2 = new Player("blue")
 
         val players = new playerList()
           .addPlayer(p1)
@@ -39,8 +39,8 @@ class consoleView_spec extends AnyWordSpec with Matchers {
 
     "showTileMap" should {
       "print the actual map" in {
-        val p1 = new player("red")
-        val p2 = new player("blue")
+        val p1 = new Player("red")
+        val p2 = new Player("blue")
 
         val parent1 = Parent_Tile()
         val parent2 = Parent_Tile()

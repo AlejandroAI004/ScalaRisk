@@ -1,7 +1,7 @@
 package Tests
 
 import TUI.*
-import model.{Parent_Tile, Tile, player}
+import model.{Parent_Tile, Tile, Player}
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 
@@ -9,7 +9,7 @@ class Tile_spec extends AnyWordSpec with Matchers {
   "A Tile" when {
     "initialized with parent and owner " should {
       val emptyParent = Parent_Tile()
-      val emptyPlayer = new player("empty")
+      val emptyPlayer = new Player("empty")
       val tile = Tile(emptyParent, emptyPlayer)
       "have a parent" in {
         tile.parent should be(emptyParent)

@@ -30,12 +30,12 @@ object ConsoleView extends Observer{
       "–, gewinnt das Spiel und herrscht über die Welt!\n"
   }
 
-  def start(factory: playerFactory = DefaultPlayerFactory): playerList = {
+  def start(): playerList = {
     val numPlayers = askPlayerCount()
     var playersList = new playerList()
     for (i <- 1 to numPlayers) {
       val color = askPlayerColor(i, playersList.usedColors())
-      val p = factory.create(color)
+      val p = Player(color)
       playersList = playersList.addPlayer(p)
     }
     println(playersList.toString())
@@ -65,7 +65,7 @@ object ConsoleView extends Observer{
     color
   }
 
-  def askForInfantryPlacement(player: player): (Int, Int, Int) = {
+  def askForInfantryPlacement(player: Player): (Int, Int, Int) = {
     println(s"\n${colorText(player.colorName, player.colorName)}, you have ${player.infantry} infantry to place.")
     println(s"Remaining infantry: ${player.infantry}")
     var x = readIntSafe("Enter X coordinate (0 to 1):")
@@ -74,7 +74,7 @@ object ConsoleView extends Observer{
     (x, y, n)
   }
 
-  def askForOffenseMove(player: player): (Int, Int, Int, Int, Int) = {
+  def askForOffenseMove(player: Player): (Int, Int, Int, Int, Int) = {
     println(s"\n${colorText(player.colorName, player.colorName)}, choose your attack:")
     val fromX = readIntSafe("Enter FROM X coordinate:")
     val fromY = readIntSafe("Enter FROM Y coordinate:")
@@ -86,7 +86,7 @@ object ConsoleView extends Observer{
 
   @tailrec
   def placeInfantryFunctional(
-                               players: List[player],
+                               players: List[Player],
                                controller: GameController
                              ): List[List[Tile]] = {
     val mapData = controller.tiles
@@ -111,7 +111,7 @@ object ConsoleView extends Observer{
   }
 
   @tailrec
-  def offense_phaseFunctional(players: List[player],
+  def offense_phaseFunctional(players: List[Player],
                               controller: GameController
                              ): List[List[Tile]] = {
     val mapData = controller.tiles

@@ -18,10 +18,10 @@ class GameController_spec extends AnyWordSpec with Matchers {
   "placeinfantry" should {
 
     "return Left for invalid coordinates" in {
-      val player = new player("red")
+      val player = new Player("red")
 
       val mapData = List(
-        List(Tile(parent = null, player = new player("empty"), soldiers = 0))
+        List(Tile(parent = null, player = new Player("empty"), soldiers = 0))
       )
 
       val controller = new GameController(mapData, List(player))
@@ -35,10 +35,10 @@ class GameController_spec extends AnyWordSpec with Matchers {
     }
 
     "return Left when placing more infantry than the player has" in {
-      val player = new player("red")
+      val player = new Player("red")
       player.infantry = 2
 
-      val emptyOwner = new player("empty")
+      val emptyOwner = new Player("empty")
       val mapData = List(
         List(Tile(parent = null, player = emptyOwner, soldiers = 0))
       )
@@ -54,8 +54,8 @@ class GameController_spec extends AnyWordSpec with Matchers {
     }
 
     "return Left when anoher player own this tile" in {
-      val player = new player("red")
-      val player2 = new player("blue")
+      val player = new Player("red")
+      val player2 = new Player("blue")
 
       val mapData = List(
         List(Tile(parent = null, player = player2, soldiers = 0))
@@ -72,10 +72,10 @@ class GameController_spec extends AnyWordSpec with Matchers {
     }
 
     "return Right when movement is Sucessful" in {
-      val player = new player("red")
+      val player = new Player("red")
       player.infantry = 5
 
-      val emptyOwner = new player("empty")
+      val emptyOwner = new Player("empty")
       val mapData = List(
         List(Tile(parent = null, player = emptyOwner, soldiers = 0))
       )
@@ -96,7 +96,7 @@ class GameController_spec extends AnyWordSpec with Matchers {
     }
 
     "add infantry on own tile" in {
-      val player = new player("red")
+      val player = new Player("red")
       player.infantry = 5
 
       val ownTile = Tile(parent = null, player = player, soldiers = 2)
@@ -120,8 +120,8 @@ class GameController_spec extends AnyWordSpec with Matchers {
     "GameController.offense_phase" should {
 
       "return Left(\"Invalid coordinates.\") for out-of-range indices" in {
-        val red = new player("red")
-        val blue = new player("blue")
+        val red = new Player("red")
+        val blue = new Player("blue")
         val p1 = Parent_Tile()
         val p2 = Parent_Tile()
         val from = Tile(p1, red, 5)
@@ -139,8 +139,8 @@ class GameController_spec extends AnyWordSpec with Matchers {
       }
 
       "return Left if from-tile does not belong to player" in {
-        val red = new player("red")
-        val blue = new player("blue")
+        val red = new Player("red")
+        val blue = new Player("blue")
         val p1 = Parent_Tile()
         val p2 = Parent_Tile()
         val from = Tile(p1, blue, 5) // gehört blue, nicht red
@@ -158,8 +158,8 @@ class GameController_spec extends AnyWordSpec with Matchers {
       }
 
       "return Left if attacking tile has <= 1 soldier" in {
-        val red = new player("red")
-        val blue = new player("blue")
+        val red = new Player("red")
+        val blue = new Player("blue")
         val p1 = Parent_Tile()
         val p2 = Parent_Tile()
         val from = Tile(p1, red, 1)
@@ -177,8 +177,8 @@ class GameController_spec extends AnyWordSpec with Matchers {
       }
 
       "return Left if n <= 0" in {
-        val red = new player("red")
-        val blue = new player("blue")
+        val red = new Player("red")
+        val blue = new Player("blue")
         val p1 = Parent_Tile()
         val p2 = Parent_Tile()
         val from = Tile(p1, red, 5)
@@ -196,8 +196,8 @@ class GameController_spec extends AnyWordSpec with Matchers {
       }
 
       "return Left if n >= soldiers on from-tile" in {
-        val red = new player("red")
-        val blue = new player("blue")
+        val red = new Player("red")
+        val blue = new Player("blue")
         val p1 = Parent_Tile()
         val p2 = Parent_Tile()
         val from = Tile(p1, red, 4)
@@ -215,8 +215,8 @@ class GameController_spec extends AnyWordSpec with Matchers {
       }
 
       "return Left if target tile is own or empty" in {
-        val red = new player("red")
-        val empty = new player("empty")
+        val red = new Player("red")
+        val empty = new Player("empty")
         val p1 = Parent_Tile()
         val p2 = Parent_Tile()
         val from = Tile(p1, red, 5)
@@ -246,8 +246,8 @@ class GameController_spec extends AnyWordSpec with Matchers {
       }
 
       "return Left if attacker does not send more soldiers than defender has" in {
-        val red = new player("red")
-        val blue = new player("blue")
+        val red = new Player("red")
+        val blue = new Player("blue")
         val p1 = Parent_Tile()
         val p2 = Parent_Tile()
         val from = Tile(p1, red, 10)
@@ -265,8 +265,8 @@ class GameController_spec extends AnyWordSpec with Matchers {
       }
 
       "update tiles and mapData correctly on successful attack" in {
-        val red = new player("red")
-        val blue = new player("blue")
+        val red = new Player("red")
+        val blue = new Player("blue")
         val p1 = Parent_Tile()
         val p2 = Parent_Tile()
         val from = Tile(p1, red, 10)
@@ -299,11 +299,11 @@ class GameController_spec extends AnyWordSpec with Matchers {
 
     "GameController.allPlayers" should {
       "return the same list that was passed into the controller" in {
-        val p1 = new player("red")
-        val p2 = new player("blue")
+        val p1 = new Player("red")
+        val p2 = new Player("blue")
         val players = List(p1, p2)
 
-        val emptyOwner = new player("empty")
+        val emptyOwner = new Player("empty")
         val mapData = List(
           List(Tile(parent = null, player = emptyOwner, soldiers = 0))
         )
@@ -315,10 +315,10 @@ class GameController_spec extends AnyWordSpec with Matchers {
 
       "GameController.tiles" should {
         "return the same mapData that was passed into the controller (or its current state)" in {
-          val p1 = new player("red")
+          val p1 = new Player("red")
           val players = List(p1)
 
-          val emptyOwner = new player("empty")
+          val emptyOwner = new Player("empty")
           val mapData = List(
             List(Tile(parent = null, player = emptyOwner, soldiers = 0))
           )
@@ -332,7 +332,7 @@ class GameController_spec extends AnyWordSpec with Matchers {
       "GameController.currentStateName" should {
 
         "return \"Placement\" initially" in {
-          val p1      = new player("red")
+          val p1      = new Player("red")
           val players = List(p1)
           val mapData = MapInit.testMap_init()
 
@@ -342,8 +342,8 @@ class GameController_spec extends AnyWordSpec with Matchers {
         }
 
         "return \"Offense\" after switching to OffenseState" in {
-          val p1      = new player("red"); p1.infantry = 0
-          val p2      = new player("blue"); p2.infantry = 0
+          val p1      = new Player("red"); p1.infantry = 0
+          val p2      = new Player("blue"); p2.infantry = 0
           val players = List(p1, p2)
           val mapData = MapInit.testMap_init()
 

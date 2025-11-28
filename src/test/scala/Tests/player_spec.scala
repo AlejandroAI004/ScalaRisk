@@ -6,29 +6,48 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 
 class player_spec extends AnyWordSpec with Matchers {
-  "A player" when {
-    "initialized with name and color " should {
-      val color = "red"
-      val player = new player(color)
-      "have a color" in {
-        player.colorName should be(color)
-      }
-      "have 20 soldiers" in {
-        player.infantry should be(20)
-      }
-      "return colorName as toString" in {
-        val p = new player("blue")
-        p.toString should be("blue")
-      }
+  "Player class" should {
+
+    "store colorName and set default infantry and ownedTiles" in {
+      val p = new Player("red")
+
+      p.colorName  shouldBe "red"
+      p.infantry   shouldBe 20
+      p.ownedTiles shouldBe empty
+      p.toString   shouldBe "red"
     }
+  }
 
-    "create a player with the given colorName" in {
-      val factory = new player("dummy")
+  "Player.apply" should {
 
-      val p = factory.create("red")
+    "create a red player for input \"red\"" in {
+      val p = Player("red")
 
       p.colorName shouldBe "red"
-      p.infantry  shouldBe 20
+    }
+
+    "create a blue player for input \"blue\"" in {
+      val p = Player("blue")
+
+      p.colorName shouldBe "blue"
+    }
+
+    "create a blue player for input \"pink\"" in {
+      val p = Player("pink")
+
+      p.colorName shouldBe "pink"
+    }
+
+    "create a blue player for input \"green\"" in {
+      val p = Player("green")
+
+      p.colorName shouldBe "green"
+    }
+
+    "fallback to grey player for unknown color" in {
+      val p = Player("yellow")
+
+      p.colorName shouldBe "grey"
     }
   }
 }

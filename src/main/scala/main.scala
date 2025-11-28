@@ -19,6 +19,7 @@ object main {
 
     controller.handleEvent(AttackEvent)
     ConsoleView.showTileMap(controller.tiles)
+    
 
     //    val mapPlacement = placeInfantryFunctional(players, controller)
 //    val mapOffense = offense_phaseFunctional(players, controller)

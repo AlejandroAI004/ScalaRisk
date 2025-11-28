@@ -12,7 +12,7 @@ class gameState_spec extends AnyWordSpec with Matchers {
     }
 
     "stay in PlacementState on AttackEvent" in {
-      val p1      = new player("red")
+      val p1      = new Player("red")
       val players = List(p1)
       val mapData = MapInit.testMap_init()
       val ctrl    = new GameController(mapData, players, SimpleCombatStrategy)
@@ -23,8 +23,8 @@ class gameState_spec extends AnyWordSpec with Matchers {
     }
 
     "switch to OffenseState on PlaceInfantryEvent when all players have no infantry left" in {
-      val p1      = new player("red");  p1.infantry = 0
-      val p2      = new player("blue"); p2.infantry = 0
+      val p1      = new Player("red");  p1.infantry = 0
+      val p2      = new Player("blue"); p2.infantry = 0
       val players = List(p1, p2)
       val mapData = MapInit.testMap_init()
       val ctrl    = new GameController(mapData, players, SimpleCombatStrategy)
@@ -42,7 +42,7 @@ class gameState_spec extends AnyWordSpec with Matchers {
     }
 
     "stay in OffenseState on AttackEvent" in {
-      val p1      = new player("red")
+      val p1      = new Player("red")
       val players = List(p1)
       val mapData = MapInit.testMap_init()
       val ctrl    = new GameController(mapData, players, SimpleCombatStrategy)
@@ -53,7 +53,7 @@ class gameState_spec extends AnyWordSpec with Matchers {
     }
 
     "stay in OffenseState on PlaceInfantryEvent" in {
-      val p1      = new player("red")
+      val p1      = new Player("red")
       val players = List(p1)
       val mapData = MapInit.testMap_init()
       val ctrl    = new GameController(mapData, players, SimpleCombatStrategy)

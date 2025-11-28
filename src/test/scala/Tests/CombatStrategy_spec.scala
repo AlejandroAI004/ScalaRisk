@@ -12,8 +12,8 @@ class CombatStrategy_spec extends AnyWordSpec with Matchers {
       val parentA = Parent_Tile()
       val parentD = Parent_Tile()
 
-      val attackerPlayer = new player("red")
-      val defenderPlayer = new player("blue")
+      val attackerPlayer = new Player("red")
+      val defenderPlayer = new Player("blue")
 
       val attackerTile = Tile(parentA, attackerPlayer, soldiers = 15)
       val defenderTile = Tile(parentD, defenderPlayer, soldiers = 5)
@@ -39,8 +39,8 @@ class CombatStrategy_spec extends AnyWordSpec with Matchers {
       val parentA = Parent_Tile()
       val parentD = Parent_Tile()
 
-      val attackerPlayer = new player("red")
-      val defenderPlayer = new player("blue")
+      val attackerPlayer = new Player("red")
+      val defenderPlayer = new Player("blue")
 
       val attackerTile = Tile(parentA, attackerPlayer, soldiers = 20)
       val defenderTile = Tile(parentD, defenderPlayer, soldiers = 10)
@@ -61,8 +61,8 @@ class CombatStrategy_spec extends AnyWordSpec with Matchers {
       val parentA = Parent_Tile()
       val parentD = Parent_Tile()
 
-      val attackerPlayer = new player("red")
-      val defenderPlayer = new player("blue")
+      val attackerPlayer = new Player("red")
+      val defenderPlayer = new Player("blue")
 
       val attackerTile = Tile(parentA, attackerPlayer, soldiers = 10)
       val defenderTile = Tile(parentD, defenderPlayer, soldiers = 10)
@@ -81,8 +81,8 @@ class CombatStrategy_spec extends AnyWordSpec with Matchers {
       val parentA = Parent_Tile()
       val parentD = Parent_Tile()
 
-      val attackerPlayer = new player("red")
-      val defenderPlayer = new player("blue")
+      val attackerPlayer = new Player("red")
+      val defenderPlayer = new Player("blue")
 
       val attackerTile = Tile(parentA, attackerPlayer, soldiers = 15)
       val defenderTile = Tile(parentD, defenderPlayer, soldiers = 15)

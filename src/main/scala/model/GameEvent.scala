@@ -8,13 +8,13 @@ case object AttackEvent extends GameEvent
 
 trait GameState {
   def name: String
-  def handle(controller: GameController, players: List[player], event: GameEvent): GameState
+  def handle(controller: GameController, players: List[Player], event: GameEvent): GameState
 }
 
 case object PlacementState extends GameState {
   override val name: String = "Placement"
 
-  override def handle(controller: GameController, players: List[player], e: GameEvent): GameState = {
+  override def handle(controller: GameController, players: List[Player], e: GameEvent): GameState = {
     e match {
       case PlaceInfantryEvent =>
         ConsoleView.placeInfantryFunctional(players, controller)
@@ -30,7 +30,7 @@ case object PlacementState extends GameState {
 case object OffenseState extends GameState {
   override val name: String = "Offense"
 
-  override def handle(controller: GameController, players: List[player], e: GameEvent): GameState = {
+  override def handle(controller: GameController, players: List[Player], e: GameEvent): GameState = {
     e match {
       case PlaceInfantryEvent =>
         ConsoleView.showStatus("You cannot place infantry in offense phase.")

@@ -4,14 +4,14 @@ import model.*
 import scala.util.{Try, Success, Failure}
 
 class GameController(var initialMap: List[List[Tile]],
-                     var players: List[player],
+                     var players: List[Player],
                      var combatStrategy: CombatStrategy = DiceCombatStrategy) extends Observable {
 
   private var mapData: List[List[Tile]] = initialMap
   private var state: GameState = PlacementState
 
   def placeInfantry(
-                     player: player, x: Int, y: Int, n: Int
+                     player: Player, x: Int, y: Int, n: Int
                    ): Try[List[List[Tile]]] = Try {
 
     if (x < 0 || x >= mapData.head.length || y < 0 || y >= mapData.length)
@@ -31,7 +31,7 @@ class GameController(var initialMap: List[List[Tile]],
   }
 
   def offense_phase(
-                     player: player,
+                     player: Player,
                      fromX: Int, fromY: Int,
                      toX: Int, toY: Int,
                      n: Int
@@ -68,9 +68,6 @@ class GameController(var initialMap: List[List[Tile]],
 
     val (newFromTile,newToTile) = combatStrategy.resolveAttack(fromTile,toTile,n)
 
-//    val newFromTile = fromTile.copy(soldiers = fromTile.soldiers - n)
-//    val newToTile = Tile(toTile.parent, player, n)
-
     val rowFromUpdated = mapData(fromY).updated(fromX, newFromTile)
     val tmpMap = mapData.updated(fromY, rowFromUpdated)
     val rowToUpdated = tmpMap(toY).updated(toX, newToTile)
@@ -81,7 +78,7 @@ class GameController(var initialMap: List[List[Tile]],
   }
 
 
-  def allPlayers: List[player] = players
+  def allPlayers: List[Player] = players
   def tiles: List[List[Tile]] = mapData
   def currentStateName: String = state.name
   def handleEvent(e: GameEvent): Unit =

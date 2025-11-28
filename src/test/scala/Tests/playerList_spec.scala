@@ -1,6 +1,6 @@
 package Tests
 
-import model.{player, playerList}
+import model.{Player, playerList}
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 
@@ -15,8 +15,8 @@ class playerList_spec extends AnyWordSpec with Matchers {
   }
   "toString" should {
     "format all players with color and infantry correctly" in {
-      val p1 = new player("blue")
-      val p2 = new player("red")
+      val p1 = new Player("blue")
+      val p2 = new Player("red")
       val playerList = new playerList(List(p1,p2))
       val expected = {
         "List of players: \n" +
@@ -29,8 +29,8 @@ class playerList_spec extends AnyWordSpec with Matchers {
   }
   "usedColors" should {
     "return all colors correctly" in {
-      val p1 = new player("blue")
-      val p2 = new player("red")
+      val p1 = new Player("blue")
+      val p2 = new Player("red")
       val playerList = new playerList(List(p1, p2))
       playerList.usedColors() should contain allOf("blue", "red")
     }
@@ -38,7 +38,7 @@ class playerList_spec extends AnyWordSpec with Matchers {
   "addPlayer" when {
     "initialized with player object" should {
       "return a player List with added player" in {
-        val p1 = new player("blue")
+        val p1 = new Player("blue")
         var playerList = new playerList()
         playerList = playerList.addPlayer(p1)
         val expected = {

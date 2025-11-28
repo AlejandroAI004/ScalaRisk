@@ -30,9 +30,7 @@ object DiceCombatStrategy extends CombatStrategy {
     val attackerWins = rnd.nextDouble() < winProb
 
     if (attackerWins) {
-      // Angreifer gewinnt: verteidiger verliert alles,
-      // Angreifer verliert anteilig, aber weniger, wenn er deutlich stärker war
-      val lossFactor = 1.0 - winProb // je stärker, desto kleiner
+      val lossFactor = 1.0 - winProb
       val attLoss = math.max(1, (attSoldiers * lossFactor).round.toInt)
       val survivors = attSoldiers - attLoss
 
@@ -41,9 +39,7 @@ object DiceCombatStrategy extends CombatStrategy {
 
       (newFrom, newTo)
     } else {
-      // Verteidiger hält: Angreifer verliert hauptsächlich seine Angriffstruppen,
-      // Verteidiger verliert auch etwas, abhängig von Verhältnis
-      val defLossFactor = winProb // je stärker Angreifer, desto mehr verliert Verteidiger auch
+      val defLossFactor = winProb
       val defLoss = math.max(0, (defSoldiers * defLossFactor).round.toInt)
       val newDefTroops = (defSoldiers - defLoss).max(1)
 

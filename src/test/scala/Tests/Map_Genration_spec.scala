@@ -2,7 +2,7 @@ package Tests
 
 import model.MapInit.testMap_init
 import controller.Map_Generation.{print_map, print_row}
-import model.{Parent_Tile, Tile, direction, player}
+import model.{Parent_Tile, Tile, direction, Player}
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
 
@@ -11,7 +11,7 @@ class Map_Genration_spec extends AnyWordSpec with Matchers {
     "initialized with one Tile without connections " should {
       val emptyParent = Parent_Tile()
       val owner = "blue"
-      val tile = Tile(emptyParent, new player("blue"))
+      val tile = Tile(emptyParent, new Player("blue"))
       "print tile with no connections" in {
         stripAnsi(print_row(List(tile))) should be(
           "              \n" +
@@ -27,7 +27,7 @@ class Map_Genration_spec extends AnyWordSpec with Matchers {
         direction.west, direction.east, direction.southeast, direction.southwest,
         direction.northeast, direction.northwest))
       val owner = "blue"
-      val tile = Tile(Parent,  new player("blue"))
+      val tile = Tile(Parent,  new Player("blue"))
       "print tile with all connections" in {
         stripAnsi(print_row(List(tile))) should be(
           "\\     |      /\n" +
@@ -43,7 +43,7 @@ class Map_Genration_spec extends AnyWordSpec with Matchers {
     "initiailized with one Tile without connections " should {
       val emptyParent = Parent_Tile()
       val owner = "blue"
-      val tile = Tile(emptyParent,  new player("blue"))
+      val tile = Tile(emptyParent,  new Player("blue"))
       "print a 1*1 map " in {
         stripAnsi(print_map(List(List(tile)))) should be(
           "              \n" +
