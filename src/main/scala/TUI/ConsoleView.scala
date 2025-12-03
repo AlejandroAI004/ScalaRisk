@@ -42,6 +42,22 @@ object ConsoleView extends Observer{
     playersList
   }
 
+  object ConsoleOffenseTurn extends TurnTemplate {
+
+    override protected def preTurn(player: Player, controller: GameController): Unit = {
+      showStatus(s"It's ${player.colorName}'s attack phase")
+      showTileMap(controller.tiles)
+    }
+
+    override protected def doTurn(player: Player, controller: GameController): Unit = {
+      controller.handleEvent(AttackEvent)
+    }
+
+    override protected def postTurn(player: Player, controller: GameController): Unit = {
+      showStatus(s"Turn finished")
+    }
+  }
+
   def askPlayerCount(): Int = {
     println("How many players are gonna play? (min 2,limit 4)")
     scala.io.StdIn.readInt()
@@ -161,10 +177,10 @@ object ConsoleView extends Observer{
   @tailrec
   def readIntSafe(prompt: String): Int = {
     println(prompt)
-    try {
-      scala.io.StdIn.readInt()
-    } catch {
-      case _: NumberFormatException =>
+    Try(scala.io.StdIn.readInt()) match {
+      case Success(value) =>
+        value
+      case Failure(_) =>
         println("Bitte gib eine gültige Zahl ein!")
         readIntSafe(prompt)
     }

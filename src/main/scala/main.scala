@@ -1,4 +1,5 @@
 import TUI.*
+import TUI.ConsoleView.ConsoleOffenseTurn
 import model.*
 import controller.*
 
@@ -17,13 +18,10 @@ object main {
     controller.handleEvent(PlaceInfantryEvent)
     ConsoleView.showTileMap(controller.tiles)
 
-    controller.handleEvent(AttackEvent)
+    players.foreach { p =>
+      ConsoleOffenseTurn.executeTurn(p, controller)
+    }
     ConsoleView.showTileMap(controller.tiles)
-    
-
-    //    val mapPlacement = placeInfantryFunctional(players, controller)
-//    val mapOffense = offense_phaseFunctional(players, controller)
-//    ConsoleView.showTileMap(mapOffense)
 
   }
 }
