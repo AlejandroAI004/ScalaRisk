@@ -57,16 +57,16 @@ object ConsoleView extends Observer{
 
   object ConsoleOffenseTurn extends TurnTemplate {
 
-    override protected def preTurn(player: Player, controller: GameController): Unit = {
+    override def preTurn(player: Player, controller: GameController): Unit = {
       showStatus(s"It's ${player.colorName}'s attack phase")
       showTileMap(controller.tiles)
     }
 
-    override protected def doTurn(player: Player, controller: GameController): Unit = {
+    override def doTurn(player: Player, controller: GameController): Unit = {
       controller.handleEvent(AttackEvent)
     }
 
-    override protected def postTurn(player: Player, controller: GameController): Unit = {
+    override def postTurn(player: Player, controller: GameController): Unit = {
       showStatus(s"Turn finished")
     }
   }

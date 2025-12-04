@@ -13,24 +13,22 @@ class TurnTemplate_spec extends AnyWordSpec with Matchers {
       var trace: List[String] = Nil
 
       class TestTurn extends TurnTemplate {
-        override protected def preTurn(p: Player, c: GameController): Unit =
+        override def preTurn(p: Player, c: GameController): Unit =
           trace = trace :+ "pre"
 
-        override protected def doTurn(p: Player, c: GameController): Unit =
+        override def doTurn(p: Player, c: GameController): Unit =
           trace = trace :+ "do"
 
-        override protected def postTurn(p: Player, c: GameController): Unit =
+        override def postTurn(p: Player, c: GameController): Unit =
           trace = trace :+ "post"
       }
 
       val dummyPlayer = new Player("red")
+      val mapData     = MapInit.testMap_init()
+      val players     = List(dummyPlayer)
+      val ctrl        = new GameController(mapData, players, SimpleCombatStrategy)
 
-      val mapData  = MapInit.testMap_init()
-      val players  = List(dummyPlayer)
-      val ctrl     = new GameController(mapData, players, SimpleCombatStrategy)
-
-      val turn = new TestTurn
-      turn.executeTurn(dummyPlayer, ctrl)
+      new TestTurn().executeTurn(dummyPlayer, ctrl)
 
       trace shouldBe List("pre", "do", "post")
     }
