@@ -32,14 +32,27 @@ object ConsoleView extends Observer{
 
   def start(): playerList = {
     val numPlayers = askPlayerCount()
-    var playersList = new playerList()
-    for (i <- 1 to numPlayers) {
-      val color = askPlayerColor(i, playersList.usedColors())
-      val p = Player(color)
-      playersList = playersList.addPlayer(p)
+    val manager    = new PlayerConfigManager
+
+    while (manager.size < numPlayers) {
+      val idx   = manager.size + 1
+      val used  = manager.list.usedColors()
+      println(s"Spieler $idx von $numPlayers")
+      println(s"Aktuelle Spieler:\n${manager.list}")
+      val input = scala.io.StdIn.readLine("Farbe eingeben (red, blue, pink, green) oder u=undo, r=redo: \n")
+      input match {
+        case "u" => manager.undo()
+        case "r" => manager.redo()
+        case color if used.contains(color) =>
+          println("Diese Farbe ist schon vergeben")
+        case color =>
+          manager.addPlayer(color)
+      }
     }
-    println(playersList.toString())
-    playersList
+
+    println("Endgültige Spieler:")
+    println(manager.list.toString)
+    manager.list
   }
 
   object ConsoleOffenseTurn extends TurnTemplate {

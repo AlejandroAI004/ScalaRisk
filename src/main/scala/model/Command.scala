@@ -6,29 +6,33 @@ trait Command {
   def redoStep(): Unit
 }
 
-class UndoManager {
-  private var undoStack: List[Command] = Nil
-  private var redoStack: List[Command] = Nil
+class PlayerConfigManager {
+  private var current: playerList = new playerList()
+  private var undoStack: List[playerList] = Nil
+  private var redoStack: List[playerList] = Nil
 
-  def doStep(cmd: Command): Unit = {
-    undoStack = cmd :: undoStack
+  def list: playerList = current
+  def size: Int = current.toList.size
+
+  def addPlayer(color: String): Unit = {
+    undoStack = current :: undoStack
     redoStack = Nil
-    cmd.doStep()
+    current = current.addPlayer(color)
   }
 
-  def undoStep(): Unit = undoStack match {
-    case Nil => ()
+  def undo(): Unit = undoStack match {
     case head :: tail =>
-      head.undoStep()
+      redoStack = current :: redoStack
+      current = head
       undoStack = tail
-      redoStack = head :: redoStack
+    case Nil => ()
   }
 
-  def redoStep(): Unit = redoStack match {
-    case Nil => ()
+  def redo(): Unit = redoStack match {
     case head :: tail =>
-      head.redoStep()
+      undoStack = current :: undoStack
+      current = head
       redoStack = tail
-      undoStack = head :: undoStack
+    case Nil => ()
   }
 }
