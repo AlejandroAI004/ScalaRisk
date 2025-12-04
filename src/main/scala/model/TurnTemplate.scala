@@ -10,9 +10,9 @@ abstract class TurnTemplate {
     postTurn(player, controller)
   }
 
-  def preTurn(player: Player, controller: GameController): Unit = {}
+  def preTurn(player: Player, controller: GameController): Unit
 
   def doTurn(player: Player, controller: GameController): Unit
 
-  def postTurn(player: Player, controller: GameController): Unit = {}
+  def postTurn(player: Player, controller: GameController): Unit
 }
