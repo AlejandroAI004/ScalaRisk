@@ -1,5 +1,5 @@
-import TUI.*
-import TUI.ConsoleView.ConsoleOffenseTurn
+import view.*
+import view.ConsoleView.ConsoleOffenseTurn
 import model.*
 import controller.*
 

@@ -12,21 +12,21 @@ class GameController(var initialMap: List[List[Tile]],
 
   def placeInfantry(
                      player: Player, x: Int, y: Int, n: Int
-                   ): Try[List[List[Tile]]] = Try {
+                   ): Try[List[List[Tile]]] = {
 
     if (x < 0 || x >= mapData.head.length || y < 0 || y >= mapData.length)
-      throw new IllegalArgumentException("Invalid coordinates.")
+      Failure(new IllegalArgumentException("Invalid coordinates."))
     else if (n > player.infantry)
-      throw new IllegalArgumentException("You don't have that many infantry remaining!")
+      Failure(new IllegalArgumentException("You don't have that many infantry remaining!"))
     else if (mapData(y)(x).player != player && mapData(y)(x).player.colorName != "empty")
-      throw new IllegalArgumentException("Another Player owns this Tile!")
+      Failure(new IllegalArgumentException("Another Player owns this Tile!"))
     else {
       val updated = updateTile(player, n, mapData(y)(x))
       val newRow = mapData(y).updated(x, updated)
       mapData = mapData.updated(y, newRow)
       player.infantry -= n
       notifyObservers()
-      mapData
+      Success(mapData)
     }
   }
 
@@ -35,33 +35,32 @@ class GameController(var initialMap: List[List[Tile]],
                      fromX: Int, fromY: Int,
                      toX: Int, toY: Int,
                      n: Int
-                   ): Try[List[List[Tile]]] = Try {
+                   ): Try[List[List[Tile]]] = {
 
     if (fromX < 0 || fromX >= mapData.head.length || fromY < 0 || fromY >= mapData.length ||
       toX < 0 || toX >= mapData.head.length || toY < 0 || toY >= mapData.length)
-      throw new IllegalArgumentException("Invalid coordinates.")
+      return Failure(new IllegalArgumentException("Invalid coordinates."))
 
     val fromTile = mapData(fromY)(fromX)
     val toTile = mapData(toY)(toX)
 
     if (fromTile.player != player)
-      throw new IllegalArgumentException("You can only attack from your own tiles!")
-
+      return Failure(new IllegalArgumentException("You can only attack from your own tiles!"))
     if (fromTile.soldiers <= 1)
-      throw new IllegalArgumentException("You need more than 1 infantry on the attacking tile!")
+      return Failure(new IllegalArgumentException("You need more than 1 infantry on the attacking tile!"))
 
     if (n <= 0)
-      throw new IllegalArgumentException("You must attack with at least 1 infantry!")
+      return Failure(new IllegalArgumentException("You must attack with at least 1 infantry!"))
 
     if (n >= fromTile.soldiers) {
-      throw new IllegalArgumentException("You must leave at least one infantry on the attacking tile!")
+      return Failure(new IllegalArgumentException("You must leave at least one infantry on the attacking tile!"))
     }
 
     if (toTile.player == player || toTile.player.colorName == "empty")
-      throw new IllegalArgumentException("You can only attack enemy tiles!")
+      return Failure(new IllegalArgumentException("You can only attack enemy tiles!"))
 
     if(n <= toTile.soldiers) {
-      throw new IllegalArgumentException("You dont have more infantry than your opponent!")
+      return Failure(new IllegalArgumentException("You dont have more infantry than your opponent!"))
     }
     
     // Nachbarschaft über Parent_Tile/ connections prüfen
@@ -74,7 +73,7 @@ class GameController(var initialMap: List[List[Tile]],
     val newMap = tmpMap.updated(toY, rowToUpdated)
     mapData = newMap
     notifyObservers()
-    mapData
+    Success(mapData)
   }
 
 

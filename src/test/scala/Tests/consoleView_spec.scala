@@ -1,7 +1,7 @@
 package Tests
 
-import TUI.*
-import TUI.ConsoleView.{showPlayers, showStatus, showTileMap, welcome}
+import view.*
+import view.ConsoleView.{showPlayers, showStatus, showTileMap, welcome}
 import model.*
 import controller.*
 import org.scalatest.wordspec.AnyWordSpec

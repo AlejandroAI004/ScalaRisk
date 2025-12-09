@@ -1,6 +1,6 @@
 package model
 import controller.*
-import TUI.*
+import view.*
 
 sealed trait GameEvent
 case object PlaceInfantryEvent extends GameEvent

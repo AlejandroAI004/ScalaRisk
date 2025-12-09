@@ -1,6 +1,6 @@
 package Tests
 
-import TUI.*
+import view.*
 import model.*
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
