@@ -15,6 +15,94 @@ class GameController_spec extends AnyWordSpec with Matchers {
       (newFrom, newTo)
     }
   }
+
+  def newController(players: List[Player] = Nil): GameController = {
+    val mapData = MapInit.testMap_init()
+    new GameController(mapData, players, DiceCombatStrategy)
+  }
+
+  "startGame" should {
+    "initialize players and currentPlayer correctly" in {
+      val c = newController()
+
+      val plist = c.startGame(2, List("red", "blue"))
+
+      plist.toList.map(_.colorName) shouldBe List("red", "blue")
+      c.players.map(_.colorName) shouldBe List("red", "blue")
+      c.currentPlayer.colorName shouldBe "red"
+      c.currentPlayerIndex shouldBe 0
+    }
+
+    "throw on invalid player/colour configuration" in {
+      val c = newController()
+
+      an[IllegalArgumentException] shouldBe thrownBy {
+        c.startGame(1, List("red"))
+      }
+      an[IllegalArgumentException] shouldBe thrownBy {
+        c.startGame(3, List("red", "red", "blue")) // doppelte Farbe
+      }
+      an[IllegalArgumentException] shouldBe thrownBy {
+        c.startGame(3, List("red", "blue")) // zu wenige Farben
+      }
+    }
+  }
+
+  "nextPlayerTurn" should {
+    "rotate currentPlayer through players list" in {
+      val c = newController()
+      c.startGame(3, List("red", "blue", "green"))
+
+      c.currentPlayer.colorName shouldBe "red"
+      c.nextPlayerTurn()
+      c.currentPlayer.colorName shouldBe "blue"
+      c.nextPlayerTurn()
+      c.currentPlayer.colorName shouldBe "green"
+      c.nextPlayerTurn()
+      c.currentPlayer.colorName shouldBe "red"
+    }
+
+    "do nothing if players is empty" in {
+      val c = newController()
+      c.players = Nil
+
+      noException shouldBe thrownBy {
+        c.nextPlayerTurn()
+      }
+    }
+  }
+
+  "remainingInfantryPerPlayer" should {
+    "return list of (colorName, infantry)" in {
+      val p1 = new Player("red");
+      p1.infantry = 5
+      val p2 = new Player("blue");
+      p2.infantry = 10
+      val c = newController(List(p1, p2))
+      c.players = List(p1, p2)
+
+      val res = c.remainingInfantryPerPlayer
+
+      res should contain allOf(("red", 5), ("blue", 10))
+    }
+  }
+
+  "allInfantryPlaced" should {
+    "be true only if all players have infantry <= 0" in {
+      val p1 = new Player("red");
+      p1.infantry = 0
+      val p2 = new Player("blue");
+      p2.infantry = 0
+      val c = newController(List(p1, p2))
+      c.players = List(p1, p2)
+
+      c.allInfantryPlaced shouldBe true
+
+      p2.infantry = 3
+      c.allInfantryPlaced shouldBe false
+    }
+  }
+
   "placeinfantry" should {
 
     "return Left for invalid coordinates" in {
