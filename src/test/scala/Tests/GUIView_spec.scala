@@ -1,4 +1,4 @@
-package Tests.view
+package Tests
 
 import model.*
 import controller.*
@@ -8,7 +8,7 @@ import view.GUIView
 import model.Player
 import scalafx.scene.paint.Color
 
-class GUIViewSpec extends AnyWordSpec with Matchers {
+class GUIView_spec extends AnyWordSpec with Matchers {
 
   // einfacher Dummy-Controller, nur für init/update-Tests
   class DummyController extends GameController(
