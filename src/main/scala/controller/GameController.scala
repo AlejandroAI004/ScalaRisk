@@ -9,7 +9,25 @@ class GameController(var initialMap: List[List[Tile]],
 
   private var mapData: List[List[Tile]] = initialMap
   private var state: GameState = PlacementState
+  var currentPlayerIndex: Int = 0
+  def currentPlayer: Player = players(currentPlayerIndex)
 
+
+  def startGame(numPlayers: Int, colors: List[String]): playerList = {
+    require(numPlayers >= 2 && numPlayers <= 4)
+    require(colors.distinct.size == colors.size)
+    require(colors.size == numPlayers)
+
+    val manager = new PlayerConfigManager
+    colors.foreach(manager.addPlayer)
+    val plist: playerList = manager.list
+
+    players = plist.toList // Feld setzen
+    currentPlayerIndex = 0 // beim ersten Spieler starten
+
+    notifyObservers()
+    plist
+  }
   def placeInfantry(
                      player: Player, x: Int, y: Int, n: Int
                    ): Try[List[List[Tile]]] = {
@@ -76,7 +94,18 @@ class GameController(var initialMap: List[List[Tile]],
     Success(mapData)
   }
 
+  def nextPlayerTurn(): Unit = {
+    if (players.nonEmpty) {
+      currentPlayerIndex = (currentPlayerIndex + 1) % players.size
+      notifyObservers()
+    }
+  }
 
+  def remainingInfantryPerPlayer: List[(String, Int)] =
+    players.map(p => (p.colorName, p.infantry))
+
+  def allInfantryPlaced: Boolean =
+    players.forall(_.infantry <= 0)
   def allPlayers: List[Player] = players
   def tiles: List[List[Tile]] = mapData
   def currentStateName: String = state.name

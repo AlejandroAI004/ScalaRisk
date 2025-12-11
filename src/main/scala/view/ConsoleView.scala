@@ -30,7 +30,7 @@ object ConsoleView extends Observer{
       "–, gewinnt das Spiel und herrscht über die Welt!\n"
   }
 
-  def start(): playerList = {
+  def start(controller: GameController): playerList = {
     val numPlayers = askPlayerCount()
     val manager    = new PlayerConfigManager
 
@@ -52,7 +52,10 @@ object ConsoleView extends Observer{
 
     println("Endgültige Spieler:")
     println(manager.list.toString)
-    manager.list
+
+    // NEU: Farben aus dem Manager holen und an den Controller geben
+    val colors: List[String] = manager.list.usedColors()   // oder passende Methode
+    controller.startGame(numPlayers, colors)               // gibt playerList zurück
   }
 
   object ConsoleOffenseTurn extends TurnTemplate {
@@ -74,24 +77,6 @@ object ConsoleView extends Observer{
   def askPlayerCount(): Int = {
     println("How many players are gonna play? (min 2,limit 4)")
     scala.io.StdIn.readInt()
-  }
-
-  def askPlayerColor(playerNum: Int, usedColors: List[String]): String = {
-    var color = "grey"
-    var valid = false
-    while (!valid) {
-      println(s"Select a color for Player $playerNum (red, blue, pink, green):")
-      val input = scala.io.StdIn.readLine().toLowerCase()
-      if (!List("red", "blue", "pink", "green").contains(input)) {
-        println("Unknown color, try again!")
-      } else if (usedColors.contains(input)) {
-        println("That color is taken!")
-      } else {
-        color = input
-        valid = true
-      }
-    }
-    color
   }
 
   def askForInfantryPlacement(player: Player): (Int, Int, Int) = {
