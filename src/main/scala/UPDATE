@@ -1,24 +1,11 @@
-UPDATE-12.11.25 > A
--Kein Name, nur Zahlen
--Farben jetzt auf der Map
--owner durch player ersetzt (in class Tile)
--placeInfantry umgebaut, sodass zuerst der erste Spieler, dann der zweite platziert
--ownedTiles erweitert: Die Klasse Player hat jetzt eine ownedTiles-Liste
-
-UPDATE-13.11.25 > A
--Alle Tests sind bereits geschrieben, Testabdeckung liegt bei 92 %
--placeInfantry wurde um drei Parameter erweitert, um testbar zu sein
--startGame wurde um zwei Parameter erweitert, um testbar zu sein
--Allgemeine Anpassungen vorgenommen
-
-UPDATE-16.11.25
--MVC Model sowie in der Vorlesung (Controller, TUI usw.)
--map_Generation verkürzt
--neue Methode in der TUI
--Bug-Fix
-
-
->TO DO
-offense_phaseFunctional
--player muss erstmal koordinaten eingeben, um auf einen Feld zuzugreifen,
-auf den Feld werden die Infantry nochmal angezeigt, und wird an den player gefragt was er machen will
+ANGREIFMÖGLICHKEITEN
+Konstanz (1,0) ← Meersburg (0,0) ✓
+Konstanz (1,0) ← Friedrichshafen (0,1) ✓
+Konstanz (1,0) ← Kreuzlingen (1,1) ✓
+Friedrichshafen (0,1) ← Meersburg (0,0) ✓
+Friedrichshafen (0,1) ← Konstanz (1,0) ✓
+Kreuzlingen (1,1) ← Konstanz (1,0) ✓
+KEIN Angriff möglich:
+Meersburg (0,0) → Kreuzlingen (1,1) ❌
+Friedrichshafen (0,1) → Kreuzlingen (1,1) ❌
+Kreuzlingen (1,1) → Meersburg (0,0) ❌

@@ -1,5 +1,5 @@
 import view.*
-import view.ConsoleView.ConsoleOffenseTurn
+import view.ConsoleView.{ConsoleOffenseTurn, offense_phaseFunctional}
 import model.*
 import controller.*
 
@@ -7,16 +7,17 @@ object main {
   def main(args: Array[String]): Unit = {
     val mapData = MapInit.testMap_init()
     val players = List(new Player("red"), new Player("blue"))
-    val controller = new GameController(mapData, players, SimpleCombatStrategy)
-    ConsoleView.init(controller)
+    val controller = new GameController(mapData, players, DiceCombatStrategy)
     GUIView.init(controller)
-    val t = new Thread(new Runnable {
-      override def run(): Unit = ConsoleView.start(controller)
+    println(ConsoleView.welcome())
+    ConsoleView.init(controller)
+    val t = new Thread(() => {
+      ConsoleView.start(controller)
+      controller.handleEvent(PlaceInfantryEvent)
+      controller.handleEvent(AttackEvent)
     })
     t.start()
 
-
-    // GUI starten (blockiert den Main-Thread, bis Fenster zu ist)
     GUIView.main(args)
   }
     

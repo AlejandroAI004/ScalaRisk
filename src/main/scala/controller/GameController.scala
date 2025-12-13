@@ -7,30 +7,45 @@ class GameController(var initialMap: List[List[Tile]],
                      var players: List[Player],
                      var combatStrategy: CombatStrategy = DiceCombatStrategy) extends Observable {
 
+  enum GamePhase {
+    case Placement
+    case Offense
+    case GameOver
+  }
+
+  private var phase: GamePhase = GamePhase.Placement
+  def currentPhase: GamePhase = phase
   private var mapData: List[List[Tile]] = initialMap
   private var state: GameState = PlacementState
   var currentPlayerIndex: Int = 0
   def currentPlayer: Player = players(currentPlayerIndex)
 
 
-  def startGame(numPlayers: Int, colors: List[String]): playerList = {
-    require(numPlayers >= 2 && numPlayers <= 4)
-    require(colors.distinct.size == colors.size)
-    require(colors.size == numPlayers)
+  def startGame(numPlayers: Int, colors: List[String]): Try[playerList] = {
+    if (numPlayers < 2 || numPlayers > 4)
+      Failure(new IllegalArgumentException("Players must be between 2 and 4"))
+    else if (colors.distinct.size != colors.size)
+      Failure(new IllegalArgumentException("cannot have same colors"))
+    else if (colors.size != numPlayers)
+      Failure(new IllegalArgumentException("colors size must equal numPlayers"))
+    else {
+      val manager = new PlayerConfigManager
+      colors.foreach(manager.addPlayer)
+      val plist: playerList = manager.list
 
-    val manager = new PlayerConfigManager
-    colors.foreach(manager.addPlayer)
-    val plist: playerList = manager.list
-
-    players = plist.toList // Feld setzen
-    currentPlayerIndex = 0 // beim ersten Spieler starten
-
-    notifyObservers()
-    plist
+      players = plist.toList
+      currentPlayerIndex = 0
+      phase = GamePhase.Placement
+      notifyObservers()
+      Success(plist)
+    }
   }
   def placeInfantry(
                      player: Player, x: Int, y: Int, n: Int
                    ): Try[List[List[Tile]]] = {
+
+    if (phase != GamePhase.Placement)
+      return Failure(new IllegalStateException("Cannot place infantry now"))
 
     if (x < 0 || x >= mapData.head.length || y < 0 || y >= mapData.length)
       Failure(new IllegalArgumentException("Invalid coordinates."))
@@ -43,6 +58,9 @@ class GameController(var initialMap: List[List[Tile]],
       val newRow = mapData(y).updated(x, updated)
       mapData = mapData.updated(y, newRow)
       player.infantry -= n
+      if (allInfantryPlaced && phase == GamePhase.Placement) {
+        phase = GamePhase.Offense
+      }
       notifyObservers()
       Success(mapData)
     }
@@ -54,6 +72,9 @@ class GameController(var initialMap: List[List[Tile]],
                      toX: Int, toY: Int,
                      n: Int
                    ): Try[List[List[Tile]]] = {
+
+    if (phase != GamePhase.Offense)
+      return Failure(new IllegalStateException("Not in offense phase"))
 
     if (fromX < 0 || fromX >= mapData.head.length || fromY < 0 || fromY >= mapData.length ||
       toX < 0 || toX >= mapData.head.length || toY < 0 || toY >= mapData.length)
@@ -80,8 +101,9 @@ class GameController(var initialMap: List[List[Tile]],
     if(n <= toTile.soldiers) {
       return Failure(new IllegalArgumentException("You dont have more infantry than your opponent!"))
     }
-    
-    // Nachbarschaft über Parent_Tile/ connections prüfen
+
+    if (!fromTile.parent.neighbours.contains(toTile.parent))
+      return Failure(new IllegalArgumentException("You can only attack adjacent tiles!"))
 
     val (newFromTile,newToTile) = combatStrategy.resolveAttack(fromTile,toTile,n)
 
@@ -90,9 +112,43 @@ class GameController(var initialMap: List[List[Tile]],
     val rowToUpdated = tmpMap(toY).updated(toX, newToTile)
     val newMap = tmpMap.updated(toY, rowToUpdated)
     mapData = newMap
+    checkWinner() match {
+      case Some(_) =>
+        phase = GamePhase.GameOver
+      case None => ()
+    }
     notifyObservers()
     Success(mapData)
   }
+
+  def endOffenseTurn(): Unit = {
+    nextPlayerTurn()
+
+    if (currentPlayerIndex == 0) {
+      startReinforcementPhase()
+    }
+
+    notifyObservers()
+  }
+
+  def startReinforcementPhase(): Unit = {
+    players.foreach { player =>
+      val ownedTiles = mapData.flatten.count(_.player == player)
+      val reinforcements = math.max(3, ownedTiles / 3)
+      player.infantry += reinforcements
+    }
+
+    phase = GamePhase.Placement
+    notifyObservers()
+  }
+
+  def checkWinner(): Option[Player] = {
+    val owners = mapData.flatten.map(_.player).distinct
+    if (owners.size == 1 && owners.head.colorName != "empty")
+      Some(owners.head)
+    else None
+  }
+
 
   def nextPlayerTurn(): Unit = {
     if (players.nonEmpty) {

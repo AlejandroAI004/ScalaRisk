@@ -1,9 +1,9 @@
 package view
 
-import scala.util.{Try, Success, Failure}
-
+import scala.util.{Failure, Success, Try}
 import model.*
 import controller.*
+import view.GUIView.createBoardScene
 
 import scala.annotation.tailrec
 
@@ -53,9 +53,16 @@ object ConsoleView extends Observer{
     println("Endgültige Spieler:")
     println(manager.list.toString)
 
-    // NEU: Farben aus dem Manager holen und an den Controller geben
-    val colors: List[String] = manager.list.usedColors()   // oder passende Methode
-    controller.startGame(numPlayers, colors)               // gibt playerList zurück
+
+    val colors: List[String] = manager.list.usedColors()
+    controller.startGame(numPlayers, colors) match  {
+      case Success(plist) =>
+        plist
+      case Failure(ex) => {
+        println(s"Fehler beim Starten des Spiels: ${ex.getMessage}")
+        manager.list
+      }
+    }
   }
 
   object ConsoleOffenseTurn extends TurnTemplate {

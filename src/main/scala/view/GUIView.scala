@@ -3,9 +3,11 @@ package view
 import controller.*
 import model.*
 import scalafx.application.JFXApp3.PrimaryStage
-import scalafx.application.{JFXApp3, Platform}
+import scalafx.application.JFXApp3
+import scalafx.application.Platform
 import scalafx.geometry.Pos
 import scalafx.scene.{Node, Scene}
+import scalafx.scene.Node
 import scalafx.scene.control.{Button, Label, TextField}
 import scalafx.scene.image.{Image, ImageView}
 import scalafx.scene.layout.{GridPane, Pane, StackPane, VBox}
@@ -24,6 +26,21 @@ object GUIView extends JFXApp3 with Observer {
   private var boardGrid: GridPane = _
   private var placementPromptOpen = false
   private var offenseMode: Boolean = false
+  private var startButton: Button = _
+  private var rulesButton: Button = _
+  private var exitButton: Button = _
+  private var startCanon: ImageView = _
+  private var rulesCanon: ImageView = _
+  private var exitCanon: ImageView = _
+  private var startIcon: ImageView = _
+  private var rulesIcon: ImageView = _
+  private var exitIcon: ImageView = _
+  private var canonLogo: ImageView = _
+  val rows = 2
+  val cols = 2
+  private var tilesArray: Array[Array[(StackPane, Rectangle, Text)]] =
+    Array.ofDim[(StackPane, Rectangle, Text)](cols, rows)
+
 
 
 
@@ -33,13 +50,19 @@ object GUIView extends JFXApp3 with Observer {
   }
 
   override def update(): Unit = {
-    // später: GUI aktualisieren, z.B. Map neu zeichnen
-    println("GUIView: update called")
-    val rest = controller.remainingInfantryPerPlayer
-    rest.foreach { case (color, inf) =>
-      println(s"$color: $inf Infanterie übrig")
-    }
+    if (boardGrid == null || tilesArray == null) return
 
+    Platform.runLater {
+      val mapData = controller.tiles
+
+      for (y <- 0 until rows; x <- 0 until cols) {
+        val (tile, rect, txt) = tilesArray(x)(y)
+        val t = mapData(y)(x)
+
+        txt.text = t.soldiers.toString
+        rect.fill = colorForPlayer(t.player)
+      }
+    }
   }
 
   private def configurePlayers(root: Pane): Unit = {
@@ -68,7 +91,6 @@ object GUIView extends JFXApp3 with Observer {
 
       onAction = _ => {
         if (currentStep == 0) {
-          // Schritt: Spieleranzahl
           val n = inputField.text.value.toIntOption.getOrElse(0)
           if (n >= 2 && n <= 4) {
             numPlayers = n
@@ -79,12 +101,9 @@ object GUIView extends JFXApp3 with Observer {
           } else {
             questionLabel.text = "Bitte 2–4 eingeben!"
           }
-
         } else {
-          // Schritt: Farben wählen, Manager benutzen
           val color   = inputField.text.value.trim.toLowerCase
           val allowed = List("red", "blue", "pink", "green")
-
           val usedColors = manager.list.usedColors()
 
           if (!allowed.contains(color)) {
@@ -92,7 +111,6 @@ object GUIView extends JFXApp3 with Observer {
           } else if (usedColors.contains(color)) {
             questionLabel.text = "Farbe schon vergeben, andere wählen"
           } else {
-            // Spieler hinzufügen (mit Undo-Unterstützung)
             manager.addPlayer(color)
             val colorsNow = manager.list.usedColors()
 
@@ -101,12 +119,11 @@ object GUIView extends JFXApp3 with Observer {
               inputField.text = ""
               questionLabel.text = s"Player $nextIdx: choose color"
             } else {
-              // alle Farben gewählt → Spiel starten
               val playersListObj = manager.list
-              val colorsFinal    = playersListObj.usedColors()
+              val colorsFinal = playersListObj.usedColors()
 
-              val players = controller.startGame(numPlayers, colorsFinal)
-              println(s"GUI gestartet mit Spielern: $players")
+              val players = controller.startGame(numPlayers, colorsFinal).foreach(println)
+              println(players)
 
               val boardScene = createBoardScene()
               stage.scene = boardScene
@@ -123,7 +140,7 @@ object GUIView extends JFXApp3 with Observer {
       layoutY = 350
 
       onAction = _ => {
-        if (currentStep == 1) { // nur in der Farbwahl-Phase sinnvoll
+        if (currentStep == 1) {
           manager.undo()
           val colorsNow = manager.list.usedColors()
           val nextIdx   = colorsNow.size + 1
@@ -133,8 +150,21 @@ object GUIView extends JFXApp3 with Observer {
       }
     }
 
-    root.children ++= Seq(questionLabel, inputField, confirmButton, undoButton)
+    val backButton: Button = new Button("Back") {
+      layoutX = 540
+      layoutY = 350
+
+      onAction = _ => {
+        // alle Konfig-Controls entfernen
+        root.children --= Seq(questionLabel, inputField, confirmButton, undoButton, this)
+        // Menü-Buttons wieder einblenden
+        root.children ++= Seq(startButton, rulesButton, exitButton, startCanon, rulesCanon, exitCanon)
+      }
+    }
+
+    root.children ++= Seq(questionLabel, inputField, confirmButton, undoButton, backButton)
   }
+
 
   def colorForPlayer(p: Player): Color = p.colorName match {
     case "red" => Color.Red
@@ -149,7 +179,6 @@ object GUIView extends JFXApp3 with Observer {
 
     tile.onMouseClicked = _ => {
       if (!offenseMode) {
-        // Placement-Phase
         if (placementPromptOpen) return
         placementPromptOpen = true
 
@@ -184,7 +213,6 @@ object GUIView extends JFXApp3 with Observer {
           }
         }
       } else {
-        // Offense-Phase
         handleOffenseClick(xx, yy, tile, rect)
       }
     }
@@ -193,7 +221,6 @@ object GUIView extends JFXApp3 with Observer {
   private def handleOffenseClick(x: Int, y: Int, tile: StackPane, rect: Rectangle): Unit = {
     selectedFrom match {
       case None =>
-        // Angreifer auswählen
         val fromTile = controller.tiles(y)(x)
         if (fromTile.player != controller.currentPlayer || fromTile.soldiers <= 1) {
           println("Ungültiges Angreiferfeld")
@@ -203,7 +230,6 @@ object GUIView extends JFXApp3 with Observer {
         }
 
       case Some((fromX, fromY, fromTileNode, fromRect)) =>
-        // Gleiches Feld -> Auswahl aufheben
         if (fromX == x && fromY == y) {
           fromRect.stroke = Color.Black
           selectedFrom = None
@@ -250,7 +276,7 @@ object GUIView extends JFXApp3 with Observer {
   }
 
 
-  private def createBoardScene(): Scene = {
+  def createBoardScene(): Scene = {
     val grid = new GridPane {
       hgap = 5
       vgap = 5
@@ -259,7 +285,7 @@ object GUIView extends JFXApp3 with Observer {
 
     val size = 100.0
 
-    for (yy <- 0 until 2; xx <- 0 until 2) {
+    for (yy <- 0 until rows; xx <- 0 until cols) {
       val rect = new Rectangle {
         width = size
         height = size
@@ -277,7 +303,12 @@ object GUIView extends JFXApp3 with Observer {
         children = Seq(rect, label)
       }
 
-      attachTileHandler(tile, xx, yy, rect, label) // hier ist deine Klicklogik
+      // Tile-Handler wie bisher
+      attachTileHandler(tile, xx, yy, rect, label)
+
+      // In Array speichern
+      tilesArray(xx)(yy) = (tile, rect, label)
+
       grid.add(tile, xx, yy)
     }
 
@@ -297,38 +328,74 @@ object GUIView extends JFXApp3 with Observer {
       fitWidth = 1100
     }
 
-    val canonLogo = new ImageView(new Image(getClass.getResourceAsStream("/canon_logo.png"))) {
+
+     canonLogo = new ImageView(new Image(getClass.getResourceAsStream("/canon_logo.png"))) {
       fitWidth = 40
       fitHeight = 40
       preserveRatio = true
       visible = false
     }
 
-    val startIcon = new ImageView(new Image(getClass.getResourceAsStream("/start_button.png"))) {
+     startIcon = new ImageView(new Image(getClass.getResourceAsStream("/start_button.png"))) {
       fitWidth = 40
       fitHeight = 40
       preserveRatio = true
     }
 
-    val rulesIcon = new ImageView(new Image(getClass.getResourceAsStream("/rules_button.png"))) {
+     rulesIcon = new ImageView(new Image(getClass.getResourceAsStream("/rules_button.png"))) {
       fitWidth = 40
       fitHeight = 40
       preserveRatio = true
     }
 
-    val exitIcon = new ImageView(new Image(getClass.getResourceAsStream("/exit_button.png"))) {
+     exitIcon = new ImageView(new Image(getClass.getResourceAsStream("/exit_button.png"))) {
       fitWidth = 40
       fitHeight = 40
       preserveRatio = true
     }
 
-    val startCanon = new ImageView(new Image(getClass.getResourceAsStream("/canon_logo.png"))) {
+     startCanon = new ImageView(new Image(getClass.getResourceAsStream("/canon_logo.png"))) {
       visible = false
       preserveRatio = true
       fitWidth = 45
     }
 
-    val startButton = new Button {
+     exitCanon = new ImageView(new Image(getClass.getResourceAsStream("/canon_logo.png"))) {
+      visible = false
+      preserveRatio = true
+      fitWidth = 45
+    }
+
+     rulesButton = new Button {
+      graphic = new ImageView(new Image(getClass.getResourceAsStream("/rules_button.png"))) {
+        fitWidth = 100
+        preserveRatio = true
+      }
+      style = "-fx-background-color: transparent;"
+
+      onAction = _ => {
+      }
+    }
+
+     rulesCanon = new ImageView(new Image(getClass.getResourceAsStream("/canon_logo.png"))) {
+      visible = false
+      preserveRatio = true
+      fitWidth = 45
+    }
+
+     exitButton = new Button {
+      graphic = new ImageView(new Image(getClass.getResourceAsStream("/exit_button.png"))) {
+        fitWidth = 85
+        preserveRatio = true
+      }
+      style = "-fx-background-color: transparent;"
+
+      onAction = _ => {
+        Platform.exit()
+      }
+    }
+
+    startButton = new Button {
       graphic = new ImageView(new Image(getClass.getResourceAsStream("/start_button.png"))) {
         fitWidth = 100
         preserveRatio = true
@@ -337,8 +404,11 @@ object GUIView extends JFXApp3 with Observer {
 
       onAction = _ => {
         configurePlayers(rootPane)
+        rootPane.children --= Seq(startButton, rulesButton, exitButton, startCanon, rulesCanon, exitCanon)
       }
     }
+
+
 
     val introRoot = new Pane()
     val introText = new Label("*** Welcome to Risk! ***\n" +
@@ -363,41 +433,6 @@ object GUIView extends JFXApp3 with Observer {
       stylesheets.add(getClass.getResource("/style.css").toExternalForm)
     }
 
-    val rulesButton = new Button {
-      graphic = new ImageView(new Image(getClass.getResourceAsStream("/rules_button.png"))) {
-        fitWidth = 100
-        preserveRatio = true
-      }
-      style = "-fx-background-color: transparent;"
-
-      onAction = _ => {
-        println("Start Game (TUI)") // oder controller.startGame()
-      }
-    }
-
-    val rulesCanon = new ImageView(new Image(getClass.getResourceAsStream("/canon_logo.png"))) {
-      visible = false
-      preserveRatio = true
-      fitWidth = 45
-    }
-
-    val exitButton = new Button {
-      graphic = new ImageView(new Image(getClass.getResourceAsStream("/exit_button.png"))) {
-        fitWidth = 85
-        preserveRatio = true
-      }
-      style = "-fx-background-color: transparent;"
-
-      onAction = _ => {
-        Platform.exit()
-      }
-    }
-
-    val exitCanon = new ImageView(new Image(getClass.getResourceAsStream("/canon_logo.png"))) {
-      visible = false
-      preserveRatio = true
-      fitWidth = 45
-    }
 
     startButton.layoutX = 160
     startButton.layoutY = 300
@@ -446,5 +481,7 @@ object GUIView extends JFXApp3 with Observer {
       scene = introScene
 
     }
+
+
   }
 }

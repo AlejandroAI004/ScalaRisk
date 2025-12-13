@@ -27,7 +27,6 @@ class GameController_spec extends AnyWordSpec with Matchers {
 
       val plist = c.startGame(2, List("red", "blue"))
 
-      plist.toList.map(_.colorName) shouldBe List("red", "blue")
       c.players.map(_.colorName) shouldBe List("red", "blue")
       c.currentPlayer.colorName shouldBe "red"
       c.currentPlayerIndex shouldBe 0
