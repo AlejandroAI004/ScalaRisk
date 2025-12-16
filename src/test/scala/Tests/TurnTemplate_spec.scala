@@ -13,13 +13,13 @@ class TurnTemplate_spec extends AnyWordSpec with Matchers {
       var trace: List[String] = Nil
 
       class TestTurn extends TurnTemplate {
-        override def preTurn(p: Player, c: GameController): Unit =
+        override def preTurn(p: Player, c: GameControllerPort): Unit =
           trace = trace :+ "pre"
 
-        override def doTurn(p: Player, c: GameController): Unit =
+        override def doTurn(p: Player, c: GameControllerPort): Unit =
           trace = trace :+ "do"
 
-        override def postTurn(p: Player, c: GameController): Unit =
+        override def postTurn(p: Player, c: GameControllerPort): Unit =
           trace = trace :+ "post"
       }
 

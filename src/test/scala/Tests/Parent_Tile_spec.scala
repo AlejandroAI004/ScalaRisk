@@ -6,80 +6,81 @@ import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
 
 class Parent_Tile_spec extends AnyWordSpec with Matchers {
-  "A Parent_Tile" when {
-    "not initialized with any value " should {
-      val emptyParent = Parent_Tile()
-      "have no neighbours" in {
-        emptyParent.neighbours.isEmpty should be(true)
-      }
-      "have no connections" in {
-        emptyParent.connections.isEmpty should be(true)
-      }
+
+  "A Parent_Tile" should {
+
+    "have empty neighbours and connections by default" in {
+      val t = Parent_Tile()
+      t.neighbours shouldBe empty
+      t.connections shouldBe empty
+      t.name shouldBe ""
     }
-    "initialized with neighbour " should {
-      val neighbourTile = Parent_Tile()
-      val Parent = Parent_Tile(List(neighbourTile),List(direction.south))
-      "have one neighbour" in {
-        Parent.neighbours.contains(neighbourTile) should be(true)
-      }
-      "have one connections" in {
-        Parent.connections.contains(direction.south) should be(true)
-      }
+
+    "store the given name" in {
+      val t = Parent_Tile(name = "Konstanz")
+      t.name shouldBe "Konstanz"
     }
-    "getting a neighbour added to it " should {
-      val Parent = Parent_Tile()
-      val neighbourTile = Parent_Tile()
-      val newParent = Parent_Tile(Parent.add_neighbour_tile(neighbourTile))
-      "have one neighbour" in {
-        newParent.neighbours.contains(neighbourTile) should be(true)
-      }
+
+    "add a neighbour without mutating the original" in {
+      val a = Parent_Tile(name = "A")
+      val b = Parent_Tile(name = "B")
+
+      val a2 = a.add_neighbour_tile(b)
+
+      a.neighbours shouldBe empty          // original unverändert
+      a2.neighbours should contain only b  // neuer State
+      a2.name shouldBe "A"                 // Name bleibt gleich
     }
-    "getting a connection added to it " should {
-      val Parent = Parent_Tile()
-      val newParent = Parent_Tile(List(), Parent.add_connection(direction.west))
-      "have one connection" in {
-        newParent.connections.contains(direction.west) should be(true)
-      }
+
+    "add multiple neighbours in order" in {
+      val a = Parent_Tile(name = "A")
+      val b = Parent_Tile(name = "B")
+      val c = Parent_Tile(name = "C")
+
+      val a2 = a.add_neighbour_tile(b).add_neighbour_tile(c)
+
+      a2.neighbours shouldBe List(b, c)
     }
-    "initialized with multiple connections " should {
-      val Parent = Parent_Tile(List(), List(direction.south, direction.north,
-        direction.west, direction.east, direction.southeast, direction.southwest,
-        direction.northeast, direction.northwest))
-      "have connection south" in {
-        Parent.connections.contains(direction.south) should be(true)
-      }
-      "have connection north" in {
-        Parent.connections.contains(direction.north) should be(true)
-      }
-      "have connection west" in {
-        Parent.connections.contains(direction.west) should be(true)
-      }
-      "have connection east" in {
-        Parent.connections.contains(direction.east) should be(true)
-      }
-      "have connection southeast" in {
-        Parent.connections.contains(direction.southeast) should be(true)
-      }
-      "have connection southwest" in {
-        Parent.connections.contains(direction.southwest) should be(true)
-      }
-      "have connection northeast" in {
-        Parent.connections.contains(direction.northeast) should be(true)
-      }
-      "have connection northwest" in {
-        Parent.connections.contains(direction.northwest) should be(true)
-      }
+
+    "add a connection without mutating the original" in {
+      val a  = Parent_Tile(name = "A")
+      val a2 = a.add_connection(direction.north)
+
+      a.connections shouldBe empty
+      a2.connections should contain only direction.north
     }
-    "getting a neighbour and connection added to it " should {
-      val Parent = Parent_Tile()
-      val neighbourTile = Parent_Tile()
-      val newParent = add_neighbour(Parent, neighbourTile, direction.south)
-      "have one neighbour" in {
-        newParent.neighbours.contains(neighbourTile) should be(true)
-      }
-      "have one connections" in {
-        newParent.connections.contains(direction.south) should be(true)
-      }
+
+    "add multiple connections in order" in {
+      val a  = Parent_Tile(name = "A")
+      val a2 = a
+        .add_connection(direction.northwest)
+        .add_connection(direction.southeast)
+
+      a2.connections shouldBe List(direction.northwest, direction.southeast)
+    }
+  }
+
+  "add_neighbour function" should {
+
+    "add neighbour and connection in one step" in {
+      val a = Parent_Tile(name = "A")
+      val b = Parent_Tile(name = "B")
+
+      val result = add_neighbour(a, b, direction.east)
+
+      result.neighbours should contain only b
+      result.connections should contain only direction.east
+      result.name shouldBe "A"
+    }
+
+    "not change the original target" in {
+      val a = Parent_Tile(name = "A")
+      val b = Parent_Tile(name = "B")
+
+      val _ = add_neighbour(a, b, direction.east)
+
+      a.neighbours shouldBe empty
+      a.connections shouldBe empty
     }
   }
 }
