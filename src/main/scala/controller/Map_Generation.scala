@@ -37,11 +37,11 @@ object Map_Generation {
   }
 
   def print_lower_area(tiles: List[Tile]): String = {
-    var res = ""
-    for (i <- tiles) {
-      res += "  |        |  "
-    }
-    res + "\n"
+    tiles.map { t =>
+      (if (t.parent.connections.contains(direction.west)) "__| " else "  | ") +
+        t.parent.name.take(7).padTo(7, ' ') +
+        (if (t.parent.connections.contains(direction.east)) "|__" else "|  ")
+    }.mkString("") + "\n"
   }
 
   def print_row(tiles: List[Tile]): String = {

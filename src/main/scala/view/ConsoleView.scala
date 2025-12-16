@@ -3,14 +3,15 @@ package view
 import scala.util.{Failure, Success, Try}
 import model.*
 import controller.*
+import controller.GameController
 import view.GUIView.createBoardScene
 
 import scala.annotation.tailrec
 
 object ConsoleView extends Observer{
-  private var controller: GameController = _
+  private var controller: GameControllerPort = _
 
-  def init(ctrl: GameController): Unit = {
+  def init(ctrl: GameControllerPort): Unit = {
     controller = ctrl
     controller.add(this)
   }
@@ -30,7 +31,7 @@ object ConsoleView extends Observer{
       "–, gewinnt das Spiel und herrscht über die Welt!\n"
   }
 
-  def start(controller: GameController): playerList = {
+  def start(controller: GameControllerPort): playerList = {
     val numPlayers = askPlayerCount()
     val manager    = new PlayerConfigManager
 
@@ -55,28 +56,28 @@ object ConsoleView extends Observer{
 
 
     val colors: List[String] = manager.list.usedColors()
-    controller.startGame(numPlayers, colors) match  {
+    controller.startGame(numPlayers, colors) match {
       case Success(plist) =>
+        gamePhaseLoop()
         plist
-      case Failure(ex) => {
-        println(s"Fehler beim Starten des Spiels: ${ex.getMessage}")
+      case Failure(ex) =>
+        println(s"Fehler: ${ex.getMessage}")
         manager.list
-      }
     }
   }
 
   object ConsoleOffenseTurn extends TurnTemplate {
 
-    override def preTurn(player: Player, controller: GameController): Unit = {
+    override def preTurn(player: Player, controller: GameControllerPort): Unit = {
       showStatus(s"It's ${player.colorName}'s attack phase")
       showTileMap(controller.tiles)
     }
 
-    override def doTurn(player: Player, controller: GameController): Unit = {
+    override def doTurn(player: Player, controller: GameControllerPort): Unit = {
       controller.handleEvent(AttackEvent)
     }
 
-    override def postTurn(player: Player, controller: GameController): Unit = {
+    override def postTurn(player: Player, controller: GameControllerPort): Unit = {
       showStatus(s"Turn finished")
     }
   }
@@ -108,7 +109,7 @@ object ConsoleView extends Observer{
   @tailrec
   def placeInfantryFunctional(
                                players: List[Player],
-                               controller: GameController
+                               controller: GameControllerPort
                              ): List[List[Tile]] = {
     val mapData = controller.tiles
     if (players.forall(_.infantry <= 0))
@@ -133,7 +134,7 @@ object ConsoleView extends Observer{
 
   @tailrec
   def offense_phaseFunctional(players: List[Player],
-                              controller: GameController
+                              controller: GameControllerPort
                              ): List[List[Tile]] = {
     val mapData = controller.tiles
     val anyCanAttack =
@@ -190,4 +191,67 @@ object ConsoleView extends Observer{
         readIntSafe(prompt)
     }
   }
+
+  @tailrec
+  private def placeInfantryLoop(controller: GameControllerPort): Unit = {
+    if (controller.allInfantryPlaced) {
+      println("All infantry placed! Offense phase starts.")
+      return
+    }
+
+    val player = controller.currentPlayer
+    val (x, y, n) = askForInfantryPlacement(player)
+    controller.placeInfantry(player, x, y, n) match {
+      case Success(_) =>
+        controller.nextPlayerTurn()
+        placeInfantryLoop(controller)
+      case Failure(ex) =>
+        println(ex.getMessage)
+        placeInfantryLoop(controller)
+    }
+  }
+
+  @tailrec
+  private def offenseTurnLoop(controller: GameControllerPort): Unit = {
+    val player = controller.currentPlayer
+    println(s"${player.colorName}'s Offense Turn:")
+    println("1 = Attack, 0 = End Turn")
+
+    val choice = scala.io.StdIn.readLine("Choice: ").toIntOption.getOrElse(-1)
+
+    choice match {
+      case 1 =>
+        val (fromX, fromY, toX, toY, n) = askForOffenseMove(player)
+        controller.offense_phase(player, fromX, fromY, toX, toY, n) match {
+          case Success(_) =>
+            println("Attack successful!")
+            offenseTurnLoop(controller) 
+          case Failure(ex) =>
+            println(ex.getMessage)
+            println(showTileMap(controller.tiles))
+            offenseTurnLoop(controller)
+        }
+      case 0 =>
+        println("Ending offense turn...")
+        controller.endOffenseTurn() // nextPlayer + ggf. Reinforcement
+      case _ =>
+        println("Invalid choice")
+        offenseTurnLoop(controller)
+    }
+  }
+  
+  @tailrec
+  private def gamePhaseLoop(): Unit = {
+    controller.currentPhase match {
+      case GamePhase.Placement =>
+        placeInfantryLoop(controller)
+        gamePhaseLoop()
+      case GamePhase.Offense =>
+        offenseTurnLoop(controller)
+        gamePhaseLoop()
+      case GamePhase.GameOver =>
+        println(s"Game Over! Winner: ${controller.checkWinner()}")
+    }
+  }
+
 }

@@ -38,8 +38,8 @@ object GUIView extends JFXApp3 with Observer {
   private var canonLogo: ImageView = _
   val rows = 2
   val cols = 2
-  private var tilesArray: Array[Array[(StackPane, Rectangle, Text)]] =
-    Array.ofDim[(StackPane, Rectangle, Text)](cols, rows)
+  private var tilesArray: Array[Array[(StackPane, Rectangle, Text, Text)]] = _
+
 
 
 
@@ -56,10 +56,11 @@ object GUIView extends JFXApp3 with Observer {
       val mapData = controller.tiles
 
       for (y <- 0 until rows; x <- 0 until cols) {
-        val (tile, rect, txt) = tilesArray(x)(y)
+        val (tile, rect, soldiersLabel, cityLabel) = tilesArray(x)(y)
         val t = mapData(y)(x)
 
-        txt.text = t.soldiers.toString
+        soldiersLabel.text = t.soldiers.toString
+        cityLabel.text = t.parent.name
         rect.fill = colorForPlayer(t.player)
       }
     }
@@ -277,46 +278,59 @@ object GUIView extends JFXApp3 with Observer {
 
 
   def createBoardScene(): Scene = {
-    val grid = new GridPane {
-      hgap = 5
-      vgap = 5
-    }
+    val mapData = controller.tiles
+    val rows    = mapData.length
+    val cols    = mapData.head.length
+
+    tilesArray = Array.ofDim[(StackPane, Rectangle, Text, Text)](cols, rows)
+
+    val grid = new GridPane { hgap = 5; vgap = 5 }
     boardGrid = grid
+    val size = 80.0
 
-    val size = 100.0
+    for (y <- 0 until rows; x <- 0 until cols) {
+      val t = mapData(y)(x)
 
-    for (yy <- 0 until rows; xx <- 0 until cols) {
       val rect = new Rectangle {
-        width = size
-        height = size
+        width = size; height = size
         fill = Color.DarkOliveGreen
-        stroke = Color.Black
-        strokeWidth = 2
+        stroke = Color.Black; strokeWidth = 2
       }
 
-      val label = new Text {
-        text = "0"
+      val soldiersLabel = new Text {
+        text = t.soldiers.toString
         fill = Color.White
+        style = "-fx-font-size: 12px;"
       }
+
+      val cityLabel = new Text {
+        text = t.parent.name  // ✅ funktioniert jetzt!
+        fill = Color.Yellow
+        style = "-fx-font-size: 10px;"
+      }
+
+      // Zentrierung der Labels
+      soldiersLabel.layoutXProperty().set(size / 2 - 6)
+      soldiersLabel.layoutYProperty().set(size / 2 + 4)
+
+      cityLabel.layoutXProperty().set(size / 2 - 20)
+      cityLabel.layoutYProperty().set(size / 2 - 8)
 
       val tile = new StackPane {
-        children = Seq(rect, label)
+        children = Seq(rect, cityLabel, soldiersLabel)  // Stadtname UNTER Soldaten
       }
 
-      // Tile-Handler wie bisher
-      attachTileHandler(tile, xx, yy, rect, label)
-
-      // In Array speichern
-      tilesArray(xx)(yy) = (tile, rect, label)
-
-      grid.add(tile, xx, yy)
+      tilesArray(x)(y) = (tile, rect, soldiersLabel, cityLabel)
+      attachTileHandler(tile, x, y, rect, soldiersLabel) 
+      grid.add(tile, x, y)
     }
 
-    new Scene(300, 300) {
+    new Scene(cols * (size + 5), rows * (size + 5)) {
       root = grid
       fill = Color.Black
     }
   }
+
 
 
   override def start(): Unit = {
