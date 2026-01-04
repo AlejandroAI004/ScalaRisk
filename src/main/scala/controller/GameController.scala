@@ -29,18 +29,16 @@ class GameController(var initialMap: List[List[Tile]],
 
       players = plist.toList
       currentPlayerIndex = 0
-      val neutralMap = MapInit.testMap_init() // List[List[Tile]]
-      val flatTiles = neutralMap.flatten // List[Tile]
+      val neutralMap = MapInit.testMap_init() 
+      val flatTiles = neutralMap.flatten 
 
       val allPlayers = scala.util.Random.shuffle(players) // random Player-Reihenfolge
       val playerIter = Iterator.continually(allPlayers).flatten
 
-      // 1. Tiles zufällig anordnen
       val shuffledTilesWithIndex = scala.util.Random.shuffle(
         flatTiles.zipWithIndex
       )
-
-      // 2. Zufällig Spieler + 1 Soldat zuweisen
+      
       val filledFlat: Array[Tile] = Array.ofDim[Tile](flatTiles.size)
 
       for ((tile, idx) <- shuffledTilesWithIndex) {
@@ -48,7 +46,7 @@ class GameController(var initialMap: List[List[Tile]],
         filledFlat(idx) = tile.copy(player = p, soldiers = 1)
       }
 
-      // 3. Zurück in 2D-Map formen
+      
       val width = neutralMap.head.length
       val height = neutralMap.length
       val assignedMap: List[List[Tile]] =

@@ -22,7 +22,7 @@ import scala.util.{Failure, Success}
 
 object GUIView extends JFXApp3 with Observer {
   private var selectedFrom: Option[(Int, Int, StackPane, Rectangle)] = None
-  private var controller: GameController = _
+  private var controller: GameControllerPort = _
   private var boardGrid: GridPane = _
   private var placementPromptOpen = false
   private var offenseMode: Boolean = false
@@ -40,11 +40,8 @@ object GUIView extends JFXApp3 with Observer {
   val cols = 2
   private var tilesArray: Array[Array[(StackPane, Rectangle, Text, Text)]] = _
 
-
-
-
-
-  def init(ctrl: GameController): Unit = {
+  
+  def init(ctrl: GameControllerPort): Unit = {
     controller = ctrl
     controller.add(this)
   }

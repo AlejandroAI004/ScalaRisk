@@ -7,7 +7,7 @@ trait GameControllerPort {
 
   def add(o: Observer): Unit
 
-  // Start / Setup
+  
   def startGame(numPlayers: Int, colors: List[String]): Try[playerList]
 
   def currentPhase: GamePhase
