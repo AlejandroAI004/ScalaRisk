@@ -1,9 +1,18 @@
 package Tests
 
 import controller.*
+import controller.GameController.impl1.GameController
 import model.*
+import model.Combat.CombatStrategy.{DiceCombatStrategy, SimpleCombatStrategy}
+import model.Combat.CombatStrategy
+import model.GameEventS.PlaceInfantryEvent
+import model.mapInit.imp1
+import model.mapInit.imp1.MapInit
+import model.player.Player
+import model.tile.{Parent_Tile, Tile}
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
+import util.gamePhase.GamePhase
 
 import scala.util.Failure
 
@@ -17,7 +26,7 @@ class GameController_spec extends AnyWordSpec with Matchers {
   }
 
   def newController(players: List[Player] = Nil): GameController = {
-    val mapData = MapInit.testMap_init()
+    val mapData = MapInit.createInitialMap()
     new GameController(mapData, players, DiceCombatStrategy)
   }
 
@@ -253,19 +262,19 @@ class GameController_spec extends AnyWordSpec with Matchers {
   "startGame" should {
 
     "succeed and init players and map on valid input" in {
-      val ctrl = new GameController(MapInit.testMap_init(), Nil)
+      val ctrl = new GameController(imp1.MapInit.createInitialMap(), Nil)
 
       val res = ctrl.startGame(3, List("red", "blue", "green"))
 
       res.isSuccess shouldBe true
       ctrl.players.map(_.colorName).toSet shouldBe Set("red", "blue", "green")
       ctrl.currentPlayerIndex shouldBe 0
-      ctrl.tiles.flatten.length shouldBe MapInit.testMap_init().flatten.length
+      ctrl.tiles.flatten.length shouldBe imp1.MapInit.createInitialMap().flatten.length
       ctrl.tiles.flatten.forall(_.soldiers == 1) shouldBe true
     }
 
     "fail if numPlayers < 2" in {
-      val ctrl = new GameController(MapInit.testMap_init(), Nil)
+      val ctrl = new GameController(imp1.MapInit.createInitialMap(), Nil)
 
       val res = ctrl.startGame(1, List("red"))
 
@@ -274,7 +283,7 @@ class GameController_spec extends AnyWordSpec with Matchers {
     }
 
     "fail if numPlayers > 4" in {
-      val ctrl = new GameController(MapInit.testMap_init(), Nil)
+      val ctrl = new GameController(imp1.MapInit.createInitialMap(), Nil)
 
       val res = ctrl.startGame(5, List("red", "blue", "green", "yellow", "pink"))
 
@@ -283,7 +292,7 @@ class GameController_spec extends AnyWordSpec with Matchers {
     }
 
     "fail if colors contain duplicates" in {
-      val ctrl = new GameController(MapInit.testMap_init(), Nil)
+      val ctrl = new GameController(imp1.MapInit.createInitialMap(), Nil)
 
       val res = ctrl.startGame(3, List("red", "red", "blue"))
 
@@ -292,7 +301,7 @@ class GameController_spec extends AnyWordSpec with Matchers {
     }
 
     "fail if colors size != numPlayers (too few)" in {
-      val ctrl = new GameController(MapInit.testMap_init(), Nil)
+      val ctrl = new GameController(imp1.MapInit.createInitialMap(), Nil)
 
       val res = ctrl.startGame(3, List("red", "blue"))
 
@@ -301,7 +310,7 @@ class GameController_spec extends AnyWordSpec with Matchers {
     }
 
     "fail if colors size != numPlayers (too many)" in {
-      val ctrl = new GameController(MapInit.testMap_init(), Nil)
+      val ctrl = new GameController(imp1.MapInit.createInitialMap(), Nil)
 
       val res = ctrl.startGame(2, List("red", "blue", "green"))
 
@@ -481,7 +490,7 @@ class GameController_spec extends AnyWordSpec with Matchers {
         "return \"Placement\" initially" in {
           val p1      = new Player("red")
           val players = List(p1)
-          val mapData = MapInit.testMap_init()
+          val mapData = imp1.MapInit.createInitialMap()
 
           val ctrl = new GameController(mapData, players, SimpleCombatStrategy)
 
@@ -492,7 +501,7 @@ class GameController_spec extends AnyWordSpec with Matchers {
           val p1      = new Player("red"); p1.infantry = 0
           val p2      = new Player("blue"); p2.infantry = 0
           val players = List(p1, p2)
-          val mapData = MapInit.testMap_init()
+          val mapData = imp1.MapInit.createInitialMap()
 
           val ctrl = new GameController(mapData, players, SimpleCombatStrategy)
 

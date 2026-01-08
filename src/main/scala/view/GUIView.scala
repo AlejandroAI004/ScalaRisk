@@ -1,22 +1,22 @@
 package view
-
-import controller.*
+import controller.GameController.GameControllerPort
 import model.*
+import model.player.Player
+import util.command.PlayerConfigManager
 import scalafx.application.JFXApp3.PrimaryStage
 import scalafx.application.JFXApp3
 import scalafx.application.Platform
 import scalafx.geometry.Pos
-import scalafx.scene.{Node, Scene}
+import scalafx.scene.Scene
 import scalafx.scene.Node
 import scalafx.scene.control.{Button, Label, TextField}
 import scalafx.scene.image.{Image, ImageView}
-import scalafx.scene.layout.{GridPane, Pane, StackPane, VBox}
+import scalafx.scene.layout.{Pane, VBox}
 import scalafx.scene.paint.Color
-import scalafx.scene.shape.Rectangle
-import scalafx.scene.text.Text
 import scalafx.scene.layout.{GridPane, StackPane}
 import scalafx.scene.shape.Rectangle
 import scalafx.scene.text.Text
+import util.observer.Observer
 
 import scala.util.{Failure, Success}
 

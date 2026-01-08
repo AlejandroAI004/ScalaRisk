@@ -2,6 +2,7 @@ package Tests
 
 import view.*
 import model.*
+import model.player.Player
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 

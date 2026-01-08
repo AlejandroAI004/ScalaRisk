@@ -1,9 +1,12 @@
 package Tests
 
+import controller.Map_Generation.imp1
 import view.*
 import view.ConsoleView.{showPlayers, showStatus, showTileMap, welcome}
 import model.*
 import controller.*
+import model.player.{Player, playerList}
+import model.tile.{Parent_Tile, Tile}
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
 
@@ -52,7 +55,7 @@ class consoleView_spec extends AnyWordSpec with Matchers {
           List(tile1, tile2)
         )
 
-        val expected = Map_Generation.print_map(mapData)
+        val expected = imp1.Map_Generation.print_map(mapData)
         val result = showTileMap(mapData)
 
         result shouldBe expected

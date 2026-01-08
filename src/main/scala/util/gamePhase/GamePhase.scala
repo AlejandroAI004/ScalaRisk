@@ -1,4 +1,4 @@
-package model
+package util.gamePhase
 
 enum GamePhase {
   case Placement

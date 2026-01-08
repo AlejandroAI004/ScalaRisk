@@ -1,6 +1,7 @@
-package model
+package util.pattern
 
-import controller.{GameController, GameControllerPort}
+import controller.GameController.GameControllerPort
+import model.player.Player
 
 abstract class TurnTemplate {
 

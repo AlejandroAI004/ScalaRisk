@@ -3,7 +3,17 @@ package view
 import scala.util.{Failure, Success, Try}
 import model.*
 import controller.*
-import controller.GameController
+import controller.GameController.GameControllerPort
+import controller.GameController.impl1.GameController
+import controller.Map_Generation.imp1
+import model.GameEventS.AttackEvent
+import util.command.PlayerConfigManager
+import model.colorText.imp1.colorText.colorText
+import model.player.{Player, playerList}
+import model.tile.Tile
+import util.gamePhase.GamePhase
+import util.observer.Observer
+import util.pattern.TurnTemplate
 import view.GUIView.createBoardScene
 
 import scala.annotation.tailrec
@@ -172,7 +182,7 @@ object ConsoleView extends Observer{
   }
 
   def showTileMap(mapData: List[List[Tile]]): String = {
-    Map_Generation.print_map(mapData)
+    imp1.Map_Generation.print_map(mapData)
   }
 
   def showStatus(msg: String): String =  {

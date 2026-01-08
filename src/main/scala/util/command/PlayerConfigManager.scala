@@ -1,10 +1,6 @@
-package model
+package util.command
 
-trait Command {
-  def doStep(): Unit
-  def undoStep(): Unit
-  def redoStep(): Unit
-}
+import model.player.playerList
 
 class PlayerConfigManager {
   private var current: playerList = new playerList()

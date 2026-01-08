@@ -2,7 +2,9 @@ import view.*
 import view.ConsoleView.{ConsoleOffenseTurn, offense_phaseFunctional}
 import model.*
 import controller.*
-import controller.modules.DefaultModule.given 
+import controller.GameController.GameControllerPort
+import controller.modules.DefaultModule.given
+import model.GameEventS.{AttackEvent, PlaceInfantryEvent} 
 
 object main {
   @main def run(): Unit = {

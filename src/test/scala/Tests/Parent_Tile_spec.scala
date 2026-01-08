@@ -1,7 +1,7 @@
 package Tests
 
-import model.direction.{south, west}
-import model.{Parent_Tile, add_neighbour, direction}
+import model.tile.{Parent_Tile, add_neighbour, direction}
+import model.tile.direction.{south, west}
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
 

@@ -1,16 +1,12 @@
-package model
+package model.Combat.CombatStrategy
+
+import model.Combat
+import model.Combat.CombatStrategyPort
+import model.tile.Tile
 
 import scala.util.Random
 
-trait CombatStrategy {
-  def resolveAttack(
-                     attacker: Tile,
-                     defender: Tile,
-                     troops: Int
-                   ): (Tile, Tile)
-}
-
-object DiceCombatStrategy extends CombatStrategy {
+object DiceCombatStrategy extends CombatStrategyPort {
 
   private val rnd = new Random()
 
@@ -48,17 +44,5 @@ object DiceCombatStrategy extends CombatStrategy {
 
       (newFrom, newTo)
     }
-  }
-}
-
- object SimpleCombatStrategy extends CombatStrategy {
-  override def resolveAttack(
-                              attacker: Tile,
-                              defender: Tile,
-                              troops: Int
-                            ): (Tile, Tile) = {
-    val newFrom = attacker.copy(soldiers = attacker.soldiers - troops)
-    val newTo = Tile(defender.parent, attacker.player, troops)
-    (newFrom, newTo)
   }
 }

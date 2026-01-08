@@ -1,5 +1,5 @@
-package model
+package model.tile
 
-import model.Player
+import model.player.Player
 
 case class Tile(parent: Parent_Tile, player: Player = new Player("empty"), soldiers: Int = 0) {}

@@ -1,9 +1,10 @@
-package model
+package model.mapInit.imp1
 
-import model.{Parent_Tile, Tile, add_neighbour, direction}
+import model.mapInit.MapInitPort
+import model.tile.{Parent_Tile, Tile, add_neighbour, direction}
 
-object MapInit {
-  def testMap_init(): List[List[Tile]] = {
+object MapInit extends MapInitPort {
+  override def createInitialMap(): List[List[Tile]] = {
     // Alle Tiles mit Namen initialisieren
     val konstanz = Parent_Tile(List(), List(), "Konstanz")
     val reichenau = Parent_Tile(List(), List(), "Reichenau")

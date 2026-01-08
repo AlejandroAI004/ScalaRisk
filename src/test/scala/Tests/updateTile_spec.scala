@@ -2,6 +2,8 @@ package Tests
 
 import view.*
 import model.*
+import model.player.Player
+import model.tile.{Parent_Tile, Tile, updateTile}
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 

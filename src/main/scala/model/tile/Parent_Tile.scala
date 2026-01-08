@@ -1,5 +1,4 @@
-package model
-
+package model.tile
 
 enum direction:
   case north, south, west, east, northeast, northwest, southeast, southwest

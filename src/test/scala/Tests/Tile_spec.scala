@@ -1,7 +1,8 @@
 package Tests
 
+import model.player.Player
+import model.tile.{Parent_Tile, Tile}
 import view.*
-import model.{Parent_Tile, Tile, Player}
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 

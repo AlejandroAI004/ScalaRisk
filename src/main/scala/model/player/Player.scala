@@ -1,7 +1,8 @@
-package model
+package model.player
 
+import model.tile.Tile
 
- class Player(val colorName: String):
+class Player(val colorName: String):
   var infantry: Int = 20
   var ownedTiles: List[Tile] = List()
   override def toString: String = colorName

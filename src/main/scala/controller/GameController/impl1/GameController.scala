@@ -1,16 +1,28 @@
-package controller
-import model.*
+package controller.GameController.impl1
 
-import scala.util.{Try, Success, Failure}
+import controller.GameController.GameControllerPort
+import model.*
+import model.Combat.CombatStrategyPort
+import model.Combat.CombatStrategy.DiceCombatStrategy
+import model.GameEventS.states.PlacementState
+import model.GameEventS.*
+import model.mapInit.imp1.MapInit
+import model.player.{Player, playerList}
+import model.tile.{Tile, updateTile}
+import util.command.PlayerConfigManager
+import util.gamePhase.GamePhase
+import util.observer.Observable
+
+import scala.util.{Failure, Success, Try}
 
 class GameController(var initialMap: List[List[Tile]],
                      var players: List[Player],
-                     var combatStrategy: CombatStrategy = DiceCombatStrategy) extends Observable with GameControllerPort {
+                     var combatStrategy: CombatStrategyPort = DiceCombatStrategy) extends Observable with GameControllerPort {
 
   private var phase: GamePhase = GamePhase.Placement
   def currentPhase: GamePhase = phase
   private var mapData: List[List[Tile]] = initialMap
-  private var state: GameState = PlacementState
+  private var state: GameStatePort = PlacementState
   var currentPlayerIndex: Int = 0
   def currentPlayer: Player = players(currentPlayerIndex)
 
@@ -29,7 +41,7 @@ class GameController(var initialMap: List[List[Tile]],
 
       players = plist.toList
       currentPlayerIndex = 0
-      val neutralMap = MapInit.testMap_init() 
+      val neutralMap = MapInit.createInitialMap() 
       val flatTiles = neutralMap.flatten 
 
       val allPlayers = scala.util.Random.shuffle(players) // random Player-Reihenfolge

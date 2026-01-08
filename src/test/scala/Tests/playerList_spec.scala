@@ -1,6 +1,6 @@
 package Tests
 
-import model.{Player, playerList}
+import model.player.{Player, playerList}
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 
