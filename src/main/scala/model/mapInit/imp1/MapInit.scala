@@ -78,11 +78,41 @@ object MapInit extends MapInitPort {
     val ravensburg2 = ravensburg1.add_neighbour_tile(lindau).add_connection(direction.east)
     val lindau1 = lindau.add_neighbour_tile(ravensburg).add_connection(direction.west)
 
-    List(
-      List(Tile(konstanz3), Tile(reichenau1), Tile(allensbach2), Tile(radolfzell2), Tile(singen1)),
-      List(Tile(kreuzlingen2), Tile(steckborn2), Tile(steinRhein2), Tile(romanshorn2), Tile(arbon1)),
-      List(Tile(stockach1), Tile(uhldingen2), Tile(meersburg2), Tile(ueberlingen2), Tile(friedrichshafen2)),
-      List(Tile(immenstaad2), Tile(langennargen2), Tile(tettnang2), Tile(ravensburg2), Tile(lindau1))
+    val layout: List[List[String]] = List(
+      List("Überlingen","Reichenau","Allensbach","Radolfzell","Kreuzlingen"),
+      List("Stockach","Steckborn","Immenstaad","Romanshorn","Arbon"),
+      List("Singen","Uhldingen","Meersburg","Konstanz","Friedrichshafen"),
+      List("Stein am Rhein","Langenargen","Tettnang","Ravensburg","Lindau")
     )
+
+    // Map: Name -> finaler Parent_Tile (WICHTIG: hier die *finalen* Variablen!)
+    val parentsByName: Map[String, Parent_Tile] = Map(
+      "Konstanz" -> konstanz3,
+      "Reichenau" -> reichenau1,
+      "Allensbach" -> allensbach2,
+      "Radolfzell" -> radolfzell2,
+      "Singen" -> singen1,
+
+      "Kreuzlingen" -> kreuzlingen2,
+      "Steckborn" -> steckborn2,
+      "Stein am Rhein" -> steinRhein2,
+      "Romanshorn" -> romanshorn2,
+      "Arbon" -> arbon1,
+
+      "Stockach" -> stockach1,
+      "Uhldingen" -> uhldingen2,
+      "Meersburg" -> meersburg2,
+      "Überlingen" -> ueberlingen2,
+      "Friedrichshafen" -> friedrichshafen2,
+
+      "Immenstaad" -> immenstaad2,
+      "Langenargen" -> langennargen2,
+      "Tettnang" -> tettnang2,
+      "Ravensburg" -> ravensburg2,
+      "Lindau" -> lindau1
+    )
+
+    // Aus Layout die Tile-Matrix bauen (Reihenfolge = Layout)
+    layout.map(row => row.map(name => Tile(parentsByName(name))))
   }
 }

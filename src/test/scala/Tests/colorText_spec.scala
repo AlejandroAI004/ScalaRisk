@@ -12,35 +12,35 @@ class colorText_spec extends AnyWordSpec with Matchers {
     "initialized with color red " should {
       val test = "test"
       "print red text" in {
-        colorText(test, "red") should be
+        colorText.colorText(test, "red") should be
         "\u001B[31m" + test + "\u001B[0m"
       }
     }
     "initialized with color blue " should {
       val test = "test"
       "print blue text" in {
-        colorText(test, "blue") should be
+        colorText.colorText(test, "blue") should be
         "\u001B[31m" + test + "\u001B[0m"
       }
     }
     "initialized with color green " should {
       val test = "test"
       "print green text" in {
-        colorText(test, "green") should be
+        colorText.colorText(test, "green") should be
         "\u001B[31m" + test + "\u001B[0m"
       }
     }
     "initialized with color pink " should {
       val test = "test"
       "print yellow text" in {
-        colorText(test, "pink") should be
+        colorText.colorText(test, "pink") should be
         "\u001B[38;5;206m" + test + "\u001B[0m"
       }
     }
     "initialized with no color " should {
       val test = "test"
       "print no text" in {
-        colorText(test, "") should be
+        colorText.colorText(test, "") should be
         "\u001B[31m" + test + "\u001B[0m"
       }
     }

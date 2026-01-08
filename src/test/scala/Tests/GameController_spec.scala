@@ -4,7 +4,7 @@ import controller.*
 import controller.GameController.impl1.GameController
 import model.*
 import model.Combat.CombatStrategy.{DiceCombatStrategy, SimpleCombatStrategy}
-import model.Combat.CombatStrategy
+import model.Combat.{CombatStrategy, CombatStrategyPort}
 import model.GameEventS.PlaceInfantryEvent
 import model.mapInit.imp1
 import model.mapInit.imp1.MapInit
@@ -17,7 +17,7 @@ import util.gamePhase.GamePhase
 import scala.util.Failure
 
 class GameController_spec extends AnyWordSpec with Matchers {
-  object TestCombatStrategy extends CombatStrategy {
+  object TestCombatStrategy extends CombatStrategyPort {
     override def resolveAttack(attacker: Tile, defender: Tile, troops: Int): (Tile, Tile) = {
       val newFrom = attacker.copy(soldiers = attacker.soldiers - troops)
       val newTo = Tile(defender.parent, attacker.player, troops)

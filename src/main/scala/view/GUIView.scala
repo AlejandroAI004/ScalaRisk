@@ -1,22 +1,21 @@
 package view
 import controller.GameController.GameControllerPort
-import model.*
 import model.player.Player
 import util.command.PlayerConfigManager
 import scalafx.application.JFXApp3.PrimaryStage
 import scalafx.application.JFXApp3
 import scalafx.application.Platform
-import scalafx.geometry.Pos
 import scalafx.scene.Scene
 import scalafx.scene.Node
-import scalafx.scene.control.{Button, Label, TextField}
+import scalafx.scene.control.{Button, Label, TextArea, TextField}
 import scalafx.scene.image.{Image, ImageView}
-import scalafx.scene.layout.{Pane, VBox}
+import scalafx.scene.layout.{BorderPane, GridPane, Pane, VBox}
 import scalafx.scene.paint.Color
-import scalafx.scene.layout.{GridPane, StackPane}
 import scalafx.scene.shape.Rectangle
 import scalafx.scene.text.Text
 import util.observer.Observer
+import scalafx.geometry.{Insets, Pos}
+import scalafx.scene.layout.StackPane
 
 import scala.util.{Failure, Success}
 
@@ -36,6 +35,7 @@ object GUIView extends JFXApp3 with Observer {
   private var rulesIcon: ImageView = _
   private var exitIcon: ImageView = _
   private var canonLogo: ImageView = _
+  private var playersArea: TextArea = _
   val rows = 2
   val cols = 2
   private var tilesArray: Array[Array[(StackPane, Rectangle, Text, Text)]] = _
@@ -59,6 +59,7 @@ object GUIView extends JFXApp3 with Observer {
         soldiersLabel.text = t.soldiers.toString
         cityLabel.text = t.parent.name
         rect.fill = colorForPlayer(t.player)
+        playersArea.text = playersText
       }
     }
   }
@@ -73,104 +74,94 @@ object GUIView extends JFXApp3 with Observer {
         "-fx-font-size: 16px; -fx-text-fill: red; " +
           "-fx-font-family: 'Comic Sans MS'; -fx-font-weight: bold;" +
           "-fx-effect: dropshadow(gaussian, white, 6, 0.8, 0, 0);"
-      layoutX = 300
-      layoutY = 310
+      wrapText = true
     }
 
-    val inputField = new TextField {
-      promptText = "2-4"
-      layoutX = 300
-      layoutY = 350
+    val inputField = new TextField { promptText = "2-4" }
+
+    val confirmButton = new Button("→")
+    val undoButton    = new Button("Undo") { disable = true }
+    val backButton    = new Button("Back")
+
+    val buttonsRow = new VBox(10, confirmButton, undoButton, backButton) {
+      alignment = Pos.Center
     }
 
-    val confirmButton: Button = new Button("→") {
-      layoutX = 450
-      layoutY = 350
-
-      onAction = _ => {
-        if (currentStep == 0) {
-          val n = inputField.text.value.toIntOption.getOrElse(0)
-          if (n >= 2 && n <= 4) {
-            numPlayers = n
-            currentStep = 1
-            inputField.text = ""
-            inputField.promptText = "red, blue, pink, green"
-            questionLabel.text = s"Player 1: choose color"
-          } else {
-            questionLabel.text = "Bitte 2–4 eingeben!"
-          }
-        } else {
-          val color   = inputField.text.value.trim.toLowerCase
-          val allowed = List("red", "blue", "pink", "green")
-          val usedColors = manager.list.usedColors()
-
-          if (!allowed.contains(color)) {
-            questionLabel.text = "Unbekannte Farbe, bitte red/blue/pink/green"
-          } else if (usedColors.contains(color)) {
-            questionLabel.text = "Farbe schon vergeben, andere wählen"
-          } else {
-            manager.addPlayer(color)
-            val colorsNow = manager.list.usedColors()
-
-            if (colorsNow.size < numPlayers) {
-              val nextIdx = colorsNow.size + 1
-              inputField.text = ""
-              questionLabel.text = s"Player $nextIdx: choose color"
-            } else {
-              val playersListObj = manager.list
-              val colorsFinal = playersListObj.usedColors()
-
-              val players = controller.startGame(numPlayers, colorsFinal).foreach(println)
-              println(players)
-
-              val boardScene = createBoardScene()
-              stage.scene = boardScene
-
-              questionLabel.text = "Spiel gestartet!"
-            }
-          }
-        }
-      }
+    val panel = new VBox(12, questionLabel, inputField, buttonsRow) {
+      alignment = Pos.Center
+      padding = Insets(16)
+      maxWidth = 360
+      style =
+        "-fx-background-color: rgba(20,20,20,0.85);" +
+          "-fx-border-color: gold;" +
+          "-fx-border-width: 2;" +
+          "-fx-border-radius: 12;" +
+          "-fx-background-radius: 12;"
     }
 
-    val undoButton: Button = new Button("Undo") {
-      layoutX = 480
-      layoutY = 350
+    panel.layoutX = 160
+    panel.layoutY = 300
 
-      onAction = _ => {
-        if (currentStep == 1) {
-          manager.undo()
-          val colorsNow = manager.list.usedColors()
-          val nextIdx   = colorsNow.size + 1
+    confirmButton.onAction = _ => {
+      if (currentStep == 0) {
+        val n = inputField.text.value.toIntOption.getOrElse(0)
+        if (n >= 2 && n <= 4) {
+          numPlayers = n
+          currentStep = 1
+          undoButton.disable = false
           inputField.text = ""
-          questionLabel.text = s"Player $nextIdx: choose color"
+          inputField.promptText = "red, blue, pink, green"
+          questionLabel.text = s"Player 1: choose color"
+        } else {
+          questionLabel.text = "Bitte 2–4 eingeben!"
+        }
+      } else {
+        val color = inputField.text.value.trim.toLowerCase
+        val allowed = List("red", "blue", "pink", "green")
+        val usedColors = manager.list.usedColors()
+
+        if (!allowed.contains(color)) {
+          questionLabel.text = "Unbekannte Farbe, bitte red/blue/pink/green"
+        } else if (usedColors.contains(color)) {
+          questionLabel.text = "Farbe schon vergeben, andere wählen"
+        } else {
+          manager.addPlayer(color)
+          val colorsNow = manager.list.usedColors()
+
+          if (colorsNow.size < numPlayers) {
+            val nextIdx = colorsNow.size + 1
+            inputField.text = ""
+            questionLabel.text = s"Player $nextIdx: choose color"
+          } else {
+            val colorsFinal = manager.list.usedColors()
+            controller.startGame(numPlayers, colorsFinal) 
+
+            stage.scene = createBoardScene()
+          }
         }
       }
     }
 
-    val backButton: Button = new Button("Back") {
-      layoutX = 540
-      layoutY = 350
-
-      onAction = _ => {
-        // alle Konfig-Controls entfernen
-        root.children --= Seq(questionLabel, inputField, confirmButton, undoButton, this)
-        // Menü-Buttons wieder einblenden
-        root.children ++= Seq(startButton, rulesButton, exitButton, startCanon, rulesCanon, exitCanon)
+    undoButton.onAction = _ => {
+      if (currentStep == 1) {
+        manager.undo()
+        val colorsNow = manager.list.usedColors()
+        val nextIdx   = colorsNow.size + 1
+        inputField.text = ""
+        questionLabel.text = s"Player $nextIdx: choose color"
       }
     }
 
-    root.children ++= Seq(questionLabel, inputField, confirmButton, undoButton, backButton)
+    backButton.onAction = _ => {
+      root.children.remove(panel)
+      root.children ++= Seq(startButton, rulesButton, exitButton, startCanon, rulesCanon, exitCanon)
+    }
+
+    root.children ++= Seq(panel)
   }
 
 
-  def colorForPlayer(p: Player): Color = p.colorName match {
-    case "red" => Color.Red
-    case "blue" => Color.Blue
-    case "pink" => Color.HotPink
-    case "green" => Color.Green
-    case _ => Color.Gray
-  }
+
 
   def attachTileHandler(tile: StackPane, xx: Int, yy: Int,
                         rect: Rectangle, label: Text): Unit = {
@@ -290,7 +281,7 @@ object GUIView extends JFXApp3 with Observer {
 
       val rect = new Rectangle {
         width = size; height = size
-        fill = Color.DarkOliveGreen
+        fill = colorForPlayer(t.player)
         stroke = Color.Black; strokeWidth = 2
       }
 
@@ -301,33 +292,58 @@ object GUIView extends JFXApp3 with Observer {
       }
 
       val cityLabel = new Text {
-        text = t.parent.name  // ✅ funktioniert jetzt!
+        text = t.parent.name
         fill = Color.Yellow
         style = "-fx-font-size: 10px;"
       }
 
-      // Zentrierung der Labels
-      soldiersLabel.layoutXProperty().set(size / 2 - 6)
-      soldiersLabel.layoutYProperty().set(size / 2 + 4)
+      StackPane.setAlignment(cityLabel, Pos.TopCenter)
+      StackPane.setMargin(cityLabel, Insets(6, 0, 0, 0))
 
-      cityLabel.layoutXProperty().set(size / 2 - 20)
-      cityLabel.layoutYProperty().set(size / 2 - 8)
+      StackPane.setAlignment(soldiersLabel, Pos.BottomCenter)
+      StackPane.setMargin(soldiersLabel, Insets(0, 0, 6, 0))
 
       val tile = new StackPane {
-        children = Seq(rect, cityLabel, soldiersLabel)  // Stadtname UNTER Soldaten
+        children = Seq(rect, cityLabel, soldiersLabel)
       }
 
       tilesArray(x)(y) = (tile, rect, soldiersLabel, cityLabel)
-      attachTileHandler(tile, x, y, rect, soldiersLabel) 
+      attachTileHandler(tile, x, y, rect, soldiersLabel)
       grid.add(tile, x, y)
     }
+    playersArea = new TextArea {
+      editable = false
+      wrapText = true
+      prefWidth = 220
+      text = playersText
+    }
 
-    new Scene(cols * (size + 5), rows * (size + 5)) {
-      root = grid
+    val rootPane = new BorderPane {
+      center = grid
+      right = playersArea
+    }
+
+    new Scene(cols * (size + 5) + 220, rows * (size + 5)) {
+      root = rootPane
       fill = Color.Black
     }
   }
 
+  def colorForPlayer(p: Player): Color = {
+    p.colorName match
+      case "red" => Color.FireBrick
+      case "blue" => Color.DodgerBlue
+      case "pink" => Color.HotPink
+      case "green" => Color.ForestGreen
+      case _ => Color.DarkOliveGreen
+  }
+
+  private def playersText: String = {
+    "List of players:\n" +
+      controller.allPlayers.zipWithIndex.map { (p, i) =>
+        s"Player ${i + 1} -> ${p.colorName} | Infantry: ${p.infantry}"
+      }.mkString("\n")
+  }
 
 
   override def start(): Unit = {

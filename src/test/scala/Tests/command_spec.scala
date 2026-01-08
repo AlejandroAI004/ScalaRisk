@@ -1,6 +1,6 @@
 package Tests
 import model.*
-import model.PlayerConfig.Manager.PlayerConfigManager
+import util.command.PlayerConfigManager
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
 

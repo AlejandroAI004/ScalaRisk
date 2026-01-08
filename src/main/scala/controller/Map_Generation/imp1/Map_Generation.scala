@@ -5,7 +5,7 @@ import model.colorText.imp1.colorText.colorText
 import model.tile.{Tile, direction}
 
 object Map_Generation extends Map_GenerationPort {
-  private def print_upper_conn(tiles: List[Tile]): String = {
+  def print_upper_conn(tiles: List[Tile]): String = {
     tiles.map { t =>
       (if (t.parent.connections.contains(direction.northwest)) "\\     " else "      ") +
         (if (t.parent.connections.contains(direction.north)) "|" else " ") +
@@ -13,7 +13,7 @@ object Map_Generation extends Map_GenerationPort {
     }.mkString("") + "\n"
   }
 
-  private def print_lower_conn(tiles: List[Tile]): String = {
+  def print_lower_conn(tiles: List[Tile]): String = {
     tiles.map { t =>
       (if (t.parent.connections.contains(direction.southwest)) "/     " else "      ") +
         (if (t.parent.connections.contains(direction.south)) "|" else " ") +
@@ -21,7 +21,7 @@ object Map_Generation extends Map_GenerationPort {
     }.mkString("") + "\n"
   }
 
-  private def print_horizontal(tiles: List[Tile]): String = {
+  def print_horizontal(tiles: List[Tile]): String = {
     var res = ""
     for (i <- tiles) {
       res += "  +--------+  "
@@ -29,7 +29,7 @@ object Map_Generation extends Map_GenerationPort {
     res + "\n"
   }
 
-  private def print_upper_area(tiles: List[Tile]): String = {
+  def print_upper_area(tiles: List[Tile]): String = {
     tiles.map { t =>
       (if (t.parent.connections.contains(direction.west)) "__| " else "  | ") +
         colorText(t.player.colorName, t.player.colorName) + " " + t.soldiers + " " *
@@ -38,7 +38,7 @@ object Map_Generation extends Map_GenerationPort {
     }.mkString("") + "\n"
   }
 
-  private def print_lower_area(tiles: List[Tile]): String = {
+  def print_lower_area(tiles: List[Tile]): String = {
     tiles.map { t =>
       (if (t.parent.connections.contains(direction.west)) "__| " else "  | ") +
         t.parent.name.take(7).padTo(7, ' ') +
