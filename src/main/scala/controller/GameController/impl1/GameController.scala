@@ -181,9 +181,10 @@ class GameController(var initialMap: List[List[Tile]],
 
 
   def nextPlayerTurn(): Unit = {
-    if (players.nonEmpty)
+    if (players.nonEmpty) {
       currentPlayerIndex = (currentPlayerIndex + 1) % players.size
       notifyObservers()
+    }
   }
 
   def remainingInfantryPerPlayer: List[(String, Int)] =

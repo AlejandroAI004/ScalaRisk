@@ -74,7 +74,6 @@ class GameController_spec extends AnyWordSpec with Matchers {
       val map = List(List(Tile(Parent_Tile(name = "A"), new Player("empty"), 0)))
       val c = new GameController(map, List(p1, p2, p3), DiceCombatStrategy)
 
-      // Test-Observer
       var updates = 0
       val obs = new Observer {
         override def update(): Unit = updates += 1

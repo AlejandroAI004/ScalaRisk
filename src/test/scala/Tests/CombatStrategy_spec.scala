@@ -37,6 +37,41 @@ class CombatStrategy_spec extends AnyWordSpec with Matchers {
 
   "DiceCombatStrategy" should {
 
+    "use win probability 0.5 when total soldiers is zero" in {
+      val parentA = Parent_Tile()
+      val parentD = Parent_Tile()
+
+      val attackerPlayer = new Player("red")
+      val defenderPlayer = new Player("blue")
+
+      val attackerTile = Tile(parentA, attackerPlayer, soldiers = 0)
+      val defenderTile = Tile(parentD, defenderPlayer, soldiers = 0)
+
+      val n = 0
+
+      var attackerWins = 0
+      var defenderHolds = 0
+
+      for (_ <- 1 to 200) {
+        val (newFrom, newTo) =
+          DiceCombatStrategy.resolveAttack(attackerTile, defenderTile, n)
+
+        // from-tile invariant
+        newFrom.soldiers shouldBe 0
+        newFrom.player shouldBe attackerPlayer
+
+        // to-tile invariant
+        newTo.soldiers should be >= 1
+
+        if (newTo.player eq attackerPlayer) attackerWins += 1
+        if (newTo.player eq defenderPlayer) defenderHolds += 1
+      }
+
+      // Bei p = 0.5 sollten beide Seiten vorkommen
+      attackerWins should be > 0
+      defenderHolds should be > 0
+    }
+
     "always reduce attacker soldiers on from-tile by exactly the sent troops" in {
       val parentA = Parent_Tile()
       val parentD = Parent_Tile()
