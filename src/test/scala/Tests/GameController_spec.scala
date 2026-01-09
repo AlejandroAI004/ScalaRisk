@@ -18,14 +18,13 @@ import util.gamePhase.GamePhase
 import scala.util.Failure
 
 class GameController_spec extends AnyWordSpec with Matchers {
-  private object TestCombatStrategy extends CombatStrategyPort {
+  object TestCombatStrategy extends CombatStrategyPort {
     override def resolveAttack(attacker: Tile, defender: Tile, troops: Int): (Tile, Tile) = {
       val newFrom = attacker.copy(soldiers = attacker.soldiers - troops)
-      val newTo   = defender.copy(player = attacker.player, soldiers = troops)
+      val newTo = Tile(defender.parent, attacker.player, troops)
       (newFrom, newTo)
     }
   }
-
 
   def newController(players: List[Player] = Nil): GameController = {
     val mapData = MapInit.createInitialMap()
@@ -47,81 +46,173 @@ class GameController_spec extends AnyWordSpec with Matchers {
   }
 
   private def forceOffense(c: GameController): Unit = {
-    val cls = c.getClass
-
-    val f =
-      try cls.getDeclaredField("phase")
-      catch {
-        case _: NoSuchFieldException =>
-          cls.getDeclaredFields.find(_.getName.toLowerCase.contains("phase")).getOrElse {
-            throw new NoSuchFieldException("Could not find phase field via reflection")
-          }
-      }
-
+    val f = classOf[GameController].getDeclaredField("phase")
     f.setAccessible(true)
     f.set(c, GamePhase.Offense)
   }
 
-  private def mkControllerForOffense(fromSoldiers: Int = 10, toSoldiers: Int = 1): GameController = {
-    val red  = new Player("red")
-    val blue = new Player("blue")
-
-    // Wichtig: contains() braucht dieselbe Parent-Instanz
-    val p2 = Parent_Tile(name = "B")
-    val p1 = Parent_Tile(name = "A", neighbours = List(p2))
-
-    val from = Tile(p1, red, fromSoldiers)
-    val to   = Tile(p2, blue, toSoldiers)
-
-    val map = List(List(from, to))
-
-    val c = new GameController(map, List(red, blue), TestCombatStrategy)
-
-    forceOffense(c)
-    c
-  }
-
   "offense_phase" should {
 
-    "fail when not in offense phase" in {
-      val red  = new Player("red")
+    "keep phase Offense when no winner (checkWinner returns None)" in {
+      val red = new Player("red")
       val blue = new Player("blue")
 
-      val p2 = Parent_Tile(name = "B")
-      val p1 = Parent_Tile(name = "A", neighbours = List(p2))
+      val pB = Parent_Tile(name = "B")
+      val pA = Parent_Tile(name = "A", neighbours = List(pB))
+      val pC = Parent_Tile(name = "C") // extra tile stays blue
 
-      val from = Tile(p1, red, 10)
-      val to   = Tile(p2, blue, 1)
+      val from = Tile(pA, red, 10)
+      val to = Tile(pB, blue, 1)
+      val extraBlue = Tile(pC, blue, 1)
 
-      val c = new GameController(List(List(from, to)), List(red, blue), TestCombatStrategy)
-      // phase ist hier absichtlich NICHT Offense
+      val c = new GameController(List(List(from, to, extraBlue)), List(red, blue), TestCombatStrategy)
+      forceOffense(c)
+
+      val res = c.offense_phase(red, 0, 0, 1, 0, 5)
+      res.success.value // no exception
+
+      c.currentPhase shouldBe GamePhase.Offense // falls currentPhase öffentlich ist
+    }
+
+    "fail when not in offense phase" in {
+      val c = controllerForOffense(5, 2)
+      val red = c.players.head
 
       val res = c.offense_phase(red, 0, 0, 1, 0, 2)
 
       res.isFailure shouldBe true
-      res.failure.exception.getMessage shouldBe "Not in offense phase"
+      res.failed.get shouldBe a[IllegalStateException]
+      res.failed.get.getMessage shouldBe "Not in offense phase"
     }
 
-    "fail on invalid coordinates" in {
-      val c = mkControllerForOffense()
+    "fail for invalid coordinates" in {
+      val c = controllerForOffense(5, 2)
+      val red = c.players.head
+      forceOffense(c)
 
-      val red = c.allPlayers.find(_.colorName == "red").get
       val res = c.offense_phase(red, -1, 0, 1, 0, 2)
 
       res.isFailure shouldBe true
-      res.failure.exception.getMessage shouldBe "Invalid coordinates."
+      res.failed.get shouldBe a[IllegalArgumentException]
+      res.failed.get.getMessage shouldBe "Invalid coordinates."
     }
 
-    "update tiles on successful attack" in {
-      val c = mkControllerForOffense(fromSoldiers = 10, toSoldiers = 1)
-      val red = c.allPlayers.find(_.colorName == "red").get
+    "fail if from-tile is not owned by player" in {
+      val c = controllerForOffense(5, 2)
+      val red = new Player("red")
+      val blue = c.players.head
+      forceOffense(c)
+
+      val res = c.offense_phase(red, 0, 0, 1, 0, 2)
+
+      res.isFailure shouldBe true
+      res.failed.get.getMessage shouldBe "You can only attack from your own tiles!"
+    }
+
+    "fail if attacking tile has <= 1 soldier" in {
+      val c = controllerForOffense(1, 2)
+      val red = c.players.head
+      forceOffense(c)
+
+
+      val res = c.offense_phase(red, 0, 0, 1, 0, 1)
+
+      res.isFailure shouldBe true
+      res.failed.get.getMessage shouldBe "You need more than 1 infantry on the attacking tile!"
+    }
+
+    "fail if n <= 0" in {
+      val c = controllerForOffense(5, 2)
+      val red = c.players.head
+      forceOffense(c)
+
+
+      val res = c.offense_phase(red, 0, 0, 1, 0, 0)
+
+      res.isFailure shouldBe true
+      res.failed.get.getMessage shouldBe "You must attack with at least 1 infantry!"
+    }
+
+    "fail if n >= attackers soldiers" in {
+      val c = controllerForOffense(4, 2)
+      val red = c.players.head
+      forceOffense(c)
+
+
+      val res = c.offense_phase(red, 0, 0, 1, 0, 4)
+
+      res.isFailure shouldBe true
+      res.failed.get.getMessage shouldBe "You must leave at least one infantry on the attacking tile!"
+    }
+
+    "fail if target is own or empty" in {
+      val c = controllerForOffense(5, 2)
+      val red = c.players.head
+      val ownMap = List(List(Tile(Parent_Tile(), red, 5), Tile(Parent_Tile(), red, 2)))
+      val ownCtrl = new GameController(ownMap, List(red), TestCombatStrategy)
+      forceOffense(ownCtrl)
+
+      val res = ownCtrl.offense_phase(red, 0, 0, 1, 0, 2)
+
+      res.isFailure shouldBe true
+      res.failed.get.getMessage shouldBe "You can only attack enemy tiles!"
+    }
+
+    "fail if attacker does not send more soldiers than defender has" in {
+      val c = controllerForOffense(10, 8)
+      val red = c.players.head
+      forceOffense(c)
+
+
+      val res = c.offense_phase(red, 0, 0, 1, 0, 8)
+
+      res.isFailure shouldBe true
+      res.failed.get.getMessage shouldBe "You dont have more infantry than your opponent!"
+    }
+
+    "fail if tiles are not adjacent" in {
+      val red = new Player("red")
+      val blue = new Player("blue")
+      val p1 = Parent_Tile()
+      val p2 = Parent_Tile() // keine Nachbarschaft
+      val from = Tile(p1, red, 5)
+      val to = Tile(p2, blue, 2)
+      val map = List(List(from, to))
+      val c = new GameController(map, List(red, blue), TestCombatStrategy)
+      forceOffense(c)
+
+
+      val res = c.offense_phase(red, 0, 0, 1, 0, 3)
+
+      res.isFailure shouldBe true
+      res.failed.get.getMessage shouldBe "You can only attack adjacent tiles!"
+    }
+
+    "update tiles correctly on successful attack" in {
+      val red  = new Player("red")
+      val blue = new Player("blue")
+
+      val p2 = Parent_Tile(name = "B")
+      val p1 = Parent_Tile(neighbours = List(p2), name = "A")
+
+      val from = Tile(p1, red, 10)
+      val to   = Tile(p2, blue, 3)
+
+      val map = List(List(from, to))
+
+      val c = new GameController(map, List(red, blue), TestCombatStrategy)
+      forceOffense(c)
 
       val res = c.offense_phase(red, 0, 0, 1, 0, 5)
 
-      val newMap = res.success.value
-      newMap(0)(0).soldiers shouldBe 5     // 10 - 5
-      newMap(0)(1).soldiers shouldBe 5
-      newMap(0)(1).player.colorName shouldBe "red"
+      res.isSuccess shouldBe true
+      val newMap  = res.get
+      val newFrom = newMap(0)(0)
+      val newTo   = newMap(0)(1)
+
+      newFrom.soldiers shouldBe 5
+      newTo.soldiers   shouldBe 5
+      newTo.player     shouldBe red
     }
   }
 
