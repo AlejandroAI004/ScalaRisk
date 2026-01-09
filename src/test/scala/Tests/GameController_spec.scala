@@ -18,12 +18,24 @@ import util.gamePhase.GamePhase
 import scala.util.Failure
 
 class GameController_spec extends AnyWordSpec with Matchers {
+
+  private object DummyCombat extends CombatStrategyPort {
+    override def resolveAttack(attacker: Tile, defender: Tile, troops: Int): (Tile, Tile) =
+      (attacker, defender)
+  }
+
   object TestCombatStrategy extends CombatStrategyPort {
     override def resolveAttack(attacker: Tile, defender: Tile, troops: Int): (Tile, Tile) = {
       val newFrom = attacker.copy(soldiers = attacker.soldiers - troops)
       val newTo = Tile(defender.parent, attacker.player, troops)
       (newFrom, newTo)
     }
+  }
+
+  private def forcePlacement(c: GameController): Unit = {
+    val f = c.getClass.getDeclaredFields.find(_.getName.toLowerCase.contains("phase")).get
+    f.setAccessible(true)
+    f.set(c, GamePhase.Placement)
   }
 
   def newController(players: List[Player] = Nil): GameController = {
@@ -50,6 +62,31 @@ class GameController_spec extends AnyWordSpec with Matchers {
     f.setAccessible(true)
     f.set(c, GamePhase.Offense)
   }
+
+  "nextPlayerTurn" should {
+
+    "cycle through players with modulo" in {
+      val p1 = new Player("red")
+      val p2 = new Player("blue")
+      val p3 = new Player("pink")
+
+      val map = List(List(Tile(Parent_Tile(name = "A"), new Player("empty"), 0)))
+
+      val c = new GameController(map, List(p1, p2, p3), DiceCombatStrategy)
+
+      c.currentPlayer.colorName shouldBe "red"
+
+      c.nextPlayerTurn()
+      c.currentPlayer.colorName shouldBe "blue"
+
+      c.nextPlayerTurn()
+      c.currentPlayer.colorName shouldBe "pink"
+
+      c.nextPlayerTurn()
+      c.currentPlayer.colorName shouldBe "red" // wrap
+    }
+  }
+
 
   "offense_phase" should {
 
@@ -388,6 +425,28 @@ class GameController_spec extends AnyWordSpec with Matchers {
       val ex = result.failed.get
       ex shouldBe a [IllegalArgumentException]
       ex.getMessage shouldBe "Invalid coordinates."
+    }
+
+
+    "switch phase to Offense when allInfantryPlaced and phase is Placement" in {
+      val red = new Player("red")
+      val blue = new Player("blue")
+
+      red.infantry = 1
+      blue.infantry = 0
+
+      val empty = new Player("empty")
+      val p = Parent_Tile(name = "A")
+      val map = List(List(Tile(p, empty, 0)))
+
+      val c = new GameController(map, List(red, blue), DiceCombatStrategy)
+
+      forcePlacement(c) // <-- WICHTIG: Placement, nicht Offense!
+
+      val res = c.placeInfantry(red, 0, 0, 1)
+
+      res.success.value
+      c.currentPhase shouldBe GamePhase.Offense
     }
 
     "return Left when placing more infantry than the player has" in {
