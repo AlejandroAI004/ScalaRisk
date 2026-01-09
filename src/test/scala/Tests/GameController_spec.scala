@@ -14,6 +14,7 @@ import org.scalatest.TryValues.convertTryToSuccessOrFailure
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import util.gamePhase.GamePhase
+import util.observer.Observer
 
 import scala.util.Failure
 
@@ -65,25 +66,35 @@ class GameController_spec extends AnyWordSpec with Matchers {
 
   "nextPlayerTurn" should {
 
-    "cycle through players with modulo" in {
+    "cycle through players with modulo and notify observers" in {
       val p1 = new Player("red")
       val p2 = new Player("blue")
       val p3 = new Player("pink")
 
       val map = List(List(Tile(Parent_Tile(name = "A"), new Player("empty"), 0)))
-
       val c = new GameController(map, List(p1, p2, p3), DiceCombatStrategy)
+
+      // Test-Observer
+      var updates = 0
+      val obs = new Observer {
+        override def update(): Unit = updates += 1
+      }
+
+      c.add(obs)
 
       c.currentPlayer.colorName shouldBe "red"
 
       c.nextPlayerTurn()
       c.currentPlayer.colorName shouldBe "blue"
+      updates shouldBe 1
 
       c.nextPlayerTurn()
       c.currentPlayer.colorName shouldBe "pink"
+      updates shouldBe 2
 
       c.nextPlayerTurn()
-      c.currentPlayer.colorName shouldBe "red" // wrap
+      c.currentPlayer.colorName shouldBe "red"
+      updates shouldBe 3
     }
   }
 
