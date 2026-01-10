@@ -10,6 +10,7 @@ import model.mapInit.MapInitPort
 import model.mapInit.imp1.MapInit
 import model.player.Player
 
+
 object DefaultModule {
 
   given CombatStrategyPort = DiceCombatStrategy

@@ -8,7 +8,9 @@ lazy val root = (project in file("."))
     libraryDependencies ++= Seq(
       "org.scalafx"   %% "scalafx"   % "24.0.2-R36",
       "org.scalactic" %% "scalactic" % "3.2.19",
-      "org.scalatest" %% "scalatest" % "3.2.19" % Test
+      "org.scalatest" %% "scalatest" % "3.2.19" % Test,
+      "net.codingwell" %% "scala-guice" % "7.0.0",
+      "com.google.inject" %% "guice" % "7.0.0"
     )
   )
 
