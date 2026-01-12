@@ -10,7 +10,7 @@ lazy val root = (project in file("."))
       "org.scalactic" %% "scalactic" % "3.2.19",
       "org.scalatest" %% "scalatest" % "3.2.19" % Test,
       "net.codingwell" %% "scala-guice" % "7.0.0",
-      "com.google.inject" %% "guice" % "7.0.0"
+      "com.google.inject" % "guice"     % "7.0.0"
     )
   )
 

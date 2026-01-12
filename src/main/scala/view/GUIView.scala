@@ -1,7 +1,8 @@
 package view
 import controller.GameController.GameControllerPort
+import controller.GameController.impl1.GameState
 import model.player.Player
-import util.command.PlayerConfigManager
+import util.command.{PlayerConfigManager, UndoRedoManager}
 import scalafx.application.JFXApp3.PrimaryStage
 import scalafx.application.JFXApp3
 import scalafx.application.Platform
@@ -9,13 +10,12 @@ import scalafx.scene.Scene
 import scalafx.scene.Node
 import scalafx.scene.control.{Button, Label, TextArea, TextField}
 import scalafx.scene.image.{Image, ImageView}
-import scalafx.scene.layout.{BorderPane, GridPane, Pane, VBox}
+import scalafx.scene.layout.{BorderPane, GridPane, Pane, Priority, StackPane, VBox}
 import scalafx.scene.paint.Color
 import scalafx.scene.shape.Rectangle
 import scalafx.scene.text.Text
 import util.observer.Observer
 import scalafx.geometry.{Insets, Pos}
-import scalafx.scene.layout.StackPane
 
 import scala.util.{Failure, Success}
 
@@ -36,31 +36,38 @@ object GUIView extends JFXApp3 with Observer {
   private var exitIcon: ImageView = _
   private var canonLogo: ImageView = _
   private var playersArea: TextArea = _
-  val rows = 2
-  val cols = 2
+  private val rows = 2
+  private val cols = 2
   private var tilesArray: Array[Array[(StackPane, Rectangle, Text, Text)]] = _
+  private var history: UndoRedoManager[GameState] = _
+  private var restoring = false
 
-  
+
   def init(ctrl: GameControllerPort): Unit = {
     controller = ctrl
     controller.add(this)
+    history = new UndoRedoManager(controller.snapshot)
   }
 
   override def update(): Unit = {
+    println("GUI called.")
     if (boardGrid == null || tilesArray == null) return
 
     Platform.runLater {
       val mapData = controller.tiles
+      val rows = mapData.length
+      val cols = mapData.head.length
 
       for (y <- 0 until rows; x <- 0 until cols) {
-        val (tile, rect, soldiersLabel, cityLabel) = tilesArray(x)(y)
+        val (_, rect, soldiersLabel, cityLabel) = tilesArray(x)(y)
         val t = mapData(y)(x)
 
         soldiersLabel.text = t.soldiers.toString
         cityLabel.text = t.parent.name
         rect.fill = colorForPlayer(t.player)
-        playersArea.text = playersText
       }
+
+      playersArea.text = playersText
     }
   }
 
@@ -163,12 +170,12 @@ object GUIView extends JFXApp3 with Observer {
 
 
 
-  def attachTileHandler(tile: StackPane, xx: Int, yy: Int,
-                        rect: Rectangle, label: Text): Unit = {
+  private def attachTileHandler(tile: StackPane, xx: Int, yy: Int,
+                                rect: Rectangle, label: Text): Unit = {
 
     tile.onMouseClicked = _ => {
       if (!offenseMode) {
-        if (placementPromptOpen) return
+        if (placementPromptOpen)
         placementPromptOpen = true
 
         val input = new TextField { promptText = "Truppenanzahl" }
@@ -316,12 +323,44 @@ object GUIView extends JFXApp3 with Observer {
       wrapText = true
       prefWidth = 220
       text = playersText
+      style = "-fx-control-inner-background: rgba(20,20,20,0.85);" +
+        "-fx-text-fill: white;"
+    }
+
+    val playersAreaPanel = new VBox(playersArea) {
+      padding = Insets(10)
+      style =
+        "-fx-background-color: rgba(20,20,20,0.85);" +
+          "-fx-border-color: gold;" +
+          "-fx-border-width: 2;" +
+          "-fx-border-radius: 12;" +
+          "-fx-background-radius: 12;"
+    }
+
+    val undoButton = new Button("Undo")
+    val redoButton = new Button("Redo")
+
+    undoButton.onAction = _ => controller.undo()
+    redoButton.onAction = _ => controller.redo()
+
+    val undoRedoRow = new VBox(10, undoButton, redoButton) {
+      alignment = Pos.Center
+      padding = Insets(10, 0, 0, 0)
+    }
+
+    val rightPanel = new VBox(10, playersAreaPanel, undoRedoRow) {
+      padding = Insets(10)
+      prefWidth = 240
     }
 
     val rootPane = new BorderPane {
       center = grid
-      right = playersArea
+      right = rightPanel
+      style = "-fx-background-color: #9ed0ff"
+
     }
+
+    BorderPane.setMargin(rightPanel, Insets(5))
 
     new Scene(cols * (size + 5) + 220, rows * (size + 5)) {
       root = rootPane
@@ -329,7 +368,7 @@ object GUIView extends JFXApp3 with Observer {
     }
   }
 
-  def colorForPlayer(p: Player): Color = {
+  private def colorForPlayer(p: Player): Color = {
     p.colorName match
       case "red" => Color.FireBrick
       case "blue" => Color.DodgerBlue
@@ -350,51 +389,51 @@ object GUIView extends JFXApp3 with Observer {
 
     val rootPane = new Pane()
 
-    val logo = new ImageView(new Image(getClass.getResourceAsStream("/risiko_logo.png"))) {
+    val logo = new ImageView(new Image(this.getClass.getResourceAsStream("/risiko_logo.png"))) {
       preserveRatio = true
       fitWidth = 1100
     }
 
 
-     canonLogo = new ImageView(new Image(getClass.getResourceAsStream("/canon_logo.png"))) {
+     canonLogo = new ImageView(new Image(this.getClass.getResourceAsStream("/canon_logo.png"))) {
       fitWidth = 40
       fitHeight = 40
       preserveRatio = true
       visible = false
     }
 
-     startIcon = new ImageView(new Image(getClass.getResourceAsStream("/start_button.png"))) {
+     startIcon = new ImageView(new Image(this.getClass.getResourceAsStream("/start_button.png"))) {
       fitWidth = 40
       fitHeight = 40
       preserveRatio = true
     }
 
-     rulesIcon = new ImageView(new Image(getClass.getResourceAsStream("/rules_button.png"))) {
+     rulesIcon = new ImageView(new Image(this.getClass.getResourceAsStream("/rules_button.png"))) {
       fitWidth = 40
       fitHeight = 40
       preserveRatio = true
     }
 
-     exitIcon = new ImageView(new Image(getClass.getResourceAsStream("/exit_button.png"))) {
+     exitIcon = new ImageView(new Image(this.getClass.getResourceAsStream("/exit_button.png"))) {
       fitWidth = 40
       fitHeight = 40
       preserveRatio = true
     }
 
-     startCanon = new ImageView(new Image(getClass.getResourceAsStream("/canon_logo.png"))) {
+     startCanon = new ImageView(new Image(this.getClass.getResourceAsStream("/canon_logo.png"))) {
       visible = false
       preserveRatio = true
       fitWidth = 45
     }
 
-     exitCanon = new ImageView(new Image(getClass.getResourceAsStream("/canon_logo.png"))) {
+     exitCanon = new ImageView(new Image(this.getClass.getResourceAsStream("/canon_logo.png"))) {
       visible = false
       preserveRatio = true
       fitWidth = 45
     }
 
      rulesButton = new Button {
-      graphic = new ImageView(new Image(getClass.getResourceAsStream("/rules_button.png"))) {
+      graphic = new ImageView(new Image(this.getClass.getResourceAsStream("/rules_button.png"))) {
         fitWidth = 100
         preserveRatio = true
       }
@@ -404,14 +443,14 @@ object GUIView extends JFXApp3 with Observer {
       }
     }
 
-     rulesCanon = new ImageView(new Image(getClass.getResourceAsStream("/canon_logo.png"))) {
+     rulesCanon = new ImageView(new Image(this.getClass.getResourceAsStream("/canon_logo.png"))) {
       visible = false
       preserveRatio = true
       fitWidth = 45
     }
 
      exitButton = new Button {
-      graphic = new ImageView(new Image(getClass.getResourceAsStream("/exit_button.png"))) {
+      graphic = new ImageView(new Image(this.getClass.getResourceAsStream("/exit_button.png"))) {
         fitWidth = 85
         preserveRatio = true
       }
@@ -423,7 +462,7 @@ object GUIView extends JFXApp3 with Observer {
     }
 
     startButton = new Button {
-      graphic = new ImageView(new Image(getClass.getResourceAsStream("/start_button.png"))) {
+      graphic = new ImageView(new Image(this.getClass.getResourceAsStream("/start_button.png"))) {
         fitWidth = 100
         preserveRatio = true
       }
@@ -506,9 +545,10 @@ object GUIView extends JFXApp3 with Observer {
     stage = new PrimaryStage {
       title = "Risiko – Bodensee Edition"
       scene = introScene
-
+      onCloseRequest = _ => {
+        println("GUI closed, exiting program...")
+        System.exit(0)
+      }
     }
-
-
   }
 }

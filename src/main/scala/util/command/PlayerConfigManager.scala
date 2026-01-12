@@ -3,32 +3,16 @@ package util.command
 import model.player.playerList
 
 class PlayerConfigManager {
-  private var current: playerList = new playerList()
-  private var undoStack: List[playerList] = Nil
-  private var redoStack: List[playerList] = Nil
+  private val manager = new UndoRedoManager[playerList](new playerList())
 
-  def list: playerList = current
-  def size: Int = current.toList.size
+  def size: Int = manager.state.toList.size
 
-  def addPlayer(color: String): Unit = {
-    undoStack = current :: undoStack
-    redoStack = Nil
-    current = current.addPlayer(color)
-  }
+  def list: playerList = manager.state
 
-  def undo(): Unit = undoStack match {
-    case head :: tail =>
-      redoStack = current :: redoStack
-      current = head
-      undoStack = tail
-    case Nil => ()
-  }
+  def addPlayer(color: String): Unit =
+    manager.save(manager.state.addPlayer(color))
 
-  def redo(): Unit = redoStack match {
-    case head :: tail =>
-      undoStack = current :: undoStack
-      current = head
-      redoStack = tail
-    case Nil => ()
-  }
+  def undo(): Unit = manager.undo()
+
+  def redo(): Unit = manager.redo()
 }

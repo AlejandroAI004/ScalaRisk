@@ -1,15 +1,17 @@
+import com.google.inject.Guice
+import net.codingwell.scalaguice.InjectorExtensions._
 import view.*
-import view.ConsoleView.{ConsoleOffenseTurn, offense_phaseFunctional}
-import model.*
-import controller.*
 import controller.GameController.GameControllerPort
-import controller.modules.DefaultModule.given
+import controller.modules.GuiceModule
 import model.GameEventS.{AttackEvent, PlaceInfantryEvent} 
 
 object main {
   @main def run(): Unit = {
-    val controller: GameControllerPort = summon[GameControllerPort]
-
+    
+    val injector = Guice.createInjector(new GuiceModule)
+    
+    val controller: GameControllerPort = injector.instance[GameControllerPort]
+    
     GUIView.init(controller)
     println(ConsoleView.welcome())
     ConsoleView.init(controller)

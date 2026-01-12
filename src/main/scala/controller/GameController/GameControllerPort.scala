@@ -1,5 +1,6 @@
 package controller.GameController
 
+import controller.GameController.impl1.GameState
 import model.*
 import model.GameEventS.*
 import model.player.{Player, playerList}
@@ -29,4 +30,8 @@ trait GameControllerPort {
                     n: Int): Try[List[List[Tile]]]
   def handleEvent(e: GameEvent): Unit
   def currentStateName: String
+  def restore(s: GameState): Unit
+  def snapshot: GameState
+  def undo(): Unit
+  def redo(): Unit
 }

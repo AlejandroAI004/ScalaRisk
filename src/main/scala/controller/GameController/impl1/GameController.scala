@@ -8,12 +8,14 @@ import model.GameEventS.states.PlacementState
 import model.GameEventS.*
 import model.mapInit.imp1.MapInit
 import model.player.{Player, playerList}
-import model.tile.{Tile, updateTile}
-import util.command.PlayerConfigManager
+import model.tile.{Parent_Tile, Tile, updateTile}
+import util.command.{PlayerConfigManager, UndoRedoManager}
 import util.gamePhase.GamePhase
 import util.observer.Observable
 
 import scala.util.{Failure, Success, Try}
+
+
 
 class GameController(var initialMap: List[List[Tile]],
                      var players: List[Player],
@@ -25,7 +27,55 @@ class GameController(var initialMap: List[List[Tile]],
   private var state: GameStatePort = PlacementState
   var currentPlayerIndex: Int = 0
   def currentPlayer: Player = players(currentPlayerIndex)
+  private val history = new UndoRedoManager[GameState](snapshot)
+  private var restoring = false
 
+  def snapshot: GameState = {
+    GameState(
+      mapData.map(row => row.map(tile =>
+        TileState(tile.parent.name, tile.player.colorName, tile.soldiers)
+      )),
+      players.map(p => PlayerState(p.colorName, p.infantry, p.ownedTiles.map(_.parent.name))),
+      currentPlayerIndex,
+      phase,
+      state
+    )
+  }
+
+  def restore(s: GameState): Unit = {
+    restoring = true
+    try {
+      mapData = s.mapData.map { row =>
+      row.map { ts =>
+        Tile(
+          parent = Parent_Tile(name = ts.parentName),
+          player = players.find(_.colorName == ts.playerColor).getOrElse(new Player("empty")),
+          soldiers = ts.soldiers
+        )
+      }
+    }
+
+      // Spieler-Zustände wiederherstellen
+      for ((player, st) <- players.zip(s.players)) {
+        player.infantry = st.infantry
+        player.ownedTiles = st.ownedTileNames.flatMap(name =>
+          mapData.flatten.find(_.parent.name == name)
+        )
+      }
+
+      currentPlayerIndex = s.currentPlayerIndex
+      phase = s.phase
+      state = s.state
+
+      notifyObservers()
+    } finally restoring = false
+  }
+
+  def undo(): Unit =
+    history.undo().foreach(restore)
+
+  def redo(): Unit =
+    history.redo().foreach(restore)
 
   def startGame(numPlayers: Int, colors: List[String]): Try[playerList] = {
     if (numPlayers < 2 || numPlayers > 4)
@@ -74,9 +124,10 @@ class GameController(var initialMap: List[List[Tile]],
                      player: Player, x: Int, y: Int, n: Int
                    ): Try[List[List[Tile]]] = {
 
+    if (!restoring) history.save(snapshot)
+    
     if (phase != GamePhase.Placement)
       return Failure(new IllegalStateException("Cannot place infantry now"))
-
     if (x < 0 || x >= mapData.head.length || y < 0 || y >= mapData.length)
       Failure(new IllegalArgumentException("Invalid coordinates."))
     else if (n > player.infantry)
@@ -127,10 +178,6 @@ class GameController(var initialMap: List[List[Tile]],
 
     if (toTile.player == player || toTile.player.colorName == "empty")
       return Failure(new IllegalArgumentException("You can only attack enemy tiles!"))
-
-    if(n <= toTile.soldiers) {
-      return Failure(new IllegalArgumentException("You dont have more infantry than your opponent!"))
-    }
 
     if (!fromTile.parent.neighbours.contains(toTile.parent))
       return Failure(new IllegalArgumentException("You can only attack adjacent tiles!"))
@@ -185,6 +232,7 @@ class GameController(var initialMap: List[List[Tile]],
       currentPlayerIndex = (currentPlayerIndex + 1) % players.size
       notifyObservers()
     }
+
 
   def remainingInfantryPerPlayer: List[(String, Int)] =
     players.map(p => (p.colorName, p.infantry))
