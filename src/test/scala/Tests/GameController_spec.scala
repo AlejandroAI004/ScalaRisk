@@ -1,12 +1,10 @@
 package Tests
 
-import controller.*
-import controller.GameController.impl1.{GameController, GameState}
-import model.*
+import controller.GameController.impl1.{GameController, GameState, PlayerState, TileState}
 import model.Combat.CombatStrategy.{DiceCombatStrategy, SimpleCombatStrategy}
-import model.Combat.{CombatStrategy, CombatStrategyPort}
+import model.Combat.CombatStrategyPort
 import model.GameEventS.states.PlacementState
-import model.GameEventS.{GameStatePort, PlaceInfantryEvent}
+import model.GameEventS.PlaceInfantryEvent
 import model.mapInit.imp1
 import model.mapInit.imp1.MapInit
 import model.player.Player
@@ -14,7 +12,6 @@ import model.tile.{Parent_Tile, Tile}
 import org.scalatest.TryValues.convertTryToSuccessOrFailure
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
-import util.command.UndoRedoManager
 import util.fileIO.FileIO
 import util.gamePhase.GamePhase
 import util.observer.Observer
@@ -80,6 +77,89 @@ class GameController_spec extends AnyWordSpec with Matchers {
     f.setAccessible(true)
     f.set(c, GamePhase.Offense)
   }
+
+  "create a snapshot of the current game state" in {
+    val fileIO = TestFileIO
+    val player = new Player("red")
+    player.infantry = 5
+
+    val tile = Tile(Parent_Tile(name = "B"), player, 3)
+
+    val controller = new GameController(
+      initialMap = List(List(tile)),
+      players = List(player),
+      fileIO = fileIO
+    )
+
+    val snapshot = controller.snapshot
+
+    snapshot.phase shouldBe GamePhase.Placement
+    snapshot.currentPlayerIndex shouldBe 0
+    snapshot.players.head.infantry shouldBe 5
+    snapshot.mapData.head.head.soldiers shouldBe 3
+  }
+
+  "restore a GameState correctly" in {
+    val fileIO = TestFileIO
+    val player = new Player("red")
+
+    val controller = new GameController(
+      initialMap = Nil,
+      players = List(player),
+      fileIO = fileIO
+    )
+
+    val state = GameState(
+      mapData = List(List(TileState("A", "red", 10))),
+      players = List(PlayerState("red", 7, List("A"))),
+      currentPlayerIndex = 0,
+      phase = GamePhase.Placement,
+      state = PlacementState
+    )
+
+    controller.restore(state)
+
+    controller.currentPhase shouldBe GamePhase.Placement
+    controller.currentPlayer.infantry shouldBe 7
+    controller.currentPlayer.ownedTiles.map(_.parent.name) should contain("A")
+  }
+
+  "undo and redo should restore player turns correctly" in {
+    val fileIO = TestFileIO
+    val p1 = new Player("red")
+    val p2 = new Player("blue")
+
+    val controller = new GameController(
+      initialMap = Nil,
+      players = List(p1, p2),
+      fileIO = fileIO
+    )
+
+    controller.currentPlayerIndex shouldBe 0
+
+    controller.nextPlayerTurn()
+    controller.currentPlayerIndex shouldBe 1
+
+    controller.undo()
+    controller.currentPlayerIndex shouldBe 0
+
+    controller.redo()
+    controller.currentPlayerIndex shouldBe 1
+  }
+
+//  "save the current game using FileIO" in {
+//    val fileIO = TestFileIO
+//
+//    val controller = new GameController(
+//      initialMap = Nil,
+//      players = List(new Player("red")),
+//      fileIO = fileIO
+//    )
+//
+//    controller.saveGame()
+//
+//    verify(fileIO).save(controller.snapshot)
+//  }
 
   "nextPlayerTurn" should {
 
