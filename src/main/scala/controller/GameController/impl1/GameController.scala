@@ -31,8 +31,16 @@ class GameController @Inject()(var initialMap: List[List[Tile]],
   private var state: GameStatePort = PlacementState
   var currentPlayerIndex: Int = 0
   def currentPlayer: Player = players(currentPlayerIndex)
-  private var history: UndoRedoManager[GameState] = _
+  val initialGameState = GameState(
+    mapData = Nil,
+    players = Nil,
+    currentPlayerIndex = 0,
+    phase = GamePhase.Placement,
+    state = PlacementState
+  )
+  private var history: UndoRedoManager[GameState] = new UndoRedoManager[GameState](initialGameState)
   private var restoring = false
+  
 
   def snapshot: GameState = {
     GameState(
@@ -175,8 +183,8 @@ class GameController @Inject()(var initialMap: List[List[Tile]],
 
     if (fromTile.player != player)
       return Failure(new IllegalArgumentException("You can only attack from your own tiles!"))
-//    if (fromTile.soldiers <= 1)
-//      return Failure(new IllegalArgumentException("You need more than 1 infantry on the attacking tile!"))
+    if (fromTile.soldiers <= 1)
+      return Failure(new IllegalArgumentException("You need more than 1 infantry on the attacking tile!"))
 
     if (n <= 0)
       return Failure(new IllegalArgumentException("You must attack with at least 1 infantry!"))
