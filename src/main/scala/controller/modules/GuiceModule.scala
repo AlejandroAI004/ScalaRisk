@@ -5,6 +5,9 @@ import controller.GameController.GameControllerPort
 import model.Combat.CombatStrategyPort
 import model.mapInit.MapInitPort
 import DefaultModule.given
+import util.fileIO.FileIO
+import util.fileIO.json.JsonFileIO
+import util.fileIO.xml.XMLFileIO
 
 class GuiceModule extends AbstractModule {
 
@@ -18,5 +21,9 @@ class GuiceModule extends AbstractModule {
 
     bind(classOf[GameControllerPort])
       .to(classOf[GameControllerModule])
+
+    bind(classOf[FileIO])
+      .to(classOf[JsonFileIO])
+
   }
 }

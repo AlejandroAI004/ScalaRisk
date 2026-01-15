@@ -8,7 +8,7 @@ import scalafx.application.JFXApp3
 import scalafx.application.Platform
 import scalafx.scene.Scene
 import scalafx.scene.Node
-import scalafx.scene.control.{Button, Label, TextArea, TextField}
+import scalafx.scene.control.{Alert, Button, Label, TextArea, TextField}
 import scalafx.scene.image.{Image, ImageView}
 import scalafx.scene.layout.{BorderPane, GridPane, Pane, Priority, StackPane, VBox}
 import scalafx.scene.paint.Color
@@ -16,6 +16,8 @@ import scalafx.scene.shape.Rectangle
 import scalafx.scene.text.Text
 import util.observer.Observer
 import scalafx.geometry.{Insets, Pos}
+import scalafx.scene.control.Alert.AlertType
+import util.gamePhase.GamePhase
 
 import scala.util.{Failure, Success}
 
@@ -28,6 +30,8 @@ object GUIView extends JFXApp3 with Observer {
   private var startButton: Button = _
   private var rulesButton: Button = _
   private var exitButton: Button = _
+  private var undoButton: Button = _
+  private var redoButton: Button = _
   private var startCanon: ImageView = _
   private var rulesCanon: ImageView = _
   private var exitCanon: ImageView = _
@@ -41,6 +45,8 @@ object GUIView extends JFXApp3 with Observer {
   private var tilesArray: Array[Array[(StackPane, Rectangle, Text, Text)]] = _
   private var history: UndoRedoManager[GameState] = _
   private var restoring = false
+  private var activeOverlay: Option[(StackPane, VBox)] = None
+
 
 
   def init(ctrl: GameControllerPort): Unit = {
@@ -68,6 +74,16 @@ object GUIView extends JFXApp3 with Observer {
       }
 
       playersArea.text = playersText
+
+      controller.currentPhase match {
+        case GamePhase.Placement =>
+          undoButton.visible = true
+          redoButton.visible = true
+
+        case GamePhase.Offense | GamePhase.GameOver =>
+          undoButton.visible = false
+          redoButton.visible = false
+      }
     }
   }
 
@@ -175,8 +191,10 @@ object GUIView extends JFXApp3 with Observer {
 
     tile.onMouseClicked = _ => {
       if (!offenseMode) {
-        if (placementPromptOpen)
-        placementPromptOpen = true
+
+        activeOverlay.foreach { case (oldTile, overlay) =>
+          oldTile.children -= overlay
+        }
 
         val input = new TextField { promptText = "Truppenanzahl" }
         val ok    = new Button("OK")
@@ -187,6 +205,7 @@ object GUIView extends JFXApp3 with Observer {
         }
 
         tile.children += overlay
+        activeOverlay = Some(tile -> overlay)
 
         ok.onAction = _ => {
           val n = input.text.value.toIntOption.getOrElse(0)
@@ -337,21 +356,45 @@ object GUIView extends JFXApp3 with Observer {
           "-fx-background-radius: 12;"
     }
 
-    val undoButton = new Button("Undo")
-    val redoButton = new Button("Redo")
+    undoButton = new Button("Undo")
+    redoButton = new Button("Redo")
+
+    val saveButton = new Button("Save")
+    val loadButton = new Button("Load")
 
     undoButton.onAction = _ => controller.undo()
     redoButton.onAction = _ => controller.redo()
 
-    val undoRedoRow = new VBox(10, undoButton, redoButton) {
+    saveButton.onAction = _ => {
+      try {
+        controller.saveGame()
+        showInfo("Saved", "Spiel wurde gespeichert.")
+      } catch {
+        case ex: Exception =>
+          showError("Save failed", ex.getMessage)
+      }
+    }
+
+    loadButton.onAction = _ => {
+      try {
+        controller.loadGame()
+        showInfo("Loaded", "Spielstand wurde geladen.")
+      } catch {
+        case ex: Exception =>
+          showError("Load failed", ex.getMessage)
+      }
+    }
+
+    val buttonsCol = new VBox(10, undoButton, redoButton, saveButton, loadButton) {
       alignment = Pos.Center
       padding = Insets(10, 0, 0, 0)
     }
 
-    val rightPanel = new VBox(10, playersAreaPanel, undoRedoRow) {
+    val rightPanel = new VBox(10, playersAreaPanel, buttonsCol) {
       padding = Insets(10)
       prefWidth = 240
     }
+
 
     val rootPane = new BorderPane {
       center = grid
@@ -367,6 +410,20 @@ object GUIView extends JFXApp3 with Observer {
       fill = Color.Black
     }
   }
+
+  private def showInfo(dialogTitle: String, msg: String): Unit =
+    new Alert(AlertType.Information) {
+      this.title = dialogTitle
+      headerText = None
+      contentText = msg
+    }.showAndWait()
+
+  private def showError(dialogTitle: String, msg: String): Unit =
+    new Alert(AlertType.Error) {
+      this.title = dialogTitle
+      headerText = None
+      contentText = msg
+    }.showAndWait()
 
   private def colorForPlayer(p: Player): Color = {
     p.colorName match

@@ -14,12 +14,16 @@ import util.gamePhase.GamePhase
 import util.observer.Observable
 
 import scala.util.{Failure, Success, Try}
+import com.google.inject.Inject
+import util.fileIO.FileIO
 
 
 
-class GameController(var initialMap: List[List[Tile]],
+class GameController @Inject()(var initialMap: List[List[Tile]],
                      var players: List[Player],
-                     var combatStrategy: CombatStrategyPort = DiceCombatStrategy) extends Observable with GameControllerPort {
+                     var combatStrategy: CombatStrategyPort = DiceCombatStrategy,
+                     val fileIO: FileIO)
+  extends Observable with GameControllerPort{
 
   private var phase: GamePhase = GamePhase.Placement
   def currentPhase: GamePhase = phase
@@ -27,7 +31,7 @@ class GameController(var initialMap: List[List[Tile]],
   private var state: GameStatePort = PlacementState
   var currentPlayerIndex: Int = 0
   def currentPlayer: Player = players(currentPlayerIndex)
-  private val history = new UndoRedoManager[GameState](snapshot)
+  private var history: UndoRedoManager[GameState] = _
   private var restoring = false
 
   def snapshot: GameState = {
@@ -55,7 +59,6 @@ class GameController(var initialMap: List[List[Tile]],
       }
     }
 
-      // Spieler-Zustände wiederherstellen
       for ((player, st) <- players.zip(s.players)) {
         player.infantry = st.infantry
         player.ownedTiles = st.ownedTileNames.flatMap(name =>
@@ -77,6 +80,13 @@ class GameController(var initialMap: List[List[Tile]],
   def redo(): Unit =
     history.redo().foreach(restore)
 
+  def saveGame(): Unit =
+    fileIO.save(snapshot)
+
+  def loadGame(): Unit = {
+    restore(fileIO.load())
+  }
+
   def startGame(numPlayers: Int, colors: List[String]): Try[playerList] = {
     if (numPlayers < 2 || numPlayers > 4)
       Failure(new IllegalArgumentException("Players must be between 2 and 4"))
@@ -94,7 +104,7 @@ class GameController(var initialMap: List[List[Tile]],
       val neutralMap = MapInit.createInitialMap() 
       val flatTiles = neutralMap.flatten 
 
-      val allPlayers = scala.util.Random.shuffle(players) // random Player-Reihenfolge
+      val allPlayers = scala.util.Random.shuffle(players)
       val playerIter = Iterator.continually(allPlayers).flatten
 
       val shuffledTilesWithIndex = scala.util.Random.shuffle(
@@ -116,6 +126,7 @@ class GameController(var initialMap: List[List[Tile]],
 
       mapData = assignedMap
       phase = GamePhase.Placement
+      history = new UndoRedoManager(snapshot)
       notifyObservers()
       Success(plist)
     }
@@ -124,8 +135,6 @@ class GameController(var initialMap: List[List[Tile]],
                      player: Player, x: Int, y: Int, n: Int
                    ): Try[List[List[Tile]]] = {
 
-    if (!restoring) history.save(snapshot)
-    
     if (phase != GamePhase.Placement)
       return Failure(new IllegalStateException("Cannot place infantry now"))
     if (x < 0 || x >= mapData.head.length || y < 0 || y >= mapData.length)
@@ -166,8 +175,8 @@ class GameController(var initialMap: List[List[Tile]],
 
     if (fromTile.player != player)
       return Failure(new IllegalArgumentException("You can only attack from your own tiles!"))
-    if (fromTile.soldiers <= 1)
-      return Failure(new IllegalArgumentException("You need more than 1 infantry on the attacking tile!"))
+//    if (fromTile.soldiers <= 1)
+//      return Failure(new IllegalArgumentException("You need more than 1 infantry on the attacking tile!"))
 
     if (n <= 0)
       return Failure(new IllegalArgumentException("You must attack with at least 1 infantry!"))
@@ -179,8 +188,8 @@ class GameController(var initialMap: List[List[Tile]],
     if (toTile.player == player || toTile.player.colorName == "empty")
       return Failure(new IllegalArgumentException("You can only attack enemy tiles!"))
 
-    if (!fromTile.parent.neighbours.contains(toTile.parent))
-      return Failure(new IllegalArgumentException("You can only attack adjacent tiles!"))
+//    if (!fromTile.parent.neighbours.contains(toTile.parent))
+//      return Failure(new IllegalArgumentException("You can only attack adjacent tiles!"))
 
     val (newFromTile,newToTile) = combatStrategy.resolveAttack(fromTile,toTile,n)
 
@@ -227,7 +236,8 @@ class GameController(var initialMap: List[List[Tile]],
   }
 
 
-  def nextPlayerTurn(): Unit = 
+  def nextPlayerTurn(): Unit =
+    history.save(snapshot)
     if (players.nonEmpty) {
       currentPlayerIndex = (currentPlayerIndex + 1) % players.size
       notifyObservers()

@@ -5,7 +5,6 @@ import model.tile.{Parent_Tile, Tile, add_neighbour, direction}
 
 object MapInit extends MapInitPort {
   override def createInitialMap(): List[List[Tile]] = {
-    // Alle Tiles mit Namen initialisieren
     val konstanz = Parent_Tile(List(), List(), "Konstanz")
     val reichenau = Parent_Tile(List(), List(), "Reichenau")
     val allensbach = Parent_Tile(List(), List(), "Allensbach")
@@ -85,7 +84,6 @@ object MapInit extends MapInitPort {
       List("Stein am Rhein","Langenargen","Tettnang","Ravensburg","Lindau")
     )
 
-    // Map: Name -> finaler Parent_Tile (WICHTIG: hier die *finalen* Variablen!)
     val parentsByName: Map[String, Parent_Tile] = Map(
       "Konstanz" -> konstanz3,
       "Reichenau" -> reichenau1,
@@ -112,7 +110,6 @@ object MapInit extends MapInitPort {
       "Lindau" -> lindau1
     )
 
-    // Aus Layout die Tile-Matrix bauen (Reihenfolge = Layout)
     layout.map(row => row.map(name => Tile(parentsByName(name))))
   }
 }

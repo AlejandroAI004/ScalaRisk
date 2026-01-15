@@ -7,11 +7,10 @@ import model.GameEventS.{AttackEvent, PlaceInfantryEvent}
 
 object main {
   @main def run(): Unit = {
-    
+
     val injector = Guice.createInjector(new GuiceModule)
-    
     val controller: GameControllerPort = injector.instance[GameControllerPort]
-    
+
     GUIView.init(controller)
     println(ConsoleView.welcome())
     ConsoleView.init(controller)
@@ -21,6 +20,7 @@ object main {
       controller.handleEvent(PlaceInfantryEvent)
       controller.handleEvent(AttackEvent)
     })
+    t.setDaemon(true)
     t.start()
 
     GUIView.main(Array.empty)

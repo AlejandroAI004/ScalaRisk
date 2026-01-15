@@ -34,4 +34,6 @@ trait GameControllerPort {
   def snapshot: GameState
   def undo(): Unit
   def redo(): Unit
+  def saveGame(): Unit
+  def loadGame(): Unit
 }
