@@ -248,6 +248,7 @@ class GameController @Inject()(var initialMap: List[List[Tile]],
     history.save(snapshot)
     if (players.nonEmpty) {
       currentPlayerIndex = (currentPlayerIndex + 1) % players.size
+      history.save(snapshot)
       notifyObservers()
     }
 
