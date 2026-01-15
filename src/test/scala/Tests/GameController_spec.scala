@@ -33,6 +33,22 @@ class GameController_spec extends AnyWordSpec with Matchers {
     }
   }
 
+  final class SpyFileIO extends FileIO {
+    var saved: Option[GameState] = None
+    var saveCalls: Int = 0
+
+    // optional für loadGame-Tests
+    var loadResult: GameState =
+      GameState(Nil, Nil, 0, GamePhase.Placement, PlacementState)
+
+    override def save(gameState: GameState): Unit = {
+      saveCalls += 1
+      saved = Some(gameState)
+    }
+
+    override def load(): GameState = loadResult
+  }
+
   object TestFileIO extends FileIO {
 
     override def save(gameState: GameState): Unit = () // no-op
@@ -147,19 +163,42 @@ class GameController_spec extends AnyWordSpec with Matchers {
     controller.currentPlayerIndex shouldBe 1
   }
 
-//  "save the current game using FileIO" in {
-//    val fileIO = TestFileIO
-//
-//    val controller = new GameController(
-//      initialMap = Nil,
-//      players = List(new Player("red")),
-//      fileIO = fileIO
-//    )
-//
-//    controller.saveGame()
-//
-//    verify(fileIO).save(controller.snapshot)
-//  }
+  "saveGame" should {
+    "save the current snapshot using FileIO" in {
+      val fileIO = new SpyFileIO
+
+      val controller = new GameController(
+        initialMap = Nil,
+        players = List(new Player("red")),
+        fileIO = fileIO
+      )
+
+      val expected = controller.snapshot
+
+      controller.saveGame()
+
+      fileIO.saveCalls shouldBe 1
+      fileIO.saved shouldBe Some(expected)
+    }
+  }
+
+  "loadGame" should {
+    "restore the state returned by FileIO.load" in {
+      val fileIO = new SpyFileIO
+
+      val controller = new GameController(
+        initialMap = Nil,
+        players = List(new Player("red")),
+        fileIO = fileIO
+      )
+
+      fileIO.loadResult = controller.snapshot.copy(phase = GamePhase.Offense)
+
+      controller.loadGame()
+
+      controller.currentPhase shouldBe GamePhase.Offense
+    }
+  }
 
   "nextPlayerTurn" should {
 
