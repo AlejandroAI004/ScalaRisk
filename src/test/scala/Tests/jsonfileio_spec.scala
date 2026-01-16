@@ -4,7 +4,7 @@ import controller.GameController.impl1.{GameState, PlayerState, TileState}
 import model.GameEventS.states.PlacementState
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
-import play.api.libs.json.{Format, JsString, Json}
+import play.api.libs.json.{Format, JsError, JsNumber, JsString, JsValue, Json}
 import util.fileIO.json.JsonFileIO
 import util.fileIO.xml.XMLFileIO
 import util.gamePhase.GamePhase
@@ -77,7 +77,6 @@ class jsonfileio_spec extends AnyWordSpec with Matchers {
 
       loaded.mapData shouldBe gs.mapData
 
-      // Einschränkungen deiner Implementierung
       loaded.state shouldBe PlacementState
 
       cleanup()
@@ -118,6 +117,17 @@ class jsonfileio_spec extends AnyWordSpec with Matchers {
 
       json shouldBe JsString("Offense")
       json.as[GamePhase] shouldBe GamePhase.Offense
+    }
+
+    "return a JsError when GamePhase JSON is not a string" in {
+      val io = new JsonFileIO
+      implicit val fmt: Format[GamePhase] = io.gamePhaseFormat
+
+      val notAStringJson: JsValue = JsNumber(42)
+
+      val result = notAStringJson.validate[GamePhase]
+
+      result shouldBe JsError("GamePhase must be a string")
     }
   }
 }
