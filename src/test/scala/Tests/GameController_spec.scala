@@ -115,19 +115,28 @@ class GameController_spec extends AnyWordSpec with Matchers {
     snapshot.mapData.head.head.soldiers shouldBe 3
   }
 
-  "restore a GameState correctly" in {
+  "restore should assign empty player if tile playerColor is unknown" in {
     val fileIO = TestFileIO
-    val player = new Player("red")
+    val existingPlayer = new Player("red")
 
     val controller = new GameController(
       initialMap = Nil,
-      players = List(player),
+      players = List(existingPlayer), // ⚠️ NUR "red"
       fileIO = fileIO
     )
 
+    // TileState referenziert einen NICHT existierenden Spieler
     val state = GameState(
-      mapData = List(List(TileState("A", "red", 10))),
-      players = List(PlayerState("red", 7, List("A"))),
+      mapData = List(List(
+        TileState(
+          parentName = "A",
+          playerColor = "green", // ❗ nicht in players
+          soldiers = 5
+        )
+      )),
+      players = List(
+        PlayerState("red", infantry = 3, ownedTileNames = Nil)
+      ),
       currentPlayerIndex = 0,
       phase = GamePhase.Placement,
       state = PlacementState
@@ -135,9 +144,11 @@ class GameController_spec extends AnyWordSpec with Matchers {
 
     controller.restore(state)
 
-    controller.currentPhase shouldBe GamePhase.Placement
-    controller.currentPlayer.infantry shouldBe 7
-    controller.currentPlayer.ownedTiles.map(_.parent.name) should contain("A")
+    val restoredTile = controller.tiles.head.head
+
+    restoredTile.player.colorName shouldBe "empty"
+    restoredTile.soldiers shouldBe 5
+    restoredTile.parent.name shouldBe "A"
   }
 
   "undo and redo should restore player turns correctly" in {
@@ -342,36 +353,6 @@ class GameController_spec extends AnyWordSpec with Matchers {
       res.failed.get.getMessage shouldBe "You can only attack enemy tiles!"
     }
 
-//    "fail if attacker does not send more soldiers than defender has" in {
-//      val c = controllerForOffense(10, 8)
-//      val red = c.players.head
-//      forceOffense(c)
-//
-//
-//      val res = c.offense_phase(red, 0, 0, 1, 0, 8)
-//
-//      res.isFailure shouldBe true
-//      res.failed.get.getMessage shouldBe "You dont have more infantry than your opponent!"
-//    }
-
-//    "fail if tiles are not adjacent" in {
-//      val red = new Player("red")
-//      val blue = new Player("blue")
-//      val p1 = Parent_Tile()
-//      val p2 = Parent_Tile() // keine Nachbarschaft
-//      val from = Tile(p1, red, 5)
-//      val to = Tile(p2, blue, 2)
-//      val map = List(List(from, to))
-//      val c = new GameController(map, List(red, blue), TestCombatStrategy,TestFileIO)
-//      forceOffense(c)
-//
-//
-//      val res = c.offense_phase(red, 0, 0, 1, 0, 3)
-//
-//      res.isFailure shouldBe true
-//      res.failed.get.getMessage shouldBe "You can only attack adjacent tiles!"
-//    }
-
     "update tiles correctly on successful attack" in {
       val red  = new Player("red")
       val blue = new Player("blue")
@@ -556,6 +537,37 @@ class GameController_spec extends AnyWordSpec with Matchers {
   }
 
   "placeinfantry" should {
+
+    "fail with IllegalStateException when phase is not Placement" in {
+      val fileIO = TestFileIO
+      val player = new Player("red")
+
+      val controller = new GameController(
+        initialMap = List(List(
+          Tile(Parent_Tile(name = "A"), player, soldiers = 1)
+        )),
+        players = List(player),
+        fileIO = fileIO
+      )
+
+      // Phase explizit auf etwas anderes bringen
+      controller.restore(
+        controller.snapshot.copy(phase = GamePhase.Offense)
+      )
+
+      val result = controller.placeInfantry(
+        player = player,
+        x = 0,
+        y = 0,
+        n = 1
+      )
+
+      result shouldBe a[Failure[_]]
+
+      val Failure(ex) = result
+      ex shouldBe a[IllegalStateException]
+      ex.getMessage shouldBe "Cannot place infantry now"
+    }
 
     "return Left for invalid coordinates" in {
       val player = new Player("red")
