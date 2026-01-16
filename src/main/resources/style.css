@@ -1,0 +1,16 @@
+.root {
+    -fx-background-color: #9ed0ff;
+}
+
+.menu-button {
+    -fx-font-size: 36px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #d62828; /* Rot */
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-padding: 10;
+}
+
+.menu-button:hover {
+    -fx-text-fill: #ff4747;
+}
