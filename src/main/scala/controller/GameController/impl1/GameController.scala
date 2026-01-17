@@ -196,8 +196,11 @@ class GameController @Inject()(var initialMap: List[List[Tile]],
     if (toTile.player == player || toTile.player.colorName == "empty")
       return Failure(new IllegalArgumentException("You can only attack enemy tiles!"))
 
-//    if (!fromTile.parent.neighbours.contains(toTile.parent))
-//      return Failure(new IllegalArgumentException("You can only attack adjacent tiles!"))
+    val adjacent =
+      fromTile.parent.neighbourNames.contains(toTile.parent.name)
+
+    if (!adjacent)
+      return Failure(new IllegalArgumentException("You can only attack adjacent tiles!"))
 
     val (newFromTile,newToTile) = combatStrategy.resolveAttack(fromTile,toTile,n)
 
