@@ -6,7 +6,7 @@ enum direction:
 case class Parent_Tile(
                         neighbours: List[Parent_Tile] = List(),
                         connections: List[direction] = List(),
-                        name: String = ""  
+                        name: String = ""
                       ) {
   def add_neighbour_tile(tile: Parent_Tile): Parent_Tile =
     this.copy(neighbours = neighbours :+ tile)

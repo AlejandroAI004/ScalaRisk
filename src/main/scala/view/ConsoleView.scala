@@ -97,23 +97,52 @@ object ConsoleView extends Observer{
     scala.io.StdIn.readInt()
   }
 
-  def askForInfantryPlacement(player: Player): (Int, Int, Int) = {
-    println(s"\n${colorText(player.colorName, player.colorName)}, you have ${player.infantry} infantry to place.")
-    println(s"Remaining infantry: ${player.infantry}")
-    var x = readIntSafe("Enter X coordinate (0 to 1):")
-    var y = readIntSafe("Enter Y coordinate (0 to 1):")
-    var n = readIntSafe("How many infantry to place here?")
-    (x, y, n)
+  def findCoordsByCityName(controller: GameControllerPort, input: String): Option[(Int, Int)] = {
+    val q = input.trim.toLowerCase
+    val map = controller.tiles
+
+    val matches =
+      for {
+        (row, y) <- map.zipWithIndex
+        (tile, x) <- row.zipWithIndex
+        name = tile.parent.name.trim.toLowerCase
+        if name == q || name.contains(q)
+      } yield (x, y)
+
+    matches.headOption
   }
 
-  def askForOffenseMove(player: Player): (Int, Int, Int, Int, Int) = {
+  @tailrec
+  def askForInfantryPlacementByCity(player: Player, controller: GameControllerPort): (Int, Int, Int) = {
+    println(s"\n${colorText(player.colorName, player.colorName)}, you have ${player.infantry} infantry to place.")
+    val city = readStringSafe("Enter city name (e.g., Konstanz):")
+
+    findCoordsByCityName(controller, city) match {
+      case Some((x, y)) =>
+        val n = readIntSafe("How many infantry to place here?")
+        (x, y, n)
+      case None =>
+        showStatus(s"Unknown city: '$city'. Try again.")
+        askForInfantryPlacementByCity(player, controller)
+    }
+  }
+
+  @tailrec
+  def askForOffenseMoveByCity(player: Player, controller: GameControllerPort): (Int, Int, Int, Int, Int) = {
     println(s"\n${colorText(player.colorName, player.colorName)}, choose your attack:")
-    val fromX = readIntSafe("Enter FROM X coordinate:")
-    val fromY = readIntSafe("Enter FROM Y coordinate:")
-    val toX = readIntSafe("Enter TO   X coordinate:")
-    val toY = readIntSafe("Enter TO   Y coordinate:")
+
+    val fromCity = readStringSafe("Enter FROM city:")
+    val toCity = readStringSafe("Enter TO city:")
     val n = readIntSafe("How many infantry to attack with?")
-    (fromX, fromY, toX, toY, n)
+
+    (findCoordsByCityName(controller, fromCity), findCoordsByCityName(controller, toCity)) match {
+      case (Some((fromX, fromY)), Some((toX, toY))) =>
+        (fromX, fromY, toX, toY, n)
+
+      case _ =>
+        showStatus(s"Unknown city name(s). FROM='$fromCity', TO='$toCity'. Try again.")
+        askForOffenseMoveByCity(player, controller)
+    }
   }
 
   @tailrec
@@ -127,7 +156,7 @@ object ConsoleView extends Observer{
     else {
       val player = players.head
       if (player.infantry > 0) {
-        val (x, y, n) = askForInfantryPlacement(player)
+        val (x, y, n) = askForInfantryPlacementByCity(player, controller)
         controller.placeInfantry(player, x, y, n) match {
           case Success(newMap) =>
             placeInfantryFunctional(players.tail :+ player, controller)
@@ -160,7 +189,7 @@ object ConsoleView extends Observer{
         mapData.exists(row => row.exists(t => t.player == player && t.soldiers > 1))
 
       if (playerCanAttack) {
-        val (fromX, fromY, toX, toY, n) = askForOffenseMove(player)
+        val (fromX, fromY, toX, toY, n) = askForOffenseMoveByCity(player, controller)
 
         controller.offense_phase(player, fromX, fromY, toX, toY, n) match {
           case Success(newMap) =>
@@ -203,6 +232,18 @@ object ConsoleView extends Observer{
   }
 
   @tailrec
+  def readStringSafe(prompt: String): String = {
+    println(prompt)
+    Try(scala.io.StdIn.readLine()) match {
+      case Success(value) =>
+        value
+      case Failure(_) =>
+        println("Bitte gib eine gültige Stadt ein!")
+        readStringSafe(prompt)
+    }
+  }
+
+  @tailrec
   private def placeInfantryLoop(controller: GameControllerPort): Unit = {
     if (controller.allInfantryPlaced) {
       println("All infantry placed! Offense phase starts.")
@@ -210,7 +251,7 @@ object ConsoleView extends Observer{
     }
 
     val player = controller.currentPlayer
-    val (x, y, n) = askForInfantryPlacement(player)
+    val (x, y, n) = askForInfantryPlacementByCity(player, controller)
     controller.placeInfantry(player, x, y, n) match {
       case Success(_) =>
         controller.nextPlayerTurn()
@@ -231,7 +272,7 @@ object ConsoleView extends Observer{
 
     choice match {
       case 1 =>
-        val (fromX, fromY, toX, toY, n) = askForOffenseMove(player)
+        val (fromX, fromY, toX, toY, n) = askForOffenseMoveByCity(player, controller)
         controller.offense_phase(player, fromX, fromY, toX, toY, n) match {
           case Success(_) =>
             println("Attack successful!")
