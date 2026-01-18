@@ -176,33 +176,41 @@ object ConsoleView extends Observer{
                               controller: GameControllerPort
                              ): List[List[Tile]] = {
     val mapData = controller.tiles
-    val anyCanAttack =
-      mapData.exists(row => row.exists(t => t.player.colorName != "empty" && t.soldiers > 1))
 
-    if (!anyCanAttack) {
-      mapData
-    } else {
-      val player = players.head
+    controller.checkWinner() match {
+      case Some(winner) =>
+        println()
+        println(colorText(s"🎉 Gewinner: ${winner.colorName} 🎉", winner.colorName))
+        mapData
 
-      // prüfen, ob dieser Spieler überhaupt irgendwo ein angreifbares Feld hat
-      val playerCanAttack =
-        mapData.exists(row => row.exists(t => t.player == player && t.soldiers > 1))
+      case None =>
+        val anyCanAttack =
+          mapData.exists(row => row.exists(t => t.player.colorName != "empty" && t.soldiers > 1))
 
-      if (playerCanAttack) {
-        val (fromX, fromY, toX, toY, n) = askForOffenseMoveByCity(player, controller)
+        if (!anyCanAttack) {
+          mapData
+        } else {
+          val player = players.head
 
-        controller.offense_phase(player, fromX, fromY, toX, toY, n) match {
-          case Success(newMap) =>
+          val playerCanAttack =
+            mapData.exists(row => row.exists(t => t.player == player && t.soldiers > 1))
+
+          if (playerCanAttack) {
+            val (fromX, fromY, toX, toY, n) = askForOffenseMoveByCity(player, controller)
+
+            controller.offense_phase(player, fromX, fromY, toX, toY, n) match {
+              case Success(_) =>
+                offense_phaseFunctional(players.tail :+ player, controller)
+
+              case Failure(ex) =>
+                showStatus(ex.getMessage)
+                print(showTileMap(mapData))
+                offense_phaseFunctional(players, controller)
+            }
+          } else {
             offense_phaseFunctional(players.tail :+ player, controller)
-
-          case Failure(ex) =>
-            showStatus(ex.getMessage)
-            print(showTileMap(mapData))
-            offense_phaseFunctional(players, controller)
+          }
         }
-      } else {
-        offense_phaseFunctional(players.tail :+ player, controller)
-      }
     }
   }
   

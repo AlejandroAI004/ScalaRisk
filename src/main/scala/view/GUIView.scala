@@ -2,6 +2,7 @@ package view
 import controller.GameController.GameControllerPort
 import controller.GameController.impl1.GameState
 import model.player.Player
+import model.tile.{Tile, direction}
 import util.command.{PlayerConfigManager, UndoRedoManager}
 import scalafx.application.JFXApp3.PrimaryStage
 import scalafx.application.JFXApp3
@@ -10,9 +11,9 @@ import scalafx.scene.Scene
 import scalafx.scene.Node
 import scalafx.scene.control.{Alert, Button, Label, TextArea, TextField}
 import scalafx.scene.image.{Image, ImageView}
-import scalafx.scene.layout.{BorderPane, GridPane, Pane, Priority, StackPane, VBox}
+import scalafx.scene.layout.{BorderPane, GridPane, HBox, Pane, Priority, StackPane, VBox}
 import scalafx.scene.paint.Color
-import scalafx.scene.shape.Rectangle
+import scalafx.scene.shape.{Line, Rectangle}
 import scalafx.scene.text.Text
 import util.observer.Observer
 import scalafx.geometry.{Insets, Pos}
@@ -46,6 +47,9 @@ object GUIView extends JFXApp3 with Observer {
   private var history: UndoRedoManager[GameState] = _
   private var restoring = false
   private var activeOverlay: Option[(StackPane, VBox)] = None
+  private var winnerLabel: Label = _
+  private var winnerPanel: HBox = _
+  private var boardOverlay: Pane = _
 
 
 
@@ -293,22 +297,29 @@ object GUIView extends JFXApp3 with Observer {
 
   def createBoardScene(): Scene = {
     val mapData = controller.tiles
-    val rows    = mapData.length
-    val cols    = mapData.head.length
+    val rows = mapData.length
+    val cols = mapData.head.length
 
     tilesArray = Array.ofDim[(StackPane, Rectangle, Text, Text)](cols, rows)
 
-    val grid = new GridPane { hgap = 5; vgap = 5 }
-    boardGrid = grid
+    val gap = 5.0
     val size = 80.0
+
+    val grid = new GridPane {
+      hgap = gap
+      vgap = gap
+    }
+    boardGrid = grid
 
     for (y <- 0 until rows; x <- 0 until cols) {
       val t = mapData(y)(x)
 
       val rect = new Rectangle {
-        width = size; height = size
+        width = size;
+        height = size
         fill = colorForPlayer(t.player)
-        stroke = Color.Black; strokeWidth = 2
+        stroke = Color.Black;
+        strokeWidth = 2
       }
 
       val soldiersLabel = new Text {
@@ -337,6 +348,17 @@ object GUIView extends JFXApp3 with Observer {
       attachTileHandler(tile, x, y, rect, soldiersLabel)
       grid.add(tile, x, y)
     }
+
+    // ✅ Overlay für Connections
+    boardOverlay = new Pane {
+      mouseTransparent = true
+    }
+
+    val boardLayer = new StackPane {
+      children = Seq(boardOverlay, grid)
+    }
+
+    // ✅ Players Area
     playersArea = new TextArea {
       editable = false
       wrapText = true
@@ -385,6 +407,23 @@ object GUIView extends JFXApp3 with Observer {
       }
     }
 
+    // ✅ Winner Panel
+    winnerLabel = new Label {
+      text = ""
+      style = "-fx-text-fill: white; -fx-font-size: 18px; -fx-font-weight: bold;"
+    }
+
+    winnerPanel = new HBox(winnerLabel) {
+      alignment = Pos.Center
+      padding = Insets(10)
+      style =
+        "-fx-background-color: rgba(0,0,0,0.75);" +
+          "-fx-border-color: gold;" +
+          "-fx-border-width: 2;"
+      visible = false
+      managed = false
+    }
+
     val buttonsCol = new VBox(10, undoButton, redoButton, saveButton, loadButton) {
       alignment = Pos.Center
       padding = Insets(10, 0, 0, 0)
@@ -395,19 +434,123 @@ object GUIView extends JFXApp3 with Observer {
       prefWidth = 240
     }
 
-
     val rootPane = new BorderPane {
-      center = grid
+      top = winnerPanel
+      center = boardLayer // ✅ statt grid
       right = rightPanel
       style = "-fx-background-color: #9ed0ff"
-
     }
 
     BorderPane.setMargin(rightPanel, Insets(5))
 
-    new Scene(cols * (size + 5) + 220, rows * (size + 5)) {
+    // ✅ initial zeichnen
+    drawConnectionsOverlay(boardOverlay, mapData, size, gap)
+    updateWinnerPanel()
+
+    new Scene(cols * (size + gap) + 220, rows * (size + gap) + 60) { // +60 wegen winnerPanel
       root = rootPane
       fill = Color.Black
+    }
+  }
+
+  private def dirOffset(d: direction): (Int, Int) = d match {
+    case direction.north => (0, -1)
+    case direction.south => (0, 1)
+    case direction.west => (-1, 0)
+    case direction.east => (1, 0)
+    case direction.northeast => (1, -1)
+    case direction.northwest => (-1, -1)
+    case direction.southeast => (1, 1)
+    case direction.southwest => (-1, 1)
+  }
+
+  private def arrowLine(x1: Double, y1: Double, x2: Double, y2: Double): Seq[Line] = {
+    val main = new Line {
+      startX = x1;
+      startY = y1
+      endX = x2;
+      endY = y2
+      stroke =  Color.Black
+      strokeWidth = 2
+      opacity = 0.75
+    }
+
+    // Pfeilspitze (kleines V)
+    val angle = Math.atan2(y2 - y1, x2 - x1)
+    val len = 10.0
+    val a1 = angle + Math.toRadians(150)
+    val a2 = angle - Math.toRadians(150)
+
+    val head1 = new Line {
+      startX = x2;
+      startY = y2
+      endX = x2 + len * Math.cos(a1)
+      endY = y2 + len * Math.sin(a1)
+      stroke = Color.White
+      strokeWidth = 2
+      opacity = 0.75
+    }
+
+    val head2 = new Line {
+      startX = x2;
+      startY = y2
+      endX = x2 + len * Math.cos(a2)
+      endY = y2 + len * Math.sin(a2)
+      stroke = Color.White
+      strokeWidth = 2
+      opacity = 0.75
+    }
+
+    Seq(main, head1, head2)
+  }
+
+  private def drawConnectionsOverlay(
+                                      overlay: Pane,
+                                      mapData: List[List[Tile]],
+                                      size: Double,
+                                      gap: Double
+                                    ): Unit = {
+    overlay.children.clear()
+
+    val rows = mapData.length
+    val cols = mapData.head.length
+
+    def centerX(x: Int): Double = x * (size + gap) + size / 2
+    def centerY(y: Int): Double = y * (size + gap) + size / 2
+
+    // damit wir nicht jede Verbindung doppelt zeichnen (weil beidseitig gespeichert)
+    val drawDirs = Set(direction.east, direction.south, direction.southeast, direction.southwest)
+
+    for (y <- 0 until rows; x <- 0 until cols) {
+      val tile = mapData(y)(x)
+
+      tile.parent.connections
+        .filter(drawDirs.contains)
+        .foreach { d =>
+          val (dx, dy) = dirOffset(d)
+          val nx = x + dx
+          val ny = y + dy
+
+          if (nx >= 0 && nx < cols && ny >= 0 && ny < rows) {
+            val lines = arrowLine(
+              centerX(x), centerY(y),
+              centerX(nx), centerY(ny)
+            )
+            overlay.children.addAll(lines.map(_.delegate))
+          }
+        }
+    }
+  }
+
+  private def updateWinnerPanel(): Unit = {
+    controller.checkWinner() match {
+      case Some(p) =>
+        winnerLabel.text = s"🏆 Gewinner: ${p.colorName}"
+        winnerPanel.visible = true
+        winnerPanel.managed = true
+      case None =>
+        winnerPanel.visible = false
+        winnerPanel.managed = false
     }
   }
 
