@@ -4,9 +4,9 @@ import model.*
 import controller.*
 import controller.GameController.GameControllerPort
 import controller.GameController.impl1.{GameController, GameState}
-import model.Combat.CombatStrategy.SimpleCombatStrategy
-import model.GameEventS.states.PlacementState
-import model.mapInit.imp1.MapInit
+import model.Combat.impl.SimpleCombatStrategy
+import model.GameEventS.impl.PlacementState
+import model.mapInit.impl.MapInit
 import model.player.Player
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers

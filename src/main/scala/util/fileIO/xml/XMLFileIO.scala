@@ -2,7 +2,7 @@ package util.fileIO.xml
 
 import controller.GameController.impl1.{GameState, PlayerState, TileState}
 import model.GameEventS.GameStatePort
-import model.GameEventS.states.PlacementState
+import model.GameEventS.impl.PlacementState
 import model.player.Player
 import util.fileIO.FileIO
 import util.gamePhase.GamePhase

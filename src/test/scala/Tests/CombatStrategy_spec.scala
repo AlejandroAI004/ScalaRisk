@@ -1,6 +1,6 @@
 package Tests
 import model.*
-import model.Combat.CombatStrategy.{DiceCombatStrategy, SimpleCombatStrategy}
+import model.Combat.impl.{DiceCombatStrategy, SimpleCombatStrategy}
 import model.player.Player
 import model.tile.{Parent_Tile, Tile}
 import org.scalatest.wordspec.AnyWordSpec

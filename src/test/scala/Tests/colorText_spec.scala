@@ -1,8 +1,8 @@
 package Tests
 
-import model.mapInit.imp1.MapInit.createInitialMap
+import model.mapInit.impl.MapInit.createInitialMap
 import controller.Map_Generation.imp1.Map_Generation.{print_map, print_row}
-import model.colorText.imp1.colorText
+import model.colorText.impl.colorText
 import model.tile.{Parent_Tile, Tile, direction}
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers

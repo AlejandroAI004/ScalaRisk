@@ -8,7 +8,7 @@ import controller.GameController.impl1.GameController
 import controller.Map_Generation.imp1
 import model.GameEventS.AttackEvent
 import util.command.PlayerConfigManager
-import model.colorText.imp1.colorText.colorText
+import model.colorText.impl.colorText.colorText
 import model.player.{Player, playerList}
 import model.tile.Tile
 import util.gamePhase.GamePhase
@@ -32,13 +32,13 @@ object ConsoleView extends Observer{
   }
   def welcome(): String = {
     "*** Welcome to Risk! ***\n" +
-      "Bei Risk kämpfst du um die Weltherrschaft! \n" +
-      "Du platzierst Armeen, planst Angriffe und würfelst um den Sieg. \n" +
-      "Mit geschickter Strategie und etwas Glück eroberst du nach und \n" +
-      "nach neue Länder und Kontinente. Jede Runde bringt neue Truppen, \n" +
-      "spannende Kämpfe und riskante Entscheidungen. Wer am Ende die \n" +
-      "meisten Gebiete kontrolliert – oder seine geheime Mission erfüllt \n" +
-      "–, gewinnt das Spiel und herrscht über die Welt!\n"
+      "Risk is a game of global domination!\n" +
+      "You deploy armies, plan attacks, and roll the dice to claim victory.\n" +
+      "With smart strategy and a bit of luck, you conquer new territories\n" +
+      "and continents step by step. Each round brings new troops,\n" +
+      "exciting battles, and risky decisions. In the end, the player who\n" +
+      "controls the most territories – or completes their secret mission –\n" +
+      "wins the game and rules the world!\n"
   }
 
   def start(controller: GameControllerPort): playerList = {
@@ -48,20 +48,20 @@ object ConsoleView extends Observer{
     while (manager.size < numPlayers) {
       val idx   = manager.size + 1
       val used  = manager.list.usedColors()
-      println(s"Spieler $idx von $numPlayers")
-      println(s"Aktuelle Spieler:\n${manager.list}")
-      val input = scala.io.StdIn.readLine("Farbe eingeben (red, blue, pink, green) oder u=undo, r=redo: \n")
+      println(s"Player $idx of $numPlayers")
+      println(s"Current players:\n${manager.list}")
+      val input = scala.io.StdIn.readLine("Enter a color (red, blue, pink, green) or u=undo, r=redo:\n")
       input match {
         case "u" => manager.undo()
         case "r" => manager.redo()
         case color if used.contains(color) =>
-          println("Diese Farbe ist schon vergeben")
+          println("This color is already taken")
         case color =>
           manager.addPlayer(color)
       }
     }
 
-    println("Endgültige Spieler:")
+    println("Final players:")
     println(manager.list.toString)
 
 
@@ -71,7 +71,7 @@ object ConsoleView extends Observer{
         gamePhaseLoop()
         plist
       case Failure(ex) =>
-        println(s"Fehler: ${ex.getMessage}")
+        println(s"Failure: ${ex.getMessage}")
         manager.list
     }
   }

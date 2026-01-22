@@ -3,10 +3,10 @@ package controller.GameController.impl1
 import controller.GameController.GameControllerPort
 import model.*
 import model.Combat.CombatStrategyPort
-import model.Combat.CombatStrategy.DiceCombatStrategy
-import model.GameEventS.states.PlacementState
+import model.Combat.impl.DiceCombatStrategy
+import model.GameEventS.impl.PlacementState
 import model.GameEventS.*
-import model.mapInit.imp1.MapInit
+import model.mapInit.impl.MapInit
 import model.player.{Player, playerList}
 import model.tile.{Parent_Tile, Tile, updateTile}
 import util.command.{PlayerConfigManager, UndoRedoManager}
@@ -247,13 +247,24 @@ class GameController @Inject()(var initialMap: List[List[Tile]],
   }
 
 
-  def nextPlayerTurn(): Unit =
+  def nextPlayerTurn(): Unit = {
     history.save(snapshot)
+
     if (players.nonEmpty) {
-      currentPlayerIndex = (currentPlayerIndex + 1) % players.size
-      history.save(snapshot)
+      val start = currentPlayerIndex
+      var next = (currentPlayerIndex + 1) % players.size
+
+      // Nur in Placement überspringen wir Spieler ohne Infantry
+      if (phase == GamePhase.Placement) {
+        while (players(next).infantry <= 0 && next != start) {
+          next = (next + 1) % players.size
+        }
+      }
+
+      currentPlayerIndex = next
       notifyObservers()
     }
+  }
 
 
   def remainingInfantryPerPlayer: List[(String, Int)] =

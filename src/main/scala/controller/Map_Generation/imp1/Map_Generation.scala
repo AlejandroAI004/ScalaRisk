@@ -1,7 +1,7 @@
 package controller.Map_Generation.imp1
 
 import controller.Map_Generation.Map_GenerationPort
-import model.colorText.imp1.colorText.colorText
+import model.colorText.impl.colorText.colorText
 import model.tile.{Tile, direction}
 
 object Map_Generation extends Map_GenerationPort {

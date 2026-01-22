@@ -1,4 +1,4 @@
-package model.mapInit.imp1
+package model.mapInit.impl
 
 import model.mapInit.MapInitPort
 import model.tile.direction.{east, south}

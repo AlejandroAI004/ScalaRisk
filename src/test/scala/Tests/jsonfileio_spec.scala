@@ -1,7 +1,7 @@
 package Tests
 
 import controller.GameController.impl1.{GameState, PlayerState, TileState}
-import model.GameEventS.states.PlacementState
+import model.GameEventS.impl.PlacementState
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
 import play.api.libs.json.{Format, JsError, JsNumber, JsString, JsValue, Json}

@@ -3,11 +3,11 @@ package Tests
 import model.*
 import controller.*
 import controller.GameController.impl1.{GameController, GameState}
-import model.Combat.CombatStrategy.SimpleCombatStrategy
-import model.GameEventS.states.{OffenseState, PlacementState}
+import model.Combat.impl.SimpleCombatStrategy
+import model.GameEventS.impl.{OffenseState, PlacementState}
 import model.GameEventS.{AttackEvent, PlaceInfantryEvent}
-import model.mapInit.imp1
-import model.mapInit.imp1.MapInit
+import model.mapInit.impl
+import model.mapInit.impl.MapInit
 import model.player.Player
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
@@ -50,7 +50,7 @@ class gameState_spec extends AnyWordSpec with Matchers {
       val p1      = new Player("red");  p1.infantry = 0
       val p2      = new Player("blue"); p2.infantry = 0
       val players = List(p1, p2)
-      val mapData = imp1.MapInit.createInitialMap()
+      val mapData = impl.MapInit.createInitialMap()
       val ctrl    = new GameController(mapData, players, SimpleCombatStrategy,TestFileIO)
 
       val next = PlacementState.handle(ctrl, players, PlaceInfantryEvent)
@@ -68,7 +68,7 @@ class gameState_spec extends AnyWordSpec with Matchers {
     "stay in OffenseState on AttackEvent" in {
       val p1      = new Player("red")
       val players = List(p1)
-      val mapData = imp1.MapInit.createInitialMap()
+      val mapData = impl.MapInit.createInitialMap()
       val ctrl    = new GameController(mapData, players, SimpleCombatStrategy,TestFileIO)
 
       val next = OffenseState.handle(ctrl, players, AttackEvent)
@@ -79,7 +79,7 @@ class gameState_spec extends AnyWordSpec with Matchers {
     "stay in OffenseState on PlaceInfantryEvent" in {
       val p1      = new Player("red")
       val players = List(p1)
-      val mapData = imp1.MapInit.createInitialMap()
+      val mapData = impl.MapInit.createInitialMap()
       val ctrl    = new GameController(mapData, players, SimpleCombatStrategy,TestFileIO)
 
       val next = OffenseState.handle(ctrl, players, PlaceInfantryEvent)

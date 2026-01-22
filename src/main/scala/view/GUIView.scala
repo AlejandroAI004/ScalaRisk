@@ -709,20 +709,11 @@ object GUIView extends JFXApp3 with Observer {
     startButton.onMouseEntered = _ => startCanon.visible = true
     startButton.onMouseExited = _ => startCanon.visible = false
 
-    rulesButton.layoutX = 160
-    rulesButton.layoutY = 335
-
-    rulesCanon.layoutX = 118
-    rulesCanon.layoutY = 340
-
-    rulesButton.onMouseEntered = _ => rulesCanon.visible = true
-    rulesButton.onMouseExited = _ => rulesCanon.visible = false
-
     exitButton.layoutX = 160
-    exitButton.layoutY = 375
+    exitButton.layoutY = 335
 
     exitCanon.layoutX = 118
-    exitCanon.layoutY = 380
+    exitCanon.layoutY = 340
 
     exitButton.onMouseEntered = _ => exitCanon.visible = true
     exitButton.onMouseExited = _ => exitCanon.visible = false
@@ -730,7 +721,7 @@ object GUIView extends JFXApp3 with Observer {
     logo.layoutX = -150
     logo.layoutY = -150
 
-    rootPane.children ++= Seq(startButton, logo, rulesButton, exitButton, startCanon, rulesCanon, exitCanon)
+    rootPane.children ++= Seq(startButton, logo, exitButton, startCanon, rulesCanon, exitCanon)
 
 
     val menuScene = new Scene(1000, 600) {

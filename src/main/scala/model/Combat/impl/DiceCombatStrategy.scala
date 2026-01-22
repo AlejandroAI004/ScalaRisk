@@ -1,4 +1,4 @@
-package model.Combat.CombatStrategy
+package model.Combat.impl
 
 import model.Combat
 import model.Combat.CombatStrategyPort

@@ -4,10 +4,10 @@ import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
 import controller.modules.DefaultModule.given
 import controller.GameController.GameControllerPort
-import model.Combat.CombatStrategy.DiceCombatStrategy
+import model.Combat.impl.DiceCombatStrategy
 import model.Combat.CombatStrategyPort
 import model.mapInit.MapInitPort
-import model.mapInit.imp1.MapInit
+import model.mapInit.impl.MapInit
 
 class defaultModule_spec extends AnyWordSpec with Matchers {
 

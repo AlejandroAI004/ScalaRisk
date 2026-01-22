@@ -18,16 +18,14 @@ RUN curl -fsSL https://github.com/sbt/sbt/releases/download/v1.11.7/sbt-1.11.7.t
 
 WORKDIR /Risiko
 
-# cache layer for dependencies
 COPY project ./project
 COPY build.sbt ./
 RUN sbt -batch update
 
-# sources
 COPY . .
 
-# build fat jar
 RUN sbt -batch clean assembly
 
-# run jar (STDIN funktioniert hier normalerweise sauber mit -it)
 CMD ["java", "-jar", "target/scala-3.3.7/RiskScala-assembly-0.1.0-SNAPSHOT.jar"]
+
+

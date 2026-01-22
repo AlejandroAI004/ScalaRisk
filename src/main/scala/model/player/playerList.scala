@@ -1,6 +1,6 @@
 package model.player
 
-import model.colorText.imp1.colorText.colorText
+import model.colorText.impl.colorText.colorText
 
 class playerList (list: List[Player] = List()) {
   def addPlayer(player: Player): playerList = {

@@ -26,3 +26,4 @@ object main {
     GUIView.main(Array.empty)
   }
 }
+

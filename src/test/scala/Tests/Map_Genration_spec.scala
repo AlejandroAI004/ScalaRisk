@@ -1,7 +1,7 @@
 package Tests
 
 import controller.Map_Generation.imp1.Map_Generation
-import model.mapInit.imp1.MapInit.createInitialMap
+import model.mapInit.impl.MapInit.createInitialMap
 import controller.Map_Generation.*
 import model.player.Player
 import model.tile.{Parent_Tile, Tile, direction}

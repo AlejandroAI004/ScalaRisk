@@ -1,4 +1,4 @@
-package model.colorText.imp1
+package model.colorText.impl
 
 import model.colorText.colorTextPort
 

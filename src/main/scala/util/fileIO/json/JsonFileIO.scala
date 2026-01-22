@@ -1,10 +1,10 @@
 package util.fileIO.json
 
 import controller.GameController.impl1.{GameState, PlayerState, TileState}
-import model.GameEventS.states.PlacementState
+import model.GameEventS.impl.PlacementState
 import util.fileIO.FileIO
 import util.gamePhase.GamePhase
-import play.api.libs.json.{util, *}
+import play.api.libs.json.*
 
 import java.io.*
 import scala.io.Source
@@ -50,3 +50,5 @@ class JsonFileIO extends FileIO {
     )
   }
 }
+
+

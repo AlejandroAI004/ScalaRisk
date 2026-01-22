@@ -3,7 +3,7 @@ package Tests
 import controller.GameController.impl1.GameState
 import controller.modules.GameControllerModule
 import model.Combat.CombatStrategyPort
-import model.GameEventS.states.PlacementState
+import model.GameEventS.impl.PlacementState
 import model.mapInit.MapInitPort
 import model.player.Player
 import model.tile.{Parent_Tile, Tile}
